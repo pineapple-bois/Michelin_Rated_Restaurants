@@ -72,7 +72,7 @@ def top_restaurants_by_region(data, star_rating, top_n, display_restaurants=True
     top_regions = data['region'].value_counts().nlargest(top_n)
 
     if not paris:
-        print(f"Top {top_n} regions with most restaurants:\n\n")
+        print(f"Top {top_n} regions with most starred restaurants:\n\n")
     else:
         print("Restaurants in Paris\n")
 
