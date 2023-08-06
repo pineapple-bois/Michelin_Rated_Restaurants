@@ -1,4 +1,4 @@
-department_num,department,region,population,population_density,area_sq_km
+department_num,department,region,population,population_density(pop/area),area(sq_km)
 01,Ain,Auvergne-Rhône-Alpes,652432,114.2,5713.06
 02,Aisne,Hauts-de-France,531345,71.9,7390.06
 03,Allier,Auvergne-Rhône-Alpes,335975,45.7,7351.75
