@@ -6,7 +6,7 @@
 
 ## Overview
 
-This project presents an analysis of Michelin rated restaurants in France. It leverages diverse datasets like restaurant details from the Michelin Guide, demographic data from INSEE, and the geospatial data of France. 
+This project presents an analysis of Michelin rated restaurants in France. It leverages diverse datasets such as; restaurant details from the Michelin Guide, demographic data from INSEE, and the geospatial data of France. 
 
 We investigate the distribution of these elite establishments and analyse if there's any correlation with the demographic attributes of their locations.
 
@@ -50,32 +50,8 @@ After the processing, the following datasets were exported:
 
 ----
 
-### Custom Functions
+### Custom [Functions](Notebooks/France/functions.py)
 
-The `top_restaurants_by_department` function defined below analyses a dataset of restaurants and outputs the top $n$ departments with the highest count of restaurants with a specified Michelin star rating. This function can be used on a larger scale, analyzing countrywide data or on a smaller scale, analyzing city-specific data like restaurants in Paris.
-
-Usage:
-```python
-top_restaurants_by_department(data, star_rating, top_n, display_restaurants=True)
-```
-
-Where:
-
-`data` is a pandas DataFrame that contains restaurant information. It expects the following columns: 'department', 'stars', 'name', 'city', and 'department_num'.
-`star_rating` is an integer (1, 2, or 3) specifying the Michelin star rating of interest.
-`top_n` is an integer specifying the number of top departments to consider.
-`display_restaurants` is an optional boolean flag. When set to True (default), the function also prints the names and cities of the top restaurants.
-
-Data Science Skills:
-
-By using this function, we demonstrate several key data science skills:
-
-Data Manipulation: The function showcases how to filter and group data using pandas, one of the most widely used data manipulation libraries in Python.
-
-Descriptive Statistics: The function calculates counts of restaurants within categories (departments and star ratings), which is a fundamental aspect of descriptive statistics.
-
-Data Presentation: The function uses efficient string formatting techniques to print the results in a user-friendly format. Moreover, it employs a condition-based display of data (via the display_restaurants flag) to cater to different levels of detail the user might be interested in.
-
-Robust Programming: The function is robust to different types of inputs, like dataframes for countrywide restaurant data or city-specific restaurant data, making it versatile. The code also demonstrates the use of error handling and conditional statements for different cases (like differentiating between singular and plural words in output).
+The `top_restaurants_by_department` function analyses a dataset of restaurants and outputs the top $n$ departments with the highest count of restaurants with a specified Michelin star rating. This function can be used on a larger scale, analyzing countrywide data or on a smaller scale, analyzing city-specific data like restaurants in Paris.
 
 ----
