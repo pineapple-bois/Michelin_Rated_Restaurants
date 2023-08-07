@@ -42,9 +42,15 @@ After the processing, the following datasets were exported:
 
 ----
 
-## Analysis
+## Visualisations
 
-[`France_Analysis.ipynb`](Notebooks/France/France_Analysis.ipynb)
+[`France_Visualisations.ipynb`](Notebooks/France/France_Visualisations.ipynb)
+
+...
+
+----
+
+## Analysis
 
 ...
 
