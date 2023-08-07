@@ -210,6 +210,12 @@ def plot_choropleth(df, column, title, regional=False, restaurants=False, cmap='
     else:
         plt.suptitle(title)
 
+    ax.set_yticklabels([])
+    ax.set_xticklabels([])
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.axis('off')
+
     plt.tight_layout()
     plt.show()
 
@@ -258,6 +264,12 @@ def plot_multi_choropleth(df, columns, titles, main_title=None, cmap='Blues', fi
         if legend:
             # Remove legend title
             legend.set_title('')
+
+        ax.set_yticklabels([])
+        ax.set_xticklabels([])
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.axis('off')
 
     # Set global title
     if main_title:
