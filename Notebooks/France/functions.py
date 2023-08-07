@@ -177,7 +177,7 @@ def plot_choropleth(df, column, title, regional=False, restaurants=False, cmap='
         plt.title(f"{title}\n{region_name}")
 
         for x, y, label in zip(df.geometry.centroid.x, df.geometry.centroid.y, df['code']):
-            ax.text(x, y, label, fontsize=8)
+            ax.text(x, y, label, fontsize=10, backgroundcolor='white')
 
         dept_handles = [Line2D([0], [0], marker='o', color='w',
                                label=f"{df.loc[df['code'] == code, 'department'].values[0]} ({code})", markersize=0,
@@ -205,7 +205,10 @@ def plot_choropleth(df, column, title, regional=False, restaurants=False, cmap='
 
         all_labels.extend([h.get_label() for h in all_handles[len(all_handles) - len(star_colors):]])
 
-    ax.legend(handles=all_handles, labels=all_labels, loc='upper left', bbox_to_anchor=(1, 1), title="Legend")
+    if regional or restaurants:
+        ax.legend(handles=all_handles, labels=all_labels, loc='upper left', bbox_to_anchor=(1, 1), title="Legend")
+    else:
+        plt.suptitle(title)
 
     plt.tight_layout()
     plt.show()
