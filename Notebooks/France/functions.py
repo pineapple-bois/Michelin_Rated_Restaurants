@@ -1,3 +1,23 @@
+import numpy as np
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+from matplotlib.lines import Line2D
+import pyproj
+import seaborn as sns
+import geopandas as gpd
+import mapclassify
+import folium
+import branca
+
+
+def dataframe_info(data):
+    print(f"Unique Departments: {data['department'].nunique()}")
+    print(f"Unique Cities: {data['city'].nunique()}")
+    print(f"Shape: {data.shape}")
+    display(data.head(3))
+
+
 def top_restaurants_by_department(data, star_rating, top_n, display_restaurants=True, display_info=False):
     """
     Print the top_n departments with the highest count of 'star_rating' restaurants.
@@ -122,4 +142,126 @@ def top_restaurants_by_region(data, star_rating, top_n, display_restaurants=True
                         if display_info:
                             print(f"Cuisine: {row['cuisine']}\nURL: {row['url']}\n")
         print("\n")
+
+
+import matplotlib.patches as mpatches
+
+
+def plot_choropleth(df, column, title, regional=False, restaurants=False, cmap='Blues', figsize=(10, 10)):
+    """
+    Function to plot a choropleth map and optionally restaurant locations.
+
+    Args:
+        df (GeoDataFrame): The DataFrame containing the data.
+        column (str): The name of the column to plot.
+        title (str): The title of the plot.
+        regional (bool): If True, show regional map with departments labeled. Default is False.
+        restaurants (bool): If True, plot restaurant locations. Default is False.
+        cmap (str): The colormap to use. Default is 'Blues'.
+        figsize (tuple): The size of the figure. Default is (10, 10).
+
+    Returns:
+        None
+    """
+    fig, ax = plt.subplots(1, 1, figsize=figsize)
+    df = df.to_crs("EPSG:2154")  # RGF93 / Lambert-93
+
+    df.plot(column=column, cmap=cmap, linewidth=0.8, ax=ax, edgecolor='0.8', legend=True,
+            legend_kwds={'orientation': "horizontal"})
+
+    all_handles = []
+    all_labels = []
+
+    if regional:
+        region_name = df['region'].unique()[0]
+        plt.title(f"{title}\n{region_name}")
+
+        for x, y, label in zip(df.geometry.centroid.x, df.geometry.centroid.y, df['code']):
+            ax.text(x, y, label, fontsize=8)
+
+        dept_handles = [Line2D([0], [0], marker='o', color='w',
+                               label=f"{df.loc[df['code'] == code, 'department'].values[0]} ({code})", markersize=0,
+                               alpha=0) for code in df['code'].unique()]
+        all_handles.extend(dept_handles)
+        all_labels.extend([h.get_label() for h in dept_handles])
+
+    if restaurants:
+        star_colors = {'1': 'yellow', '2': 'orange', '3': 'red'}
+        added_labels = set()
+
+        transformer = pyproj.Transformer.from_crs("EPSG:4326", "EPSG:2154", always_xy=True)
+        for row in df.iterrows():
+            locations = row[1]['locations']
+            for star, color in star_colors.items():
+                if locations[star]:  # Check if it's not None
+                    for lat, long in locations[star]:
+                        x, y = transformer.transform(long, lat)
+                        ax.scatter(x, y, c=color, s=50, marker='d')
+                        if star not in added_labels:
+                            all_handles.append(
+                                Line2D([0], [0], marker='d', color=color, label=f"{star} star restaurant",
+                                       markersize=8, linestyle='None'))
+                            added_labels.add(star)
+
+        all_labels.extend([h.get_label() for h in all_handles[len(all_handles) - len(star_colors):]])
+
+    ax.legend(handles=all_handles, labels=all_labels, loc='upper left', bbox_to_anchor=(1, 1), title="Legend")
+
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_multi_choropleth(df, columns, titles, main_title=None, cmap='Blues', figsize=(10, 10)):
+    """
+    Function to plot a choropleth map.
+
+    Args:
+        df (GeoDataFrame): The DataFrame containing the data.
+        columns (list): The names of the columns to plot.
+        titles (list): The titles of the plots.
+        cmap (str): The colormap to use. Default is 'Blues'.
+        figsize (tuple): The size of the figure. Default is (10, 10).
+
+    Returns:
+        None
+    """
+    # Ensure that `columns` and `titles` are lists
+    if not isinstance(columns, list):
+        columns = [columns]
+
+    if not isinstance(titles, list):
+        titles = [titles]
+
+    # Define the number of cols for subplots
+    cols = len(columns)
+
+    fig, axes = plt.subplots(1, cols, figsize=figsize)
+
+    # In case there's only one subplot, convert axes to list
+    if cols == 1:
+        axes = [axes]
+
+    for ax, column, title in zip(axes, columns, titles):
+        df.plot(column=column,
+                cmap=cmap,
+                linewidth=0.8,
+                ax=ax,
+                edgecolor='0.8',
+                legend=True,
+                legend_kwds={'orientation': "horizontal"})
+        ax.set_title(title)
+        # Check if legend exists
+        legend = ax.get_legend()
+        if legend:
+            # Remove legend title
+            legend.set_title('')
+
+    # Set global title
+    if main_title:
+        fig.suptitle(main_title, fontsize=16)
+
+    # Adjust the subplot parameters for better spacing and accommodate suptitle
+    fig.tight_layout(rect=[0, 0, 1, 0.96])
+    plt.show()
+
 
