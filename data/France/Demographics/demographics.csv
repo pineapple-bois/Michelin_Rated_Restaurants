@@ -1,0 +1,97 @@
+department_num,department,region,population,population_density(pop/area),area(sq_km)
+01,Ain,Auvergne-Rhône-Alpes,652432,114.2,5713.06
+02,Aisne,Hauts-de-France,531345,71.9,7390.06
+03,Allier,Auvergne-Rhône-Alpes,335975,45.7,7351.75
+04,Alpes-de-Haute-Provence,Provence-Alpes-Côte d'Azur,164308,23.9,6874.81
+05,Hautes-Alpes,Provence-Alpes-Côte d'Azur,141220,25.3,5581.82
+06,Alpes-Maritimes,Provence-Alpes-Côte d'Azur,1094283,255.3,4286.26
+07,Ardèche,Auvergne-Rhône-Alpes,328278,59.6,5508.02
+08,Ardennes,Grand Est,270582,51.6,5243.84
+09,Ariège,Occitanie,153287,31.5,4866.25
+10,Aube,Grand Est,310242,51.9,5977.69
+11,Aude,Occitanie,374070,61.1,6122.26
+12,Aveyron,Occitanie,279595,32.0,8737.34
+13,Bouches-du-Rhône,Provence-Alpes-Côte d'Azur,2043110,384.4,5315.06
+14,Calvados,Normandy,694905,126.0,5515.12
+15,Cantal,Auvergne-Rhône-Alpes,144692,25.2,5741.75
+16,Charente,Nouvelle-Aquitaine,352015,59.1,5956.26
+17,Charente-Maritime,Nouvelle-Aquitaine,651358,95.5,6820.5
+18,Cher,Centre-Val de Loire,302306,41.6,7266.97
+19,Corrèze,Nouvelle-Aquitaine,240073,40.8,5884.14
+21,Côte-d'Or,Bourgogne-Franche-Comté,534124,61.1,8741.8
+22,Côtes-d'Armor,Brittany,600582,87.8,6840.34
+23,Creuse,Nouvelle-Aquitaine,116617,20.8,5606.59
+24,Dordogne,Nouvelle-Aquitaine,413223,45.6,9061.91
+25,Doubs,Bourgogne-Franche-Comté,543974,104.2,5220.48
+26,Drôme,Auvergne-Rhône-Alpes,516762,79.3,6516.54
+27,Eure,Normandy,599507,99.8,6007.08
+28,Eure-et-Loir,Centre-Val de Loire,431575,73.4,5879.77
+29,Finistère,Brittany,915090,136.2,6718.72
+2A,Corse-du-Sud,Corsica,158507,40.1,3952.79
+2B,Haute-Corse,Corsica,181933,39.2,4641.15
+30,Gard,Occitanie,748437,128.4,5828.95
+31,Haute-Garonne,Occitanie,1400039,224.4,6239.03
+32,Gers,Occitanie,191377,30.7,6233.78
+33,Gironde,Nouvelle-Aquitaine,1623749,164.0,9900.91
+34,Hérault,Occitanie,1175623,194.9,6031.93
+35,Ille-et-Vilaine,Brittany,1079498,160.7,6717.47
+36,Indre,Centre-Val de Loire,219316,32.2,6811.06
+37,Indre-et-Loire,Centre-Val de Loire,610079,99.9,6106.9
+38,Isère,Auvergne-Rhône-Alpes,1271166,171.9,7394.8
+39,Jura,Bourgogne-Franche-Comté,259199,51.8,5003.84
+40,Landes,Nouvelle-Aquitaine,413690,45.2,9152.43
+41,Loir-et-Cher,Centre-Val de Loire,329470,51.9,6348.17
+42,Loire,Auvergne-Rhône-Alpes,765634,160.8,4761.41
+43,Haute-Loire,Auvergne-Rhône-Alpes,227570,45.7,4979.65
+44,Loire-Atlantique,Pays de la Loire,1429272,210.2,6799.58
+45,Loiret,Centre-Val de Loire,680434,100.7,6757.04
+46,Lot,Occitanie,174094,33.5,5196.84
+47,Lot-et-Garonne,Nouvelle-Aquitaine,331271,61.7,5369.06
+48,Lozère,Occitanie,76604,14.8,5175.95
+49,Maine-et-Loire,Pays de la Loire,818273,115.5,7084.61
+50,Manche,Normandy,495045,83.2,5950.06
+51,Marne,Grand Est,566855,69.4,8167.94
+52,Haute-Marne,Grand Est,172512,27.7,6227.87
+53,Mayenne,Pays de la Loire,307062,59.2,5186.86
+54,Meurthe-et-Moselle,Grand Est,733760,139.6,5256.16
+55,Meuse,Grand Est,184083,29.5,6240.1
+56,Morbihan,Brittany,759684,112.0,6782.89
+57,Moselle,Grand Est,1046543,168.8,6199.9
+58,Nièvre,Bourgogne-Franche-Comté,204452,29.7,6883.91
+59,Nord,Hauts-de-France,2608346,454.1,5743.99
+60,Oise,Hauts-de-France,829419,141.6,5857.48
+61,Orne,Normandy,279942,45.6,6139.08
+62,Pas-de-Calais,Hauts-de-France,1465278,219.2,6684.66
+63,Puy-de-Dôme,Auvergne-Rhône-Alpes,662152,83.0,7977.73
+64,Pyrénées-Atlantiques,Nouvelle-Aquitaine,682621,89.9,7593.11
+65,Hautes-Pyrénées,Occitanie,229567,51.5,4457.61
+66,Pyrénées-Orientales,Occitanie,479979,117.3,4091.89
+67,Bas-Rhin,Grand Est,1140057,241.4,4722.69
+68,Haut-Rhin,Grand Est,767086,217.8,3521.97
+69,Rhône,Auvergne-Rhône-Alpes,1875747,571.3,3283.3
+70,Haute-Saône,Bourgogne-Franche-Comté,235313,43.8,5372.44
+71,Saône-et-Loire,Bourgogne-Franche-Comté,551493,64.3,8576.87
+72,Sarthe,Pays de la Loire,566412,91.4,6197.07
+73,Savoie,Auvergne-Rhône-Alpes,436434,72.9,5986.75
+74,Haute-Savoie,Auvergne-Rhône-Alpes,826094,190.3,4341.01
+75,Paris,Île-de-France,2165423,20545.0,105.4
+76,Seine-Maritime,Normandy,1255633,199.9,6281.31
+77,Seine-et-Marne,Île-de-France,1421197,241.5,5884.87
+78,Yvelines,Île-de-France,1448207,634.6,2282.08
+79,Deux-Sèvres,Nouvelle-Aquitaine,374878,62.4,6007.66
+80,Somme,Hauts-de-France,570559,92.2,6188.28
+81,Tarn,Occitanie,389844,67.9,5741.44
+82,Tarn-et-Garonne,Occitanie,260669,70.5,3697.43
+83,Var,Provence-Alpes-Côte d'Azur,1076711,181.7,5925.76
+84,Vaucluse,Provence-Alpes-Côte d'Azur,561469,157.5,3564.88
+85,Vendée,Pays de la Loire,685442,103.1,6648.32
+86,Vienne,Nouvelle-Aquitaine,438435,62.8,6981.45
+87,Haute-Vienne,Nouvelle-Aquitaine,372359,67.4,5524.61
+88,Vosges,Grand Est,364499,61.7,5907.6
+89,Yonne,Bourgogne-Franche-Comté,335707,45.0,7460.16
+90,Territoire de Belfort,Bourgogne-Franche-Comté,141318,229.9,614.69
+91,Essonne,Île-de-France,1301659,723.9,1798.12
+92,Hauts-de-Seine,Île-de-France,1624357,9260.4,175.41
+93,Seine-Saint-Denis,Île-de-France,1644903,7008.6,234.7
+94,Val-de-Marne,Île-de-France,1407124,5746.1,244.88
+95,Val-d'Oise,Île-de-France,1249674,1004.7,1243.83
