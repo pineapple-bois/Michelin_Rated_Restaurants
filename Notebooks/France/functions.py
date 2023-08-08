@@ -290,7 +290,7 @@ def plot_department(geo_df, data_df, department_code,
         department_code (str): The code for the department of interest.
         display_restaurants (bool): If True, display individual restaurants on the map.
         display_info (bool): If True, print additional info about restaurants.
-        figsize (tuple): Size of the figure to plot. Default (8,8)
+        figsize (tuple): Size of the figure to plot. Default (10,10)
     """
     # Filter out 0.5 star restaurants
     data_df = data_df[data_df['stars'] != 0.5]
