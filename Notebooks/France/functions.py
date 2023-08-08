@@ -324,14 +324,20 @@ def plot_department(geo_df, data_df, department_code,
     # 2. Demographics:
     dept_info = dept_geo.iloc[0]  # get the information of the department from the GeoDataFrame
 
-    population = round(dept_info['population'], -3)  # round to nearest 1000
-    pop_density = dept_info['population_density(pop/area)']
+    population = round(dept_info['municipal_population'], -3)  # round to nearest 1000
+    pop_density = dept_info['population_density(inhabitants/sq_km)']
     area = dept_info['area(sq_km)']
+    poverty = dept_info['poverty_rate(%)']
+    unemployment = dept_info['average_annual_unemployment_rate(%)']
+    hourly_wage = dept_info['average_net_hourly_wage(€)']
 
     print(f"Demographics of {dept_info['department']} ({dept_info['code']}):\n")
     print(f"Population: {population}")
     print(f"Population Density: {pop_density:.2f} people/sq. km")
-    print(f"Area: {area:.2f} sq. km\n\n")
+    print(f"Area: {area:.2f} sq. km")
+    print(f"Poverty Rate: {poverty} %")
+    print(f"Unemployment Rate: {unemployment} %")
+    print(f"Mean Hourly Wage: {hourly_wage} €\n\n\n")
 
     # 3. List of Starred Restaurants:
     star_columns = ['3_star', '2_star', '1_star']
