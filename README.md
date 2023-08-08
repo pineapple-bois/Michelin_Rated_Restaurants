@@ -16,7 +16,7 @@ We investigate the distribution of these elite establishments and analyse if the
 
 1. **[Michelin Guide Restaurants](https://www.kaggle.com/datasets/ngshiheng/michelin-guide-restaurants-2021):** The dataset, updated quarterly, comprises restaurant details such as address, price range, cuisine type, longitude, latitude, and Michelin rating (3 stars, 2 stars, 1 star, Bib Gourmand). Data was fetched on 4th August 2023.
 
-2. **[INSEE](https://www.insee.fr/fr/accueil) *(L'Institut national de la statistique et des études économiques):*** Demographic data for the year 2019, the last official census in France, was procured from INSEE. It includes regional and departmental population and population density statistics.
+2. **[INSEE](https://www.insee.fr/fr/accueil) *(L'Institut national de la statistique et des études économiques):*** Demographic data for the year 2020 was procured from INSEE. It includes regional and departmental population and population density statistics.
 
 3. **[Geospatial data](https://france-geojson.gregoiredavid.fr):** French departmental and regional geospatial data were retrieved as open license GeoJSON files.
 
