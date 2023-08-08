@@ -186,7 +186,7 @@ def plot_choropleth(df, column, title, regional=False, restaurants=False, cmap='
         all_labels.extend([h.get_label() for h in dept_handles])
 
     if restaurants:
-        star_colors = {'1': 'yellow', '2': 'orange', '3': 'red'}
+        star_colors = {'1': 'green', '2': 'silver', '3': 'gold'}
         added_labels = set()
 
         transformer = pyproj.Transformer.from_crs("EPSG:4326", "EPSG:2154", always_xy=True)
