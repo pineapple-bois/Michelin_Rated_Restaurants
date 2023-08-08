@@ -55,9 +55,9 @@ def top_restaurants_by_department(data, star_rating, top_n, display_restaurants=
     top_depts = sorted_filtered_data['department_num'].value_counts().nlargest(top_n)
 
     if not paris:
-        print(f"Top {top_n} departments with most {star_unicode} restaurants:\n\n")
+        print(f"Top {top_n} departments with most {star_unicode} restaurants:\n\n\n")
     else:
-        print(f"{star_unicode} Restaurants in Paris\n")
+        print(f"{star_unicode} Restaurants in Paris\n\n\n")
 
     # Print the names of the restaurants, the towns they are in and the department number
     for dept_num, restaurant_count in top_depts.iteritems():
@@ -95,7 +95,7 @@ def top_restaurants_by_region(data, star_rating, top_n, display_restaurants=True
     # If 'all' is passed, use all unique regions, else use top_n
     if isinstance(top_n, str) and top_n.lower() == 'all':
         top_n = data['region'].nunique()
-        initial_statement = "Regions with starred restaurants:\n\n"
+        initial_statement = "Regions with starred restaurants:\n\n\n"
     else:
         # Check if there is only one region
         if data['region'].nunique() == 1:
@@ -106,7 +106,7 @@ def top_restaurants_by_region(data, star_rating, top_n, display_restaurants=True
         if top_n > data['region'].nunique():
             top_n = data['region'].nunique()
 
-        initial_statement = f"Top {top_n} regions with most starred restaurants:\n\n"
+        initial_statement = f"Top {top_n} regions with most starred restaurants:\n\n\n"
 
     # Group by 'region' and get top_n
     top_regions = data['region'].value_counts().nlargest(top_n)
@@ -183,22 +183,24 @@ def plot_choropleth(df, column, title, regional=False, restaurants=False, cmap='
         all_labels.extend([h.get_label() for h in dept_handles])
 
     if restaurants:
-        star_colors = {'1': 'green', '2': 'silver', '3': 'gold'}
+        star_colors = {'1': 'green', '2': 'orange', '3': 'red'}
         added_labels = set()
 
         transformer = pyproj.Transformer.from_crs("EPSG:4326", "EPSG:2154", always_xy=True)
-        for row in df.iterrows():
-            locations = row[1]['locations']
-            for star, color in star_colors.items():
+
+        for star, color in star_colors.items():
+            for row in df.iterrows():
+                locations = row[1]['locations']
                 if locations[star]:  # Check if it's not None
                     for lat, long in locations[star]:
                         x, y = transformer.transform(long, lat)
                         ax.scatter(x, y, c=color, s=50, marker='d')
-                        if star not in added_labels:
-                            all_handles.append(
-                                Line2D([0], [0], marker='d', color=color, label=f"{star} star restaurant",
-                                       markersize=8, linestyle='None'))
-                            added_labels.add(star)
+
+            if star not in added_labels:
+                all_handles.append(
+                    Line2D([0], [0], marker='d', color=color, label=f"{star} star restaurant",
+                           markersize=8, linestyle='None'))
+                added_labels.add(star)
 
         all_labels.extend([h.get_label() for h in all_handles[len(all_handles) - len(star_colors):]])
 
@@ -276,4 +278,83 @@ def plot_multi_choropleth(df, columns, titles, main_title=None, cmap='Blues', fi
     fig.tight_layout(rect=[0, 0, 1, 0.96])
     plt.show()
 
+
+def plot_department(geo_df, data_df, department_code,
+                    display_restaurants=True, display_info=False, figsize=(10, 10)):
+    """
+    Plot a department map with starred restaurants and display a list of those restaurants.
+
+    Args:
+        geo_df (GeoDataFrame): The GeoDataFrame containing department boundaries.
+        data_df (pandas.DataFrame): The standard dataframe with restaurant data.
+        department_code (str): The code for the department of interest.
+        display_restaurants (bool): If True, display individual restaurants on the map.
+        display_info (bool): If True, print additional info about restaurants.
+        figsize (tuple): Size of the figure to plot. Default (8,8)
+    """
+    # Filter out 0.5 star restaurants
+    data_df = data_df[data_df['stars'] != 0.5]
+
+    # Filter both dataframes by department_code
+    dept_geo = geo_df[geo_df['code'] == department_code]
+    dept_data = data_df[data_df['department_num'] == department_code]
+
+    fig, ax = plt.subplots(figsize=figsize)
+    dept_geo.plot(ax=ax, color='lightgrey', edgecolor='k')
+
+    if display_restaurants:
+        star_colors = {'1': 'green', '2': 'orange', '3': 'red'}
+
+        added_stars = set()
+        for star, color in star_colors.items():
+            star_data = dept_data[dept_data['stars'] == float(star)]
+            for _, row in star_data.iterrows():
+                ax.scatter(row['longitude'], row['latitude'], c=color, s=50, marker='d',
+                           label=f"{star} star" if star not in added_stars else "")
+                added_stars.add(star)
+
+    handles, labels = ax.get_legend_handles_labels()
+    unique_labels = dict(zip(labels, handles))
+    ax.legend(unique_labels.values(), unique_labels.keys())
+
+    ax.set_title(f"Michelin Starred Restaurants\n{dept_geo['department'].values[0]}")
+    ax.set_axis_off()
+    plt.show()
+
+    # 2. Demographics:
+    dept_info = dept_geo.iloc[0]  # get the information of the department from the GeoDataFrame
+
+    population = round(dept_info['population'], -3)  # round to nearest 1000
+    pop_density = dept_info['population_density(pop/area)']
+    area = dept_info['area(sq_km)']
+
+    print(f"Demographics of {dept_info['department']} ({dept_info['code']}):\n")
+    print(f"Population: {population}")
+    print(f"Population Density: {pop_density:.2f} people/sq. km")
+    print(f"Area: {area:.2f} sq. km\n\n")
+
+    # 3. List of Starred Restaurants:
+    star_columns = ['3_star', '2_star', '1_star']
+
+    for star_col in star_columns:
+        # Extract the star count and determine the appropriate Unicode star symbol
+        star_count = dept_geo[star_col].values[0]
+        if star_count > 0:  # Only proceed if there are restaurants with that star rating
+            star_rating = int(star_col.split('_')[0])
+            star_unicode = star_rating * u'\u2B50'
+
+            restaurant_word = "Restaurant" if star_count == 1 else "Restaurants"
+            print(f"{star_count} {star_unicode} {restaurant_word}:\n")
+
+            # Get the restaurants from the data dataframe with the matching star rating
+            restaurants_in_dept = dept_data[dept_data['stars'] == star_rating]
+
+            for _, restaurant in restaurants_in_dept.iterrows():
+                if display_info:
+                    print(f"Restaurant: {restaurant['name']}"
+                          f"\nLocation: {restaurant['city']}"
+                          f"\nStyle of Cuisine: {restaurant['cuisine']}"
+                          f"\nURL: {restaurant['url']}"
+                          f"\nPrice: {restaurant['price']}\n")
+            print("")
 
