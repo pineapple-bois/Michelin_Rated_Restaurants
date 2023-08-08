@@ -144,9 +144,6 @@ def top_restaurants_by_region(data, star_rating, top_n, display_restaurants=True
         print("\n")
 
 
-import matplotlib.patches as mpatches
-
-
 def plot_choropleth(df, column, title, regional=False, restaurants=False, cmap='Blues', figsize=(10, 10)):
     """
     Function to plot a choropleth map and optionally restaurant locations.
@@ -177,10 +174,10 @@ def plot_choropleth(df, column, title, regional=False, restaurants=False, cmap='
         plt.title(f"{title}\n{region_name}")
 
         for x, y, label in zip(df.geometry.centroid.x, df.geometry.centroid.y, df['code']):
-            ax.text(x, y, label, fontsize=10, backgroundcolor='white')
+            ax.text(x, y, label, fontsize=8, backgroundcolor='white')
 
         dept_handles = [Line2D([0], [0], marker='o', color='w',
-                               label=f"{df.loc[df['code'] == code, 'department'].values[0]} ({code})", markersize=0,
+                               label=f"{code}: {df.loc[df['code'] == code, 'department'].values[0]}", markersize=0,
                                alpha=0) for code in df['code'].unique()]
         all_handles.extend(dept_handles)
         all_labels.extend([h.get_label() for h in dept_handles])
