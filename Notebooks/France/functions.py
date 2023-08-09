@@ -324,7 +324,7 @@ def plot_department(geo_df, data_df, department_code,
     # 2. Demographics:
     dept_info = dept_geo.iloc[0]  # get the information of the department from the GeoDataFrame
 
-    population = round(dept_info['municipal_population'], -3)  # round to nearest 1000
+    population = dept_info['municipal_population']  # round to nearest 1000
     pop_density = dept_info['population_density(inhabitants/sq_km)']
     area = dept_info['area(sq_km)']
     poverty = dept_info['poverty_rate(%)']
