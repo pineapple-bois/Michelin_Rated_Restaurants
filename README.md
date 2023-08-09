@@ -52,11 +52,13 @@ After the processing, the following datasets were exported:
 
 ## Analysis
 
+[`France_Analysis.ipynb`](Notebooks/France/France_Analysis.ipynb)
+
 ...
 
 ----
 
-### Custom [Functions](Notebooks/France/functions.py)
+### Custom [Functions](Notebooks/France/functions_visualisation.py)
 
 The `top_restaurants_by_department` function analyses a dataset of restaurants and outputs the top $n$ departments with the highest count of restaurants with a specified Michelin star rating. This function can be used on a larger scale, analyzing countrywide data or on a smaller scale, analyzing city-specific data like restaurants in Paris.
 
