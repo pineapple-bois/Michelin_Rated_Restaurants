@@ -13,7 +13,7 @@ import branca
 
 def dataframe_info(data):
     print(f"Unique Departments: {data['department'].nunique()}")
-    print(f"Unique Cities: {data['city'].nunique()}")
+    print(f"Unique Cities: {data['location'].nunique()}")
     print(f"Shape: {data.shape}")
     display(data.head(3))
 
@@ -61,7 +61,7 @@ def top_restaurants_by_department(data, star_rating, top_n, display_restaurants=
 
     # Print the names of the restaurants, the towns they are in and the department number
     for dept_num, restaurant_count in top_depts.iteritems():
-        restaurants = sorted_filtered_data[sorted_filtered_data['department_num'] == dept_num][['name', 'city',
+        restaurants = sorted_filtered_data[sorted_filtered_data['department_num'] == dept_num][['name', 'location',
                                                                     'department', 'department_num', 'cuisine', 'url']]
         dept = restaurants['department'].values[0]  # Get the department name from the first restaurant
         restaurant_word = "Restaurant" if restaurant_count == 1 else "Restaurants"
@@ -69,7 +69,7 @@ def top_restaurants_by_department(data, star_rating, top_n, display_restaurants=
 
         if display_restaurants:
             for index, row in restaurants.iterrows():
-                print(f"Restaurant: {row['name']}\nLocation: {row['city']}")
+                print(f"Restaurant: {row['name']}\nLocation: {row['location']}")
                 if display_info:
                     print(f"Style of Cuisine: {row['cuisine']}\nURL: {row['url']}\n")
         print("\n")
@@ -129,7 +129,7 @@ def top_restaurants_by_region(data, star_rating, top_n, display_restaurants=True
 
         for star in star_ratings:
             star_unicode = int(star) * u'\u2B50'
-            restaurants = restaurants_region[restaurants_region['stars'] == star][['name', 'city', 'cuisine', 'url']]
+            restaurants = restaurants_region[restaurants_region['stars'] == star][['name', 'location', 'cuisine', 'url']]
             restaurant_count_star = len(restaurants)
 
             if restaurant_count_star > 0:
@@ -138,7 +138,7 @@ def top_restaurants_by_region(data, star_rating, top_n, display_restaurants=True
 
                 if display_restaurants:
                     for index, row in restaurants.iterrows():
-                        print(f"Restaurant: {row['name']}\nLocation: {row['city']}")
+                        print(f"Restaurant: {row['name']}\nLocation: {row['location']}")
                         if display_info:
                             print(f"Cuisine: {row['cuisine']}\nURL: {row['url']}\n")
         print("\n")
@@ -324,6 +324,7 @@ def plot_department(geo_df, data_df, department_code,
     # 2. Demographics:
     dept_info = dept_geo.iloc[0]  # get the information of the department from the GeoDataFrame
 
+    capital = dept_info['capital']
     population = dept_info['municipal_population']  # round to nearest 1000
     pop_density = dept_info['population_density(inhabitants/sq_km)']
     area = dept_info['area(sq_km)']
@@ -332,6 +333,7 @@ def plot_department(geo_df, data_df, department_code,
     hourly_wage = dept_info['average_net_hourly_wage(€)']
 
     print(f"Demographics of {dept_info['department']} ({dept_info['code']}):\n")
+    print(f"Capital: {capital}")
     print(f"Population: {population}")
     print(f"Population Density: {pop_density:.2f} people/sq. km")
     print(f"Area: {area:.2f} sq. km")
@@ -358,7 +360,7 @@ def plot_department(geo_df, data_df, department_code,
             for _, restaurant in restaurants_in_dept.iterrows():
                 if display_info:
                     print(f"Restaurant: {restaurant['name']}"
-                          f"\nLocation: {restaurant['city']}"
+                          f"\nLocation: {restaurant['location']}"
                           f"\nStyle of Cuisine: {restaurant['cuisine']}"
                           f"\nURL: {restaurant['url']}"
                           f"\nPrice: {restaurant['price']}\n")

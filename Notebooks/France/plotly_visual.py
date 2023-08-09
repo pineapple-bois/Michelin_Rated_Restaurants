@@ -14,7 +14,7 @@ def plot_interactive_department(data_df, geo_df, department_code):
 
     # Construct hover text with clickable URL and repeated star emojis
     dept_data['hover_text'] = dept_data.apply(lambda row: f"<b>{row['name']}</b><br>{'⭐' * int(row['stars'])}<br>"
-                                                          f"City: {row['city']}<br>Cuisine: {row['cuisine']}<br>"
+                                                          f"Location: {row['location']}<br>Cuisine: {row['cuisine']}<br>"
                                                           f"<a href='{row['url']}' target='_blank'>Visit website</a><br>"
                                                           f"Price: {row['price']}",
                                               axis=1)

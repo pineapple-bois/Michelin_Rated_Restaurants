@@ -227,6 +227,3 @@ def plot_side_by_side(df, cols_of_interest, french_means):
     plt.show()
 
 
-
-
-
