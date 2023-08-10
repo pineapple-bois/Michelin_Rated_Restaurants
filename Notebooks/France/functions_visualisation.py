@@ -13,7 +13,7 @@ import branca
 
 def dataframe_info(data):
     print(f"Unique Departments: {data['department'].nunique()}")
-    print(f"Unique Cities: {data['location'].nunique()}")
+    print(f"Unique Locations: {data['location'].nunique()}")
     print(f"Shape: {data.shape}")
     display(data.head(3))
 
@@ -328,6 +328,7 @@ def plot_department(geo_df, data_df, department_code,
     population = dept_info['municipal_population']  # round to nearest 1000
     pop_density = dept_info['population_density(inhabitants/sq_km)']
     area = dept_info['area(sq_km)']
+    gdp = dept_info['GDP_per_capita(€)']
     poverty = dept_info['poverty_rate(%)']
     unemployment = dept_info['average_annual_unemployment_rate(%)']
     hourly_wage = dept_info['average_net_hourly_wage(€)']
@@ -337,6 +338,7 @@ def plot_department(geo_df, data_df, department_code,
     print(f"Population: {population}")
     print(f"Population Density: {pop_density:.2f} people/sq. km")
     print(f"Area: {area:.2f} sq. km")
+    print(f"Per Capita GDP: {gdp:.2f} €")
     print(f"Poverty Rate: {poverty} %")
     print(f"Unemployment Rate: {unemployment} %")
     print(f"Mean Hourly Wage: {hourly_wage} €\n\n\n")
@@ -360,6 +362,7 @@ def plot_department(geo_df, data_df, department_code,
             for _, restaurant in restaurants_in_dept.iterrows():
                 if display_info:
                     print(f"Restaurant: {restaurant['name']}"
+                          f"\nAddress: {restaurant['address']}"
                           f"\nLocation: {restaurant['location']}"
                           f"\nStyle of Cuisine: {restaurant['cuisine']}"
                           f"\nURL: {restaurant['url']}"
