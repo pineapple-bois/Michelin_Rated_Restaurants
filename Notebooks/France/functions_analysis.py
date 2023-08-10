@@ -195,7 +195,7 @@ def plot_side_by_side(df, cols_of_interest, french_means):
         # Determine unit based on the column name
         if re.search(r"unemployment|poverty", col, re.IGNORECASE):
             unit = "%"
-        elif re.search(r"wage|salary|net_wage", col, re.IGNORECASE):
+        elif re.search(r"wage|salary|net_wage|GDP", col, re.IGNORECASE):
             unit = "€"
         else:
             unit = ""
