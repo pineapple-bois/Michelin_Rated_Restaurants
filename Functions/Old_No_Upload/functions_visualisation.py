@@ -13,6 +13,7 @@ import branca
 
 def dataframe_info(data):
     print(f"Unique Departments: {data['department'].nunique()}")
+    print(f"Unique Arrondissements: {data['arrondissement'].nunique()}")
     print(f"Unique Locations: {data['location'].nunique()}")
     print(f"Shape: {data.shape}")
     display(data.head(3))
