@@ -11,19 +11,24 @@ from dash.dependencies import Input, Output
 # Exclude Bib Gourmand restaurants
 all_france = pd.read_csv("/Users/Ian/Documents/Study/Stage3/Programming/Github/Michelin_Rated_Restaurants/data"
                          "/France/all_restaurants(arrondissements).csv")
-all_france = all_france[all_france['stars'] != 0.5]
 
 # Load GeoJSON departmental data - Exclude Bibs
 geo_df = gpd.read_file("/Users/Ian/Documents/Study/Stage3/Programming/Github/Michelin_Rated_Restaurants/data/"
                        "France/department_restaurants.geojson")
-geo_df = geo_df[geo_df['total_stars'] != 0]
+
+# Get unique department numbers with restaurants
+departments_with_restaurants = all_france['department_num'].unique()
+
+# Filter geo_df
+geo_df = geo_df[geo_df['code'].isin(departments_with_restaurants)]
+
 
 with open("/Users/Ian/Documents/Study/Stage3/Programming/Github/Michelin_Rated_Restaurants/data/"
                        "France/department_restaurants.geojson", "r") as file:
     geo_data = json.load(file)
 
 
-def plot_interactive_department(data_df, geo_df, department_code):
+def plot_interactive_department(data_df, geo_df, department_code, selected_stars):
     # Initialize a blank figure
     fig = go.Figure()
 
@@ -54,33 +59,48 @@ def plot_interactive_department(data_df, geo_df, department_code):
                     showlegend=False
                 ))
 
-    # Define custom color map based on stars
-    color_map = {1: "yellow", 2: "orange", 3: "red"}
-    dept_data = data_df[(data_df['department_num'] == str(department_code)) & (data_df['stars'] != 0.5)].copy()
+    # Define custom color map based on stars, including Bibs
+    color_map = {0.5: "green", 1: "yellow", 2: "orange", 3: "red"}
+    dept_data = data_df[(data_df['department_num'] == str(department_code)) & (data_df['stars'].isin(selected_stars))].copy()
     dept_data['color'] = dept_data['stars'].map(color_map)
 
-    # Construct hover text with clickable URL and repeated star emojis
-    dept_data['hover_text'] = dept_data.apply(lambda row: f"<b>{row['name']}</b><br>{'⭐' * int(row['stars'])}<br>"
-                                                          f"Location: {row['location']}<br>Cuisine: {row['cuisine']}<br>"
-                                                          f"<a href='{row['url']}' target='_blank'>Visit website</a><br>"
-                                                          f"Price: {row['price']}",
-                                              axis=1)
+    # Modify the hover text function to consider Bibs
+    dept_data['hover_text'] = dept_data.apply(
+        lambda row: f"<b>{row['name']}</b><br>{'⭐' * int(row['stars']) if row['stars'] != 0.5 else 'Bib Gourmand'}<br>"
+                    f"Location: {row['location']}<br>Cuisine: {row['cuisine']}<br>"
+                    f"<a href='{row['url']}' target='_blank'>Visit website</a><br>"
+                    f"Price: {row['price']}",
+        axis=1
+    )
 
     # Overlay restaurant points
     for star, color in color_map.items():
         subset = dept_data[dept_data['stars'] == star]
+
+        # Adjust hover text for Bib Gourmand
+        if star == 0.5:
+            label_name = 'Bib Gourmand'
+        else:
+            label_name = f"{'⭐' * int(star)}"
+
         fig.add_trace(go.Scattermapbox(lat=subset['latitude'],
                                        lon=subset['longitude'],
                                        mode='markers',
                                        marker=go.scattermapbox.Marker(size=10, color=color),
                                        text=subset['hover_text'],
                                        hovertemplate='%{text}<br>Coordinates: (%{lat}, %{lon})',
-                                       name=f"{'⭐' * int(star)}"))
+                                       name=label_name))
 
     # Adjusting layout
     fig.update_layout(
-        plot_bgcolor='rgba(230, 230, 230, 0.7)',
-        paper_bgcolor='rgba(230, 230, 230, 0.7)',
+        plot_bgcolor='black',
+        paper_bgcolor='black',
+        title="Michelin Guide to France",
+        font=dict(
+            family="Courier New, monospace",
+            size=18,
+            color="white"
+        ),
         width=1000,
         height=800,
         mapbox_style="carto-positron",
@@ -105,12 +125,21 @@ app.layout = html.Div([
     dcc.Dropdown(
         id='region-dropdown',
         options=[{'label': region, 'value': region} for region in unique_regions],
-        value=unique_regions[0]  # default value
+        value=unique_regions[0],  # default value
+        style={"fontFamily": "Courier New, monospace"}
     ),
     dcc.Dropdown(
         id='department-dropdown',
-        options=initial_options,
-        value=initial_departments[0]['department']  # default value
+        style={"fontFamily": "Courier New, monospace"}
+        # ... Your existing code ...
+    ),
+    dcc.Dropdown(
+        id='star-dropdown',
+        options=[{'label': 'Bib Gourmand', 'value': 0.5}, {'label': '1 Star', 'value': 1},
+                 {'label': '2 Stars', 'value': 2}, {'label': '3 Stars', 'value': 3}],
+        value=[0.5, 1, 2, 3],  # default value (all ratings)
+        multi=True,  # Allow multiple selection
+        style = {"fontFamily": "Courier New, monospace"}
     ),
     dcc.Graph(id='map-display')
 ])
@@ -125,11 +154,15 @@ def update_department_dropdown(selected_region):
 
 @app.callback(
     Output('map-display', 'figure'),
-    Input('department-dropdown', 'value')
+    [Input('department-dropdown', 'value'),
+     Input('star-dropdown', 'value')]
 )
-def update_map(selected_department):
+def update_map(selected_department, selected_stars):
+    if selected_department is None:
+        # Handle this case, e.g., return an empty figure or a default figure
+        return go.Figure()
     department_code = dept_to_code[selected_department]
-    fig = plot_interactive_department(all_france, geo_df, department_code)
+    fig = plot_interactive_department(all_france, geo_df, department_code, selected_stars)
     return fig
 
 if __name__ == '__main__':
