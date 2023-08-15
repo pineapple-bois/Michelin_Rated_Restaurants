@@ -171,7 +171,7 @@ def top_restaurants(data, granularity, star_rating, top_n, display_restaurants=T
 
                 html_content = (f"Restaurant: {restaurant_name}<br>Address: {row['address']}<br>Location:"
                                 f" {row['location']}<br>Style of Cuisine: {row['cuisine']}<br>Price:"
-                                f" {row['price']}<br>")
+                                f" {row['price']}<br><br>")
                 display(HTML(html_content))
                 print()  # This will add a newline after each restaurant block for better readability on GitHub
 
@@ -416,7 +416,7 @@ def plot_area_info(geo_df, data_df, code_or_name,
 
                     html_content = (f"Restaurant: {restaurant_name}<br>Address: {restaurant['address']}<br>Location:"
                                     f" {restaurant['location']}<br>Style of Cuisine: {restaurant['cuisine']}<br>Price:"
-                                    f" {restaurant['price']}<br>")
+                                    f" {restaurant['price']}<br><br>")
                     display(HTML(html_content))
                     print()  # This will add a newline after each restaurant block for better readability on GitHub
             print("")
