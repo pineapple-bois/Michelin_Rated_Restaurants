@@ -52,7 +52,6 @@ def plot_interactive_department(data_df, geo_df, department_code):
         mapbox_center_lat=dept_data['latitude'].mean(),
         mapbox_center_lon=dept_data['longitude'].mean()
     )
-
-    fig.show()
+    return fig
 
 
