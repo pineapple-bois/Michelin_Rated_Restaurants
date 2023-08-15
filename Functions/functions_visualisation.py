@@ -7,6 +7,7 @@ from fuzzywuzzy import process
 from IPython.core.display import display, HTML
 import pyproj
 import seaborn as sns
+import pandas as pd
 import geopandas as gpd
 import mapclassify
 import folium
@@ -155,15 +156,22 @@ def top_restaurants(data, granularity, star_rating, top_n, display_restaurants=T
     # Displaying the top restaurants or areas
     for area, restaurant_count in top_areas.iteritems():
         restaurants_in_area = sorted_filtered_data[sorted_filtered_data[granularity] == area][
-            ['name', 'location', granularity, 'cuisine', 'url']]
+            ['name', 'address', 'location', granularity, 'cuisine', 'url', 'price']]
 
         restaurant_word = "Restaurant" if restaurant_count == 1 else "Restaurants"
         print(f"{granularity.capitalize()}: {area}\n{restaurant_count} {star_unicode} {restaurant_word}\n\n")
 
         if display_restaurants:
             for _, row in restaurants_in_area.iterrows():
-                link = f"<a href='{row['url']}' target='_blank'>{row['name']}</a>"
-                html_content = f"Restaurant: {link}<br>Location: {row['location']}<br>Style of Cuisine: {row['cuisine']}<br><br>"
+                # Check if link is NaN or None
+                if pd.isna(row['url']):
+                    restaurant_name = row['name']  # Just the plain text name if the link is NaN
+                else:
+                    restaurant_name = f"<a href='{row['url']}' target='_blank'>{row['name']}</a>"
+
+                html_content = (f"Restaurant: {restaurant_name}<br>Address: {row['address']}<br>Location:"
+                                f" {row['location']}<br>Style of Cuisine: {row['cuisine']}<br>Price:"
+                                f" {row['price']}<br>")
                 display(HTML(html_content))
                 print()  # This will add a newline after each restaurant block for better readability on GitHub
 
@@ -400,11 +408,16 @@ def plot_area_info(geo_df, data_df, code_or_name,
 
             for _, restaurant in restaurants_in_area.iterrows():
                 if display_info:
-                    link = f"<a href='{restaurant['url']}' target='_blank'>{restaurant['name']}</a>"
-                    html_content = (f"Restaurant: {link}<br>Address: {restaurant['address']}<br>Location:"
+                    # Check if link is NaN or None
+                    if pd.isna(restaurant['url']):
+                        restaurant_name = restaurant['name']  # Just the plain text name if the link is NaN
+                    else:
+                        restaurant_name = f"<a href='{restaurant['url']}' target='_blank'>{restaurant['name']}</a>"
+
+                    html_content = (f"Restaurant: {restaurant_name}<br>Address: {restaurant['address']}<br>Location:"
                                     f" {restaurant['location']}<br>Style of Cuisine: {restaurant['cuisine']}<br>Price:"
-                                    f" {restaurant['price']}<br><br>")
+                                    f" {restaurant['price']}<br>")
                     display(HTML(html_content))
-                    print()  # This will add a newline after each restaurant block for better readability
+                    print()  # This will add a newline after each restaurant block for better readability on GitHub
             print("")
 
