@@ -1,6 +1,26 @@
+import pandas as pd
+import geopandas as gpd
 import plotly.express as px
 import plotly.graph_objects as go
 import json
+import dash
+from dash import dcc, html
+from dash.dependencies import Input, Output
+
+
+# Exclude Bib Gourmand restaurants
+all_france = pd.read_csv("/Users/Ian/Documents/Study/Stage3/Programming/Github/Michelin_Rated_Restaurants/data"
+                         "/France/all_restaurants(arrondissements).csv")
+all_france = all_france[all_france['stars'] != 0.5]
+
+# Load GeoJSON departmental data - Exclude Bibs
+geo_df = gpd.read_file("/Users/Ian/Documents/Study/Stage3/Programming/Github/Michelin_Rated_Restaurants/data/"
+                       "France/department_restaurants.geojson")
+geo_df = geo_df[geo_df['total_stars'] != 0]
+
+with open("/Users/Ian/Documents/Study/Stage3/Programming/Github/Michelin_Rated_Restaurants/data/"
+                       "France/department_restaurants.geojson", "r") as file:
+    geo_data = json.load(file)
 
 
 def plot_interactive_department(data_df, geo_df, department_code):
@@ -72,3 +92,45 @@ def plot_interactive_department(data_df, geo_df, department_code):
     return fig
 
 
+# Initialize the Dash app
+app = dash.Dash(__name__)
+
+# Use geo_df to get unique regions and departments for the initial dropdowns
+unique_regions = geo_df['region'].unique()
+initial_departments = geo_df[geo_df['region'] == unique_regions[0]][['department', 'code']].drop_duplicates().to_dict('records')
+initial_options = [{'label': f"{dept['department']} ({dept['code']})", 'value': dept['department']} for dept in initial_departments]
+dept_to_code = geo_df.drop_duplicates(subset='department').set_index('department')['code'].to_dict()
+
+app.layout = html.Div([
+    dcc.Dropdown(
+        id='region-dropdown',
+        options=[{'label': region, 'value': region} for region in unique_regions],
+        value=unique_regions[0]  # default value
+    ),
+    dcc.Dropdown(
+        id='department-dropdown',
+        options=initial_options,
+        value=initial_departments[0]['department']  # default value
+    ),
+    dcc.Graph(id='map-display')
+])
+
+@app.callback(
+    Output('department-dropdown', 'options'),
+    Input('region-dropdown', 'value')
+)
+def update_department_dropdown(selected_region):
+    departments = geo_df[geo_df['region'] == selected_region][['department', 'code']].drop_duplicates().to_dict('records')
+    return [{'label': f"{dept['department']} ({dept['code']})", 'value': dept['department']} for dept in departments]
+
+@app.callback(
+    Output('map-display', 'figure'),
+    Input('department-dropdown', 'value')
+)
+def update_map(selected_department):
+    department_code = dept_to_code[selected_department]
+    fig = plot_interactive_department(all_france, geo_df, department_code)
+    return fig
+
+if __name__ == '__main__':
+    app.run_server(debug=True)
