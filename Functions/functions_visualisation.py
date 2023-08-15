@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.lines import Line2D
 from fuzzywuzzy import process
+from IPython.core.display import display, HTML
 import pyproj
 import seaborn as sns
 import geopandas as gpd
@@ -164,7 +165,8 @@ def top_restaurants(data, granularity, star_rating, top_n, display_restaurants=T
             for index, row in restaurants_in_area.iterrows():
                 print(f"Restaurant: {row['name']}\nLocation: {row['location']}")
                 if display_info:
-                    print(f"Style of Cuisine: {row['cuisine']}\n[{row['name']}]({row['url']})\n")
+                    link = f"<a href='{row['url']}' target='_blank'>{row['name']} URL</a>"
+                    display(HTML(f"Style of Cuisine: {row['cuisine']}<br>{link}<br>"))
         print("\n")
 
 
