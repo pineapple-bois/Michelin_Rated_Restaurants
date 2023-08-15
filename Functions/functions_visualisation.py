@@ -158,7 +158,7 @@ def top_restaurants(data, granularity, star_rating, top_n, display_restaurants=T
             ['name', 'location', granularity, 'cuisine', 'url']]
 
         restaurant_word = "Restaurant" if restaurant_count == 1 else "Restaurants"
-        print(f"{granularity.capitalize()}: {area}\n{restaurant_count} {star_unicode} {restaurant_word}\n")
+        print(f"{granularity.capitalize()}: {area}\n{restaurant_count} {star_unicode} {restaurant_word}\n\n")
 
         if display_restaurants:
             for _, row in restaurants_in_area.iterrows():
