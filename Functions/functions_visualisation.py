@@ -163,9 +163,9 @@ def top_restaurants(data, granularity, star_rating, top_n, display_restaurants=T
         if display_restaurants:
             for _, row in restaurants_in_area.iterrows():
                 link = f"<a href='{row['url']}' target='_blank'>{row['name']}</a>"
-                display(HTML(
-                    f"Restaurant: {link}<br>Location: {row['location']}<br>Style of Cuisine: {row['cuisine']}<br>"))
-        print("\n")
+                html_content = f"Restaurant: {link}<br>Location: {row['location']}<br>Style of Cuisine: {row['cuisine']}<br><br>"
+                display(HTML(html_content))
+                print()  # This will add a newline after each restaurant block for better readability on GitHub
 
 
 def plot_choropleth(df, column, title, granularity='department', restaurants=False,
