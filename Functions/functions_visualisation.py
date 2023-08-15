@@ -54,7 +54,8 @@ def _get_best_match(search_str, df, column):
         return None
 
 
-def filter_dataframe(data, regions=None, departments=None, exclude_regions=None, exclude_departments=None):
+def filter_dataframe(data, regions=None, departments=None, arrondissements=None,
+                     exclude_regions=None, exclude_departments=None, exclude_arrondissements=None):
     """
     Filters the dataframe based on given conditions.
 
@@ -62,17 +63,22 @@ def filter_dataframe(data, regions=None, departments=None, exclude_regions=None,
     - data (pandas.DataFrame): The main dataframe.
     - regions (list[str]/str, optional): Region(s) to focus on.
     - departments (list[str]/str, optional): Department(s) to focus on.
+    - arrondissements (list[str]/str, optional): Arrondissement(s) to focus on.
     - exclude_regions (list[str]/str, optional): Region(s) to exclude.
     - exclude_departments (list[str]/str, optional): Department(s) to exclude.
+    - exclude_arrondissements (list[str]/str, optional): Arrondissement(s) to exclude.
 
     Returns:
     - pandas.DataFrame: Filtered dataframe.
     """
+
     # Convert single strings to lists for uniform handling
     regions = [regions] if isinstance(regions, str) else regions
     departments = [departments] if isinstance(departments, str) else departments
+    arrondissements = [arrondissements] if isinstance(arrondissements, str) else arrondissements
     exclude_regions = [exclude_regions] if isinstance(exclude_regions, str) else exclude_regions
     exclude_departments = [exclude_departments] if isinstance(exclude_departments, str) else exclude_departments
+    exclude_arrondissements = [exclude_arrondissements] if isinstance(exclude_arrondissements, str) else exclude_arrondissements
 
     if regions:
         matched_regions = [_get_best_match(region, data, 'region') for region in regions]
@@ -82,14 +88,21 @@ def filter_dataframe(data, regions=None, departments=None, exclude_regions=None,
         matched_departments = [_get_best_match(department, data, 'department') for department in departments]
         data = data[data['department'].isin(matched_departments)]
 
+    if arrondissements:
+        matched_arrondissements = [_get_best_match(arrondissement, data, 'arrondissement') for arrondissement in arrondissements]
+        data = data[data['arrondissement'].isin(matched_arrondissements)]
+
     if exclude_regions:
         matched_exclude_regions = [_get_best_match(region, data, 'region') for region in exclude_regions]
         data = data[~data['region'].isin(matched_exclude_regions)]
 
     if exclude_departments:
-        matched_exclude_departments = [_get_best_match(department, data, 'department') for department in
-                                       exclude_departments]
+        matched_exclude_departments = [_get_best_match(department, data, 'department') for department in exclude_departments]
         data = data[~data['department'].isin(matched_exclude_departments)]
+
+    if exclude_arrondissements:
+        matched_exclude_arrondissements = [_get_best_match(arrondissement, data, 'arrondissement') for arrondissement in exclude_arrondissements]
+        data = data[~data['arrondissement'].isin(matched_exclude_arrondissements)]
 
     return data
 
@@ -130,9 +143,9 @@ def top_restaurants(data, granularity, star_rating, top_n, display_restaurants=T
 
     # If there's only one unique value, you're dealing with a specific region, department, or arrondissement.
     if len(unique_values) == 1:
-        print(f"{star_unicode} restaurants in {unique_values[0]}\n")
+        print(f"{star_unicode} restaurants in {unique_values[0]}\n\n")
     else:
-        print(f"Top {top_n} {granularity}s with most {star_unicode} restaurants:\n")
+        print(f"Top {top_n} {granularity}s with most {star_unicode} restaurants:\n\n")
 
     # Displaying the top restaurants or areas
     for area, restaurant_count in top_areas.iteritems():
@@ -172,12 +185,12 @@ def plot_choropleth(df, column, title, granularity='department', restaurants=Fal
     if column not in df.columns:
         raise ValueError(
             f"The column '{column}' does not exist in the DataFrame. "
-            f"Available numerical columns are:\n{df.select_dtypes(include=['number']).columns.tolist()}")
+            f"Available numerical columns are:\n\n{df.select_dtypes(include=['number']).columns.tolist()}")
 
     if not np.issubdtype(df[column].dtype, np.number):
         raise ValueError(
             f"The column '{column}' does not contain numerical data. "
-            f"Available numerical columns are:\n{df.select_dtypes(include=['number']).columns.tolist()}")
+            f"Available numerical columns are:\n\n{df.select_dtypes(include=['number']).columns.tolist()}")
 
     fig, ax = plt.subplots(1, 1, figsize=figsize)
     df = df.to_crs("EPSG:2154")  # RGF93 / Lambert-93
@@ -200,9 +213,13 @@ def plot_choropleth(df, column, title, granularity='department', restaurants=Fal
     else:
         raise ValueError(f"Invalid granularity: {granularity}. Choose from ['region', 'department', 'arrondissement'].")
 
+    # Check for unique departments if the 'department' column exists
+    unique_departments = df['department'].unique() if 'department' in df.columns else []
     unique_regions = df['region'].unique()
 
-    if len(unique_regions) == 1:
+    if len(unique_departments) == 1:
+        title += f"\n{unique_departments[0]}"
+    elif len(unique_regions) == 1:
         title += f"\n{unique_regions[0]}"
 
     for x, y, label in zip(df.geometry.centroid.x, df.geometry.centroid.y, df[label_column]):
@@ -222,11 +239,13 @@ def plot_choropleth(df, column, title, granularity='department', restaurants=Fal
         transformer = pyproj.Transformer.from_crs("EPSG:4326", "EPSG:2154", always_xy=True)
 
         for star, color in star_colors.items():
-            for row in df.iterrows():
-                locations = row[1]['locations']
-                if locations[str(star)]:  # Check if it's not None
-                    for lat, long in locations[str(star)]:
-                        x, y = transformer.transform(long, lat)
+            for _, row in df.iterrows():
+                locations = row['locations']
+                if star in locations and locations[star] is not None:  # Check if locations for this star rating exist
+                    for lat, lon in locations[star]:  # Get lat, long for each restaurant
+                        x, y = transformer.transform(lon, lat)
+
+                        # Plot restaurant
                         ax.scatter(x, y, c=color, s=50, marker='d')
 
             if star not in added_labels:
@@ -237,9 +256,10 @@ def plot_choropleth(df, column, title, granularity='department', restaurants=Fal
 
         all_labels.extend([h.get_label() for h in all_handles[len(all_handles) - len(star_colors):]])
 
-    # Move the legend to the left
+    # Move the legend to the left and outside the plot
     if show_legend and (granularity in ['region', 'department', 'arrondissement'] or restaurants):
-        ax.legend(handles=all_handles, labels=all_labels, loc='upper left', bbox_to_anchor=(-0.2, 1), title="Legend")
+        ax.legend(handles=all_handles, labels=all_labels, loc='upper left',
+                  bbox_to_anchor=(1.05, 1), title="Legend", borderaxespad=0.)
 
     plt.suptitle(title)
     ax.set_yticklabels([])
@@ -252,35 +272,71 @@ def plot_choropleth(df, column, title, granularity='department', restaurants=Fal
     plt.show()
 
 
-def plot_department(geo_df, data_df, department_code,
-                    display_restaurants=True, display_info=False, figsize=(10, 10)):
+def plot_area_info(geo_df, data_df, code_or_name,
+                   display_restaurants=True, display_info=False, figsize=(10, 10)):
     """
-    Plot a department map with starred restaurants and display a list of those restaurants.
+    Plots Michelin Starred Restaurants on a map for a specified department or arrondissement and optionally
+    displays restaurant-specific info.
 
-    Args:
-        geo_df (GeoDataFrame): The GeoDataFrame containing department boundaries.
-        data_df (pandas.DataFrame): The standard dataframe with restaurant data.
-        department_code (str): The code for the department of interest.
-        display_restaurants (bool): If True, display individual restaurants on the map.
-        display_info (bool): If True, print additional info about restaurants.
-        figsize (tuple): Size of the figure to plot. Default (10,10)
+    Parameters:
+    -----------
+    geo_df : GeoDataFrame containing boundaries and relevant demographic data
+
+    data_df : DataFrame containing restaurant information
+
+    code_or_name : str or int
+        The name of the department/arrondissement or the code. For department, code is usually a 2-digit number.
+
+    display_restaurants : bool, optional
+        If True, plots the location of Michelin Starred Restaurants on the map.
+        Default is True.
+
+    display_info : bool, optional
+        If True, prints additional info for each restaurant.
+        Default is False.
+
+    figsize : tuple, optional
+        Size of the plotted map. Default is (10, 10).
+
+    Returns:
+    --------
+    None
+        Displays a map and prints relevant demographic and restaurant-specific info.
+
+    Example:
+    --------
+    >>> plot_area_info(geo_df=arrondissements, data_df=all_france, code_or_name='Nice',
+                       display_restaurants=True, display_info=True)
+
+    Notes:
+    ------
+    The function automatically determines the granularity (department vs. arrondissement)
+    based on the columns present in `geo_df`.
     """
-    # Filter out 0.5 star restaurants
-    data_df = data_df[data_df['stars'] != 0.5]
+    # Determine the granularity based on geo_df
+    if 'arrondissement' in geo_df.columns:
+        granularity = 'arrondissement'
+    else:
+        granularity = 'department'
 
-    # Filter both dataframes by department_code
-    dept_geo = geo_df[geo_df['code'] == department_code]
-    dept_data = data_df[data_df['department_num'] == department_code]
+    # Handle input based on granularity
+    if granularity == 'arrondissement':
+        arrondissement_name = _get_best_match(code_or_name, geo_df, 'arrondissement')
+        filtered_geo = geo_df[geo_df['arrondissement'] == arrondissement_name]
+        filtered_data = data_df[data_df['arrondissement'] == arrondissement_name]
+    else:
+        filtered_geo = geo_df[geo_df['code'] == code_or_name]
+        filtered_data = data_df[data_df['department_num'] == code_or_name]
 
     fig, ax = plt.subplots(figsize=figsize)
-    dept_geo.plot(ax=ax, color='lightgrey', edgecolor='k')
+    filtered_geo.plot(ax=ax, color='lightgrey', edgecolor='k')
 
     if display_restaurants:
         star_colors = {'1': 'green', '2': 'orange', '3': 'red'}
 
         added_stars = set()
         for star, color in star_colors.items():
-            star_data = dept_data[dept_data['stars'] == float(star)]
+            star_data = filtered_data[filtered_data['stars'] == float(star)]
             for _, row in star_data.iterrows():
                 ax.scatter(row['longitude'], row['latitude'], c=color, s=50, marker='d',
                            label=f"{star} star" if star not in added_stars else "")
@@ -290,38 +346,43 @@ def plot_department(geo_df, data_df, department_code,
     unique_labels = dict(zip(labels, handles))
     ax.legend(unique_labels.values(), unique_labels.keys())
 
-    ax.set_title(f"Michelin Starred Restaurants\n{dept_geo['department'].values[0]}")
+    area_info = filtered_geo.iloc[0]
+    title_value = area_info[granularity] if granularity == 'arrondissement' else area_info['department']
+    ax.set_title(f"Michelin Starred Restaurants\n{title_value}")
     ax.set_axis_off()
     plt.show()
 
-    # 2. Demographics:
-    dept_info = dept_geo.iloc[0]  # get the information of the department from the GeoDataFrame
+    # Dynamic demographics
+    common_cols = ['region', 'capital', 'municipal_population', 'population_density(inhabitants/sq_km)']
 
-    capital = dept_info['capital']
-    population = dept_info['municipal_population']  # round to nearest 1000
-    pop_density = dept_info['population_density(inhabitants/sq_km)']
-    area = dept_info['area(sq_km)']
-    gdp = dept_info['GDP_per_capita(€)']
-    poverty = dept_info['poverty_rate(%)']
-    unemployment = dept_info['average_annual_unemployment_rate(%)']
-    hourly_wage = dept_info['average_net_hourly_wage(€)']
+    if granularity == 'department':
+        specific_cols = ['area(sq_km)', 'average_net_hourly_wage(€)', 'poverty_rate(%)',
+                         'average_annual_unemployment_rate(%)', 'GDP_per_capita(€)']  # department-specific
+    else:
+        specific_cols = ['average_net_hourly_wage(€)', 'poverty_rate(%)']  # arrondissement-specific
 
-    print(f"Demographics of {dept_info['department']} ({dept_info['code']}):\n")
-    print(f"Capital: {capital}")
-    print(f"Population: {population}")
-    print(f"Population Density: {pop_density:.2f} people/sq. km")
-    print(f"Area: {area:.2f} sq. km")
-    print(f"Per Capita GDP: {gdp:.2f} €")
-    print(f"Poverty Rate: {poverty} %")
-    print(f"Unemployment Rate: {unemployment} %")
-    print(f"Mean Hourly Wage: {hourly_wage} €\n\n\n")
+    demographic_cols = common_cols + specific_cols
+
+    # Print the demographic data dynamically
+    print(f"Demographics of {area_info[granularity]}:\n")
+    for col in demographic_cols:
+        # Split the column name by underscores
+        words = col.split('_')
+        # Capitalize each word
+        capitalized_words = [word.capitalize() for word in words if not word.startswith('(')]
+        # Special case for 'GDP'
+        capitalized_words = ['GDP' if word == 'Gdp' else word for word in capitalized_words]
+        # Form the name and print it
+        name = ' '.join(capitalized_words)
+        print(f"{name}: {area_info[col]} ")  # Note that we use col here, not the formatted_name
+    print("\n\n\n")
 
     # 3. List of Starred Restaurants:
     star_columns = ['3_star', '2_star', '1_star']
 
     for star_col in star_columns:
         # Extract the star count and determine the appropriate Unicode star symbol
-        star_count = dept_geo[star_col].values[0]
+        star_count = filtered_geo[star_col].values[0]
         if star_count > 0:  # Only proceed if there are restaurants with that star rating
             star_rating = int(star_col.split('_')[0])
             star_unicode = star_rating * u'\u2B50'
@@ -330,9 +391,9 @@ def plot_department(geo_df, data_df, department_code,
             print(f"{star_count} {star_unicode} {restaurant_word}:\n")
 
             # Get the restaurants from the data dataframe with the matching star rating
-            restaurants_in_dept = dept_data[dept_data['stars'] == star_rating]
+            restaurants_in_area = filtered_data[filtered_data['stars'] == star_rating]
 
-            for _, restaurant in restaurants_in_dept.iterrows():
+            for _, restaurant in restaurants_in_area.iterrows():
                 if display_info:
                     print(f"Restaurant: {restaurant['name']}"
                           f"\nAddress: {restaurant['address']}"
