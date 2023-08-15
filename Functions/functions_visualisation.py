@@ -135,6 +135,11 @@ def top_restaurants(data, granularity, star_rating, top_n, display_restaurants=T
     # Determine the unique values in the granularity column
     unique_values = filtered_data[granularity].unique()
 
+    # Handle cases where unique values are less than top_n
+    if len(unique_values) < top_n:
+        print(f"Only {len(unique_values)} unique {granularity}s found.\n")
+        top_n = len(unique_values)
+
     # Sort filtered_data by granularity
     sorted_filtered_data = filtered_data.sort_values(by=[granularity])
 
@@ -159,7 +164,7 @@ def top_restaurants(data, granularity, star_rating, top_n, display_restaurants=T
             for index, row in restaurants_in_area.iterrows():
                 print(f"Restaurant: {row['name']}\nLocation: {row['location']}")
                 if display_info:
-                    print(f"Style of Cuisine: {row['cuisine']}\nURL: {row['url']}\n")
+                    print(f"Style of Cuisine: {row['cuisine']}\n[{row['name']}]({row['url']})\n")
         print("\n")
 
 
