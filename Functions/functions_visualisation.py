@@ -108,7 +108,7 @@ def filter_dataframe(data, regions=None, departments=None, arrondissements=None,
     return data
 
 
-def top_restaurants(data, granularity, star_rating, top_n, display_restaurants=True, display_info=False):
+def top_restaurants(data, granularity, star_rating, top_n, display_restaurants=True):
     """
     Display top_n restaurants with the highest count of 'star_rating' restaurants
     based on different levels of granularity: region, department, or arrondissement.
@@ -122,7 +122,6 @@ def top_restaurants(data, granularity, star_rating, top_n, display_restaurants=T
         star_rating (int): The Michelin star rating (1, 2, or 3).
         top_n (int): The number of top (granularity) to consider.
         display_restaurants (bool): Whether to display individual restaurants. Default is True.
-        display_info (bool): prints style of cuisine and URL. Default is False.
     """
     # Filter out 'bib_gourmands' before the analysis
     data = data[data['stars'].isin([1.0, 2.0, 3.0])]
@@ -162,11 +161,10 @@ def top_restaurants(data, granularity, star_rating, top_n, display_restaurants=T
         print(f"{granularity.capitalize()}: {area}\n{restaurant_count} {star_unicode} {restaurant_word}\n")
 
         if display_restaurants:
-            for index, row in restaurants_in_area.iterrows():
-                print(f"Restaurant: {row['name']}\nLocation: {row['location']}")
-                if display_info:
-                    link = f"<a href='{row['url']}' target='_blank'>{row['name']} URL</a>"
-                    display(HTML(f"Style of Cuisine: {row['cuisine']}<br>{link}<br>"))
+            for _, row in restaurants_in_area.iterrows():
+                link = f"<a href='{row['url']}' target='_blank'>{row['name']}</a>"
+                display(HTML(
+                    f"Restaurant: {link}<br>Location: {row['location']}<br>Style of Cuisine: {row['cuisine']}<br>"))
         print("\n")
 
 
