@@ -400,11 +400,11 @@ def plot_area_info(geo_df, data_df, code_or_name,
 
             for _, restaurant in restaurants_in_area.iterrows():
                 if display_info:
-                    print(f"Restaurant: {restaurant['name']}"
-                          f"\nAddress: {restaurant['address']}"
-                          f"\nLocation: {restaurant['location']}"
-                          f"\nStyle of Cuisine: {restaurant['cuisine']}"
-                          f"\nURL: {restaurant['url']}"
-                          f"\nPrice: {restaurant['price']}\n")
+                    link = f"<a href='{restaurant['url']}' target='_blank'>{restaurant['name']}</a>"
+                    html_content = (f"Restaurant: {link}<br>Address: {restaurant['address']}<br>Location:"
+                                    f" {restaurant['location']}<br>Style of Cuisine: {restaurant['cuisine']}<br>Price:"
+                                    f" {restaurant['price']}<br><br>")
+                    display(HTML(html_content))
+                    print()  # This will add a newline after each restaurant block for better readability
             print("")
 
