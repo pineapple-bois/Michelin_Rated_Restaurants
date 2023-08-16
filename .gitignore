@@ -1,0 +1,21 @@
+# System files
+.DS_Store
+
+# IDE settings
+.idea/
+
+# Python cached files
+__pycache__/
+*.pyc
+
+# Specific directories and their contents
+Functions/__pycache__/
+Notebooks/.DS_Store
+Notebooks/France/.DS_Store
+Notebooks/France/__pycache__/
+Old_Files/
+data/.DS_Store
+data/France/.DS_Store
+data/France/Demographics/.DS_Store
+data/France/Geodata/.DS_Store
+data/UK/.DS_Store
