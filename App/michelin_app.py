@@ -8,24 +8,21 @@ from dash import dcc, html
 from dash.dependencies import Input, Output
 
 
-# Exclude Bib Gourmand restaurants
-all_france = pd.read_csv("/Users/Ian/Documents/Study/Stage3/Programming/Github/Michelin_Rated_Restaurants/data"
-                         "/France/all_restaurants(arrondissements).csv")
+# Load restaurant data
+url = ("https://raw.githubusercontent.com/pineapple-bois/Michelin_Rated_Restaurants/"
+       "main/data/France/all_restaurants(arrondissements).csv")
+all_france = pd.read_csv(url)
 
-# Load GeoJSON departmental data - Exclude Bibs
-geo_df = gpd.read_file("/Users/Ian/Documents/Study/Stage3/Programming/Github/Michelin_Rated_Restaurants/data/"
-                       "France/department_restaurants.geojson")
+# Load GeoJSON departmental data
+geojson_url = ("https://raw.githubusercontent.com/pineapple-bois/Michelin_Rated_Restaurants/"
+               "main/data/France/department_restaurants.geojson")
+geo_df = gpd.read_file(geojson_url)
 
 # Get unique department numbers with restaurants
 departments_with_restaurants = all_france['department_num'].unique()
 
 # Filter geo_df
 geo_df = geo_df[geo_df['code'].isin(departments_with_restaurants)]
-
-
-with open("/Users/Ian/Documents/Study/Stage3/Programming/Github/Michelin_Rated_Restaurants/data/"
-                       "France/department_restaurants.geojson", "r") as file:
-    geo_data = json.load(file)
 
 
 def plot_interactive_department(data_df, geo_df, department_code, selected_stars):
@@ -159,11 +156,29 @@ def update_department_dropdown(selected_region):
 )
 def update_map(selected_department, selected_stars):
     if selected_department is None:
-        # Handle this case, e.g., return an empty figure or a default figure
-        return go.Figure()
+        # Create an empty figure with map centered around France
+        fig = go.Figure(go.Scattermapbox())
+
+        fig.update_layout(
+            plot_bgcolor='black',
+            paper_bgcolor='black',
+            title="Michelin Guide to France",
+            font=dict(
+                family="Courier New, monospace",
+                size=18,
+                color="white"
+            ),
+            width=1000,
+            height=800,
+            mapbox_style="carto-positron",
+            mapbox_zoom=5,
+            mapbox_center_lat=46.603354,  # Approximate latitude for France center
+            mapbox_center_lon=1.888334  # Approximate longitude for France center
+        )
+        return fig
     department_code = dept_to_code[selected_department]
     fig = plot_interactive_department(all_france, geo_df, department_code, selected_stars)
     return fig
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)
