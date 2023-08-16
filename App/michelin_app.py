@@ -68,7 +68,7 @@ def plot_interactive_department(data_df, geo_df, department_code, selected_stars
     dept_data = data_df[(data_df['department_num'] == str(department_code)) & (data_df['stars'].isin(selected_stars))].copy()
     dept_data['color'] = dept_data['stars'].map(color_map)
 
-    # Modify the hover text function to consider Bibs
+    # Modify the hover text function
     dept_data['hover_text'] = dept_data.apply(
         lambda row: f"<span style='font-family: Courier New, monospace;'><b>{row['name']}</b><br>{'⭐' * int(row['stars']) if row['stars'] != 0.5 else 'Bib Gourmand'}<br>"
                     f"Location: {row['location']}<br>Cuisine: {row['cuisine']}<br>"
@@ -113,6 +113,21 @@ def plot_interactive_department(data_df, geo_df, department_code, selected_stars
         mapbox_center_lon=dept_data['longitude'].mean()
     )
 
+    # Add the annotation for user guidance
+    fig.add_annotation(
+        go.layout.Annotation(
+            text="ℹ️",
+            xref="paper",
+            yref="paper",
+            x=1.004,  # Adjust these values for optimal placement
+            y=1.03,
+            showarrow=False,
+            font=dict(size=15, family="Courier New, monospace"),  # Adjust size if needed and set the font family
+            hovertext="<span style='white-space: pre;'>Legend:<br>Single click to remove star rating.<br>Double click to isolate.</span>",
+            hoverlabel=dict(font=dict(family="Courier New, monospace"))  # Set the font family for the hoverlabel
+        )
+    )
+
     return fig
 
 
@@ -134,14 +149,6 @@ app.layout = html.Div([
     ),
     dcc.Dropdown(
         id='department-dropdown',
-        style={"fontFamily": "Courier New, monospace"}
-    ),
-    dcc.Dropdown(
-        id='star-dropdown',
-        options=[{'label': 'Bib Gourmand', 'value': 0.5}, {'label': '1 Star', 'value': 1},
-                 {'label': '2 Stars', 'value': 2}, {'label': '3 Stars', 'value': 3}],
-        value=[0.5, 1, 2, 3],  # default value (all ratings)
-        multi=True,  # Allow multiple selection
         style={"fontFamily": "Courier New, monospace"}
     ),
     dcc.Graph(id='map-display'),
@@ -173,10 +180,11 @@ def update_department_dropdown(selected_region):
 
 @app.callback(
     Output('map-display', 'figure'),
-    [Input('department-dropdown', 'value'),
-     Input('star-dropdown', 'value')]
+    [Input('department-dropdown', 'value')]
 )
-def update_map(selected_department, selected_stars):
+def update_map(selected_department):
+    # Show all stars by default
+    selected_stars = [0.5, 1, 2, 3]
     if selected_department is None:
         # Create an empty figure with map centered around France
         fig = go.Figure(go.Scattermapbox())
@@ -203,4 +211,4 @@ def update_map(selected_department, selected_stars):
     return fig
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)
