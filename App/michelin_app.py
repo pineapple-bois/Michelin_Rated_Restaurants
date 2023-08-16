@@ -24,6 +24,13 @@ departments_with_restaurants = all_france['department_num'].unique()
 # Filter geo_df
 geo_df = geo_df[geo_df['code'].isin(departments_with_restaurants)]
 
+star_descriptions = {
+    3: "⭐⭐⭐ - Exceptional cuisine, worth a special journey",
+    2: "⭐⭐ - Excellent cooking, worth a detour",
+    1: "⭐ - High-quality cooking, worth a stop",
+    0.5: "- Bib Gourmand - Exceptionally good food at moderate prices"
+}
+
 
 def plot_interactive_department(data_df, geo_df, department_code, selected_stars):
     # Initialize a blank figure
@@ -63,10 +70,10 @@ def plot_interactive_department(data_df, geo_df, department_code, selected_stars
 
     # Modify the hover text function to consider Bibs
     dept_data['hover_text'] = dept_data.apply(
-        lambda row: f"<b>{row['name']}</b><br>{'⭐' * int(row['stars']) if row['stars'] != 0.5 else 'Bib Gourmand'}<br>"
+        lambda row: f"<span style='font-family: Courier New, monospace;'><b>{row['name']}</b><br>{'⭐' * int(row['stars']) if row['stars'] != 0.5 else 'Bib Gourmand'}<br>"
                     f"Location: {row['location']}<br>Cuisine: {row['cuisine']}<br>"
-                    f"<a href='{row['url']}' target='_blank'>Visit website</a><br>"
-                    f"Price: {row['price']}",
+                    f"<a href='{row['url']}' target='_blank' style='font-family: Courier New, monospace;'>Visit website</a><br>"
+                    f"Price: {row['price']}</span>",
         axis=1
     )
 
@@ -128,7 +135,6 @@ app.layout = html.Div([
     dcc.Dropdown(
         id='department-dropdown',
         style={"fontFamily": "Courier New, monospace"}
-        # ... Your existing code ...
     ),
     dcc.Dropdown(
         id='star-dropdown',
@@ -136,9 +142,25 @@ app.layout = html.Div([
                  {'label': '2 Stars', 'value': 2}, {'label': '3 Stars', 'value': 3}],
         value=[0.5, 1, 2, 3],  # default value (all ratings)
         multi=True,  # Allow multiple selection
-        style = {"fontFamily": "Courier New, monospace"}
+        style={"fontFamily": "Courier New, monospace"}
     ),
-    dcc.Graph(id='map-display')
+    dcc.Graph(id='map-display'),
+    html.Div([
+        html.Div([
+            # For the Bib Gourmand, combine logo and description inside a Div
+            html.Div([
+                html.Img(
+                    src="/assets/Michelin_Bib_Gourmand.png",
+                    style={"width": "20px", "verticalAlign": "middle", "marginRight": "10px", "display": "inline-block"}
+                ),
+                html.H6(star_descriptions[key], style={"fontFamily": "Courier New, monospace",
+                                                       "fontSize": "18px", "display": "inline-block",
+                                                       "margin": "5px 0"})
+            ], style={"display": "inline-block"})
+            if key == 0.5 else
+            html.H6(star_descriptions[key], style={"fontFamily": "Courier New, monospace", "fontSize": "18px"})
+        ]) for key in star_descriptions
+    ], style={'marginTop': '20px'})
 ])
 
 @app.callback(
@@ -181,4 +203,4 @@ def update_map(selected_department, selected_stars):
     return fig
 
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True)
