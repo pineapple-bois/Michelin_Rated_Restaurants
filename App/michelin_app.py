@@ -2,8 +2,10 @@ import pandas as pd
 import geopandas as gpd
 import plotly.express as px
 import plotly.graph_objects as go
+import os
 import json
 import dash
+import dash_bootstrap_components as dbc
 from dash import dcc, html
 from dash.dependencies import Input, Output
 
@@ -35,6 +37,7 @@ star_descriptions = {
 def plot_interactive_department(data_df, geo_df, department_code, selected_stars):
     # Initialize a blank figure
     fig = go.Figure()
+    fig.update_layout(autosize=True)
 
     # Get the specific geometry
     specific_geometry = geo_df[geo_df['code'] == str(department_code)]['geometry'].iloc[0]
@@ -113,26 +116,12 @@ def plot_interactive_department(data_df, geo_df, department_code, selected_stars
         mapbox_center_lon=dept_data['longitude'].mean()
     )
 
-    # Add the annotation for user guidance
-    fig.add_annotation(
-        go.layout.Annotation(
-            text="ℹ️",
-            xref="paper",
-            yref="paper",
-            x=1.004,  # Adjust these values for optimal placement
-            y=1.03,
-            showarrow=False,
-            font=dict(size=15, family="Courier New, monospace"),  # Adjust size if needed and set the font family
-            hovertext="<span style='white-space: pre;'>Legend:<br>Single click to remove star rating.<br>Double click to isolate.</span>",
-            hoverlabel=dict(font=dict(family="Courier New, monospace"))  # Set the font family for the hoverlabel
-        )
-    )
-
     return fig
 
 
 # Initialize the Dash app
-app = dash.Dash(__name__)
+app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
+server = app.server
 
 # Use geo_df to get unique regions and departments for the initial dropdowns
 unique_regions = geo_df['region'].unique()
@@ -140,35 +129,52 @@ initial_departments = geo_df[geo_df['region'] == unique_regions[0]][['department
 initial_options = [{'label': f"{dept['department']} ({dept['code']})", 'value': dept['department']} for dept in initial_departments]
 dept_to_code = geo_df.drop_duplicates(subset='department').set_index('department')['code'].to_dict()
 
-app.layout = html.Div([
-    dcc.Dropdown(
-        id='region-dropdown',
-        options=[{'label': region, 'value': region} for region in unique_regions],
-        value=unique_regions[0],  # default value
-        style={"fontFamily": "Courier New, monospace"}
-    ),
-    dcc.Dropdown(
-        id='department-dropdown',
-        style={"fontFamily": "Courier New, monospace"}
-    ),
-    dcc.Graph(id='map-display'),
-    html.Div([
-        html.Div([
-            # For the Bib Gourmand, combine logo and description inside a Div
+app.layout = dbc.Container([
+    dbc.Row([
+        dbc.Col([
+            dcc.Dropdown(
+                id='region-dropdown',
+                options=[{'label': region, 'value': region} for region in unique_regions],
+                value=unique_regions[0],  # default value
+                style={"fontFamily": "Courier New, monospace"}
+            )
+        ]),
+        dbc.Col([
+            dcc.Dropdown(
+                id='department-dropdown',
+                style={"fontFamily": "Courier New, monospace"}
+            )
+        ])
+    ]),
+    dbc.Row([
+        dbc.Col([
+            dcc.Graph(id='map-display', responsive=True, style={"height": "80vh"})
+        ])
+    ]),
+    dbc.Row([
+        dbc.Col([
             html.Div([
-                html.Img(
-                    src="/assets/Michelin_Bib_Gourmand.png",
-                    style={"width": "20px", "verticalAlign": "middle", "marginRight": "10px", "display": "inline-block"}
-                ),
-                html.H6(star_descriptions[key], style={"fontFamily": "Courier New, monospace",
-                                                       "fontSize": "18px", "display": "inline-block",
-                                                       "margin": "5px 0"})
-            ], style={"display": "inline-block"})
-            if key == 0.5 else
-            html.H6(star_descriptions[key], style={"fontFamily": "Courier New, monospace", "fontSize": "18px"})
-        ]) for key in star_descriptions
-    ], style={'marginTop': '20px'})
-])
+                html.Div([
+                    # For the Bib Gourmand, combine logo and description inside a Div
+                    html.Div([
+                        html.Img(
+                            src="https://upload.wikimedia.org/wikipedia/commons/6/6e/Michelin_Bib_Gourmand.png",
+                            style={"width": "20px", "verticalAlign": "middle", "marginRight": "10px", "display": "inline-block"}
+                        ),
+                        html.H6(star_descriptions[key],
+                                style={"fontFamily": "Courier New, monospace",
+                                       "fontSize": "18px", "display": "inline-block",
+                                       "margin": "5px 0"})
+                    ], style={"display": "inline-block"})
+                    if key == 0.5 else
+                    html.H6(star_descriptions[key],
+                            style={"fontFamily": "Courier New, monospace", "fontSize": "18px"})
+                ]) for key in star_descriptions
+            ], style={'marginTop': '20px'})
+        ])
+    ])
+], fluid=True)
+
 
 @app.callback(
     Output('department-dropdown', 'options'),
@@ -211,4 +217,5 @@ def update_map(selected_department):
     return fig
 
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
