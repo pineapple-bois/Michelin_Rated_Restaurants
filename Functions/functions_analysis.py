@@ -6,9 +6,15 @@ import math
 import re
 
 
+import math
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
 def plot_high_correlations(df, level='regional', threshold=0.7):
     """
     Plots heatmaps of high correlation matrices either at the regional or departmental level.
+    Returns a dictionary of correlation matrices above the threshold.
 
     Args:
     - df (DataFrame): The data.
@@ -16,48 +22,54 @@ def plot_high_correlations(df, level='regional', threshold=0.7):
     - threshold (float): The absolute correlation value above which to plot. (Default=0.7)
 
     Returns:
-    - None
+    - high_corrs (dict): A dictionary where keys are segments and values are correlation matrices with values above threshold.
     """
     if level == 'regional':
         segments = df['region'].unique()
-        filter_key = 'region'  # Corrected key for DataFrame filtering
+        filter_key = 'region'
     elif level == 'departmental':
         segments = df['department'].unique()
-        filter_key = 'department'  # Corrected key for DataFrame filtering
+        filter_key = 'department'
     else:
         raise ValueError("The 'level' argument must be either 'regional' or 'departmental'.")
 
-    # Calculate grid size based on the number of segments (regions or departments)
+    # Calculate grid size based on the number of segments
     grid_size = math.ceil(math.sqrt(len(segments)))
 
     # Set up the grid plot layout
     fig, axes = plt.subplots(nrows=grid_size, ncols=grid_size, figsize=(6 * grid_size, 6 * grid_size))
 
-    # Handle different number of segments cases for axes dimensionality
     if len(segments) == 1:
         axes = [[axes]]
     elif len(segments) < 4:
         axes = [axes]
 
+    high_corrs = {}  # Dictionary to store high correlation matrices for each segment
+
     for index, segment in enumerate(segments):
-        # Segment data either by region or by department
         segment_data = df[df[filter_key] == segment]
         corr = segment_data.corr()
 
-        # Mask to filter correlations below the threshold
-        mask = (corr < threshold) & (corr > -threshold)
+        # Mask for upper triangle and low correlations
+        mask = np.triu(np.ones_like(corr, dtype=bool)) | (corr.abs() < threshold)
+
+        high_corr = corr[~mask].dropna(how='all').T.dropna(how='all')  # filter NaN rows and columns
+
+        # Add to the dictionary
+        high_corrs[segment] = high_corr
 
         row, col = divmod(index, grid_size)
         sns.heatmap(corr, annot=True, cmap='coolwarm', vmin=-1, vmax=1, ax=axes[row][col], mask=mask)
         axes[row][col].set_title(f"{segment}")
 
-    # Turn off any remaining unused subplots
     for i in range(index + 1, grid_size * grid_size):
         row, col = divmod(i, grid_size)
         axes[row][col].axis('off')
 
     plt.tight_layout()
     plt.show()
+
+    return high_corrs
 
 
 def print_overview_stats(overview):
@@ -105,6 +117,68 @@ def print_overview_stats(overview):
         print("=" * len(header_row))  # Print a separator between regions
 
 
+def plot_boxplots(data, columns, x_col='region'):
+    """
+    Generate box plots for a list of columns against a categorical column.
+
+    Args:
+    - data (DataFrame): The source data.
+    - columns (list): List of columns for which to create box plots.
+    - x_col (str): The categorical column to plot against (default: 'region').
+
+    Returns:
+    - None
+    """
+    # Set the style
+    sns.set_style("whitegrid")
+
+    # Define a dictionary mapping column names to units
+    units_map = {
+        'poverty_rate': '%',
+        'unemployment_rate': '%',
+        'net_wage': '€',
+        'per_capita_GDP': '€',
+        'population': 'people',
+        'pop_density': 'inhabitants/sq_km',
+    }
+
+    for col in columns:
+        plt.figure(figsize=(12, 6))
+
+        # Creating a temporary DataFrame to capitalize elements of the x_col
+        temp_data = data.copy()
+        temp_data[x_col] = temp_data[x_col].str.title()  # Use title() to capitalize each word
+
+        sns.boxplot(data=temp_data, x=x_col, y=col, palette='pastel')
+
+        # Constructing the y-label using the units_map
+        words = col.split('_')
+        ylabel = ""
+
+        for word in words:
+            if "gdp" in word.lower():
+                ylabel += "GDP"
+            else:
+                ylabel += word.capitalize()
+            ylabel += ' '
+
+        if col in units_map:
+            ylabel += f'({units_map[col]})'
+
+        # Removing the trailing space
+        ylabel = ylabel.strip()
+
+        # Adding title and labels
+        plt.title(f'Distribution of {ylabel} by Region', fontsize=16)
+        plt.xlabel(x_col.capitalize(), fontsize=14)
+        plt.ylabel(ylabel, fontsize=14)
+        plt.xticks()  # Rotate x_col values for clarity
+
+        # Display the plot
+        plt.tight_layout()
+        plt.show()
+
+
 def find_extreme_departments(df, column_names):
     """
     Find the department with the maximum and minimum value of the given columns for each region.
@@ -128,9 +202,9 @@ def find_extreme_departments(df, column_names):
         'poverty_rate': '%',
         'unemployment_rate': '%',
         'net_wage': '€',
+        'per_capita_GDP': '€',
         'population': 'people',
-        'pop_density': 'inhabitants/sq_km',
-        # Add other columns and their units as required
+        'pop_density': 'inhabitants/sq_km'
     }
 
     grouped_regions = df['region'].unique()
