@@ -169,7 +169,7 @@ def top_restaurants(data, granularity, star_rating, top_n, display_restaurants=T
                 else:
                     restaurant_name = f"<a href='{row['url']}' target='_blank'>{row['name']}</a>"
 
-                html_content = (f"Restaurant: {restaurant_name}<br>Address: {row['address']}<br>Location:"
+                html_content = (f"<br>Restaurant: {restaurant_name}<br>Address: {row['address']}<br>Location:"
                                 f" {row['location']}<br>Style of Cuisine: {row['cuisine']}<br>Price:"
                                 f" {row['price']}<br><br>")
                 display(HTML(html_content))
@@ -414,7 +414,7 @@ def plot_area_info(geo_df, data_df, code_or_name,
                     else:
                         restaurant_name = f"<a href='{restaurant['url']}' target='_blank'>{restaurant['name']}</a>"
 
-                    html_content = (f"Restaurant: {restaurant_name}<br>Address: {restaurant['address']}<br>Location:"
+                    html_content = (f"<br>Restaurant: {restaurant_name}<br>Address: {restaurant['address']}<br>Location:"
                                     f" {restaurant['location']}<br>Style of Cuisine: {restaurant['cuisine']}<br>Price:"
                                     f" {restaurant['price']}<br><br>")
                     display(HTML(html_content))
