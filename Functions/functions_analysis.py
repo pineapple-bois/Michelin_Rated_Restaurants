@@ -4,12 +4,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import math
 import re
-
-
 import math
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+
 
 def plot_high_correlations(df, level='regional', threshold=0.7):
     """
@@ -232,7 +231,7 @@ def find_extreme_departments(df, column_names):
         print("-" * 50)  # Print a separator between regions
 
 
-def plot_side_by_side(df, cols_of_interest, french_means):
+def plot_side_by_side(df, cols_of_interest, french_means, granularity='department'):
     """
     Plot side-by-side bar charts for each column in cols_of_interest.
 
@@ -240,6 +239,7 @@ def plot_side_by_side(df, cols_of_interest, french_means):
     - df (DataFrame): Dataframe containing the data.
     - cols_of_interest (list of str): List of column names to plot.
     - french_means (dict): Dictionary mapping from metric names to their corresponding French means.
+    - granularity (str): Level of granularity - 'arrondissement', or 'department'. Default is 'department'.
 
     Returns:
     - None. Displays the plots.
@@ -248,6 +248,8 @@ def plot_side_by_side(df, cols_of_interest, french_means):
     cols_of_interest. If a matching French mean is found for a given column, it will be displayed as
     a horizontal dashed line on the corresponding plot.
     """
+    # Set the label column based on granularity
+    label_column = 'code' if granularity == 'department' else 'arrondissement'
 
     n_metrics = len(cols_of_interest)
 
@@ -282,7 +284,7 @@ def plot_side_by_side(df, cols_of_interest, french_means):
             ax.axhline(y=matching_mean, color='r', linestyle='--', label='French Avg')
 
         # Plot data
-        ax.bar(df['code'], df[col], label='Department Value')
+        ax.bar(df[label_column], df[col], label='Value')
 
         # Set y-axis limits for a better representation
         data_min = df[col].min()
@@ -292,9 +294,9 @@ def plot_side_by_side(df, cols_of_interest, french_means):
 
         # Set title, labels, and ticks
         ax.set_title(col.replace("_", " "))
-        ax.set_xlabel('Department Code')
+        ax.set_xlabel('Department Code' if granularity == 'department' else 'Arrondissement')
         ax.set_ylabel(f"{col} {unit}")
-        ax.set_xticks(df['code'])
+        ax.set_xticks(df[label_column])
         ax.legend()
 
     plt.tight_layout()

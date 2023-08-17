@@ -285,6 +285,91 @@ def plot_choropleth(df, column, title, granularity='department', restaurants=Fal
     plt.show()
 
 
+def plot_multi_choropleth(df, columns, titles, granularity='department', show_labels=True, cmap='Blues',
+                          figsize=(10, 10), restaurants=False):
+    """
+    Function to plot a choropleth map.
+
+    Args:
+        df (GeoDataFrame): The DataFrame containing the data.
+        columns (list): The names of the columns to plot.
+        titles (list): The titles of the plots.
+        granularity (str): Level of granularity - 'arrondissement', 'department', or 'region'. Default is 'department'.
+        show_labels (bool): Whether to show the labels. Default is True.
+        cmap (str): The colormap to use. Default is 'Blues'.
+        figsize (tuple): The size of the figure. Default is (10, 10).
+        restaurants (bool): Whether to plot restaurants. Default is False.
+
+    Returns:
+        None
+    """
+    # Before plotting, ensure data is available for the chosen granularity.
+    if granularity == 'arrondissement':
+        missing_columns = [col for col in columns if col in ['GDP_millions(€)', 'per_capita_GDP', 'unemployment_rate']]
+        if missing_columns:
+            raise ValueError(
+                f"Data for\n{missing_columns}\nis not available at the 'arrondissement' granularity.")
+
+    # Convert to a projected CRS for accurate centroid calculation and plotting.
+    df = df.to_crs("EPSG:2154")  # Lambert-93
+
+    # Ensure that `columns` and `titles` are lists
+    if not isinstance(columns, list):
+        columns = [columns]
+    if not isinstance(titles, list):
+        titles = [titles]
+
+    cols = len(columns)
+    fig, axes = plt.subplots(1, cols, figsize=figsize)
+    if cols == 1:
+        axes = [axes]
+
+    for ax, column, title in zip(axes, columns, titles):
+        df.plot(column=column,
+                cmap=cmap,
+                linewidth=0.8,
+                ax=ax,
+                edgecolor='0.8',
+                legend=True,
+                legend_kwds={'orientation': "horizontal"})
+        ax.set_title(title)
+
+        # If show_labels is True, display labels based on granularity
+        if show_labels:
+            if granularity == 'region':
+                label_column = 'region'
+            elif granularity in ['department', 'arrondissement']:
+                label_column = 'code'
+            else:
+                raise ValueError(
+                    f"Invalid granularity: {granularity}. Choose from ['region', 'department', 'arrondissement'].")
+
+            for x, y, label in zip(df.geometry.centroid.x, df.geometry.centroid.y, df[label_column]):
+                ax.text(x, y, label, fontsize=8, backgroundcolor='white')
+
+        # Plot restaurants if restaurants argument is True
+        if restaurants:
+            star_colors = {'1': 'green', '2': 'orange', '3': 'red'}
+            for star, color in star_colors.items():
+                for _, row in df.iterrows():
+                    locations = row['locations']
+                    if star in locations and locations[
+                        star] is not None:  # Check if locations for this star rating exist
+                        for lat, lon in locations[star]:  # Get lat, long for each restaurant
+                            x, y = pyproj.Transformer.from_crs("EPSG:4326", "EPSG:2154", always_xy=True).transform(lon,
+                                                                                                                   lat)
+                            ax.scatter(x, y, c=color, s=50, marker='d')
+
+        ax.set_yticklabels([])
+        ax.set_xticklabels([])
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.axis('off')
+
+    fig.tight_layout(rect=[0, 0, 1, 0.96])
+    plt.show()
+
+
 def plot_area_info(geo_df, data_df, code_or_name,
                    display_restaurants=True, display_info=False, figsize=(10, 10)):
     """
