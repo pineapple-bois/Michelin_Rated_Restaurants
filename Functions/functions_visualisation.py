@@ -176,6 +176,49 @@ def top_restaurants(data, granularity, star_rating, top_n, display_restaurants=T
                 print()  # This will add a newline after each restaurant block for better readability on GitHub
 
 
+def top_geo_restaurants(data, granularity, top_n):
+    """
+    Display top_n regions/departments with the highest count of Michelin-starred restaurants
+    based on the granularity level: region, department.
+
+    Args:
+        data (gpd.GeoDataFrame): The dataset containing restaurant info.
+        granularity (str): One of 'region', 'department'.
+        top_n (int): The number of top (granularity) to consider.
+    """
+    # Check if granularity is valid
+    if granularity not in data.columns:
+        print(f"Invalid granularity: {granularity}")
+        return
+
+    # Group by granularity and get top_n based on total stars
+    top_areas = data.groupby(granularity)['michelin_stars'].sum().nlargest(top_n)
+
+    # Output
+    print(f"Top {top_n} {granularity}s with most Michelin-starred restaurants:\n\n")
+
+    # Displaying the top areas
+    for position, (area, _) in enumerate(top_areas.iteritems(), start=1):
+        restaurants_in_area = data[data[granularity] == area]
+
+        total_1_star = restaurants_in_area['1_star'].sum()
+        total_2_star = restaurants_in_area['2_star'].sum()
+        total_3_star = restaurants_in_area['3_star'].sum()
+        total_starred_restaurants = restaurants_in_area['starred_restaurants'].sum()
+        total_stars = restaurants_in_area['michelin_stars'].sum()
+
+        print(f"{position}: {granularity.capitalize()}: {area}")
+        print(f"Total Stars: {total_stars}")
+        print(f"Total Restaurants: {total_starred_restaurants}\n")
+        if total_3_star:
+            print(f"{total_3_star} ⭐⭐⭐ {'Restaurant' if total_3_star == 1 else 'Restaurants'}")
+        if total_2_star:
+            print(f"{total_2_star} ⭐⭐ {'Restaurant' if total_2_star == 1 else 'Restaurants'}")
+        if total_1_star:
+            print(f"{total_1_star} ⭐ {'Restaurant' if total_1_star == 1 else 'Restaurants'}")
+        print("\n")
+
+
 def plot_choropleth(df, column, title, granularity='department', restaurants=False,
                     show_legend=True, cmap='Blues', figsize=(10, 10)):
     """
