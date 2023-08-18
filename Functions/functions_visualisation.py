@@ -220,7 +220,7 @@ def top_geo_restaurants(data, granularity, top_n):
 
 
 def plot_choropleth(df, column, title, granularity='department', restaurants=False,
-                    show_legend=True, cmap='Blues', figsize=(10, 10)):
+                    star_rating=None, show_legend=True, cmap='Blues', figsize=(10, 10)):
     """
     Function to plot a choropleth map and optionally restaurant locations.
 
@@ -230,6 +230,7 @@ def plot_choropleth(df, column, title, granularity='department', restaurants=Fal
         title (str): The title of the plot.
         granularity (str): Level of granularity - 'arrondissement', 'department', or 'region'. Default is 'department'.
         restaurants (bool): If True, plot restaurant locations. Default is False.
+        star_rating (int): Default is None = 'all'
         show_legend (bool): If True, display the legend. Default is True.
         cmap (str): The colormap to use. Default is 'Blues'.
         figsize (tuple): The size of the figure. Default is (10, 10).
@@ -291,8 +292,11 @@ def plot_choropleth(df, column, title, granularity='department', restaurants=Fal
     if restaurants:
         star_colors = {'1': 'green', '2': 'orange', '3': 'red'}
         added_labels = set()
-
         transformer = pyproj.Transformer.from_crs("EPSG:4326", "EPSG:2154", always_xy=True)
+
+        # Check if a star rating has been specified
+        if star_rating is not None:
+            star_colors = {str(star_rating): star_colors[str(star_rating)]}
 
         for star, color in star_colors.items():
             for _, row in df.iterrows():
