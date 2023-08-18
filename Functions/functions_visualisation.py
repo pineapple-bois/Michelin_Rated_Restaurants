@@ -209,7 +209,7 @@ def top_geo_restaurants(data, granularity, top_n):
 
         print(f"{position}: {granularity.capitalize()}: {area}")
         print(f"Total Stars: {total_stars}")
-        print(f"Total Restaurants: {total_starred_restaurants}\n")
+        print(f"Total Restaurants: {total_starred_restaurants}")
         if total_3_star:
             print(f"{total_3_star} ⭐⭐⭐ {'Restaurant' if total_3_star == 1 else 'Restaurants'}")
         if total_2_star:
