@@ -5,9 +5,7 @@ import numpy as np
 import math
 import re
 import math
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
+from IPython.core.display import display, HTML
 
 
 def plot_high_correlations(df, level='regional', threshold=0.7):
@@ -229,6 +227,58 @@ def find_extreme_departments(df, column_names):
                 'min': min_row
             }
         print("-" * 50)  # Print a separator between regions
+
+
+def get_random_restaurants(df, star_rating=None, seed=42):
+    """
+    Select random restaurants based on their Michelin star and price ratings.
+
+    Parameters:
+    - df (pd.DataFrame): The DataFrame containing restaurant information.
+    - star_rating (int, optional): The desired Michelin star rating to filter by (1, 2, 3). Default is None, which includes all star ratings.
+    - seed (int, optional): Seed for random number generation for reproducibility. Default is 42.
+
+    Returns:
+    - dict: A dictionary with keys being the price ratings and values being lists of randomly selected restaurants.
+    """
+    # Set random seed for reproducibility
+    np.random.seed(seed)
+
+    # Filter for starred restaurants only
+    starred_restos = df[df['stars'] > 0.5]
+
+    # If a specific star rating is provided, filter by it
+    if star_rating:
+        starred_restos = starred_restos[starred_restos['stars'] == star_rating]
+
+    # Price categories
+    price_categories = ['€€€€', '€€€']
+
+    # Dictionary to store selections
+    selections = {}
+
+    for price in price_categories:
+        subset = starred_restos[starred_restos['price'] == price]
+
+        # Continue to the next price category if there are no restaurants available
+        if subset.empty:
+            continue
+
+        sample = subset.sample(min(5, len(subset)))  # In case there are less than 5 restaurants for a category
+        selections[price] = [(row['name'], row['location'], row['stars'], row['url']) for _, row in sample.iterrows()]
+
+    return selections
+
+
+def display_restaurants(selections):
+    # Display the selected restaurants
+    for price, restaurants in selections.items():
+        print(f"Price rating: {price}")
+        for name, location, stars, url in restaurants:
+            star_unicode = int(stars) * u'\u2B50'
+            html_content = f"<a href='{url}' target='_blank'>{name}</a> ({star_unicode}) - {location}"
+            display(HTML(html_content))
+        print("\n")
 
 
 def plot_side_by_side(df, cols_of_interest, french_means, granularity='department'):
