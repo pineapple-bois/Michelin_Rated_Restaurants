@@ -114,13 +114,13 @@ def print_overview_stats(overview):
         print("=" * len(header_row))  # Print a separator between regions
 
 
-def plot_boxplots(data, columns, x_col='region'):
+def plot_violinplots(data, columns, x_col='region'):
     """
-    Generate box plots for a list of columns against a categorical column.
+    Generate violin plots for a list of columns against a categorical column.
 
     Args:
     - data (DataFrame): The source data.
-    - columns (list): List of columns for which to create box plots.
+    - columns (list): List of columns for which to create violin plots.
     - x_col (str): The categorical column to plot against (default: 'region').
 
     Returns:
@@ -146,7 +146,7 @@ def plot_boxplots(data, columns, x_col='region'):
         temp_data = data.copy()
         temp_data[x_col] = temp_data[x_col].str.title()  # Use title() to capitalize each word
 
-        sns.boxplot(data=temp_data, x=x_col, y=col, palette='pastel')
+        sns.violinplot(data=temp_data, x=x_col, y=col, palette='pastel', inner="quartile")
 
         # Constructing the y-label using the units_map
         words = col.split('_')
@@ -169,7 +169,7 @@ def plot_boxplots(data, columns, x_col='region'):
         plt.title(f'Distribution of {ylabel} by Region', fontsize=16)
         plt.xlabel(x_col.capitalize(), fontsize=14)
         plt.ylabel(ylabel, fontsize=14)
-        plt.xticks()  # Rotate x_col values for clarity
+        plt.xticks()  # Rotate x_col values for clarity if needed
 
         # Display the plot
         plt.tight_layout()
