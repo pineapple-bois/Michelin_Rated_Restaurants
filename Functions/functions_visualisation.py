@@ -385,8 +385,10 @@ def plot_multi_choropleth(df, columns, titles, granularity='department', show_la
         if show_labels:
             if granularity == 'region':
                 label_column = 'region'
-            elif granularity in ['department', 'arrondissement']:
+            elif granularity == 'department':
                 label_column = 'code'
+            elif granularity == 'arrondissement':
+                label_column = 'arrondissement'
             else:
                 raise ValueError(
                     f"Invalid granularity: {granularity}. Choose from ['region', 'department', 'arrondissement'].")
