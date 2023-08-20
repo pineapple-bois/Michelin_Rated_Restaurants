@@ -34,7 +34,7 @@ Data processing involved three Jupyter notebooks:
 
 2. [`France_Departments_Regions.ipynb`](Notebooks/France/France_Departments_Regions.ipynb): This notebook was used to aggregate socio-economic data from different sources. Departmental and regional data were scraped from Wikipedia, whereas population statistics were fetched from INSEE. Departmental area was computed from the population density and total population data. The output `demographics.csv` was exported.
 
-3. [`France_Arrondissement.ipynb`](Notebooks/France/France_Arrondissements.ipynb): The data was further granulated to *arrondissement* level
+3. [`France_Arrondissements.ipynb`](Notebooks/France/France_Arrondissements.ipynb): The data was further granulated to *arrondissement* level
 
    - `arrondissement_restaurants.geojson` - A combination of Michelin data and arrondissement GeoJSON data was exported
 
@@ -57,6 +57,8 @@ Intricate functions are presented and [defined](Functions/functions_visualisatio
 An interactive application built using Dash and Plotly provides a dynamic interface for users to explore Michelin-rated establishments in France. Users can select specific regions, zoom into departments, and view detailed restaurant information.
 
 Access the app: [Michelin France Interactive Map](https://michelin-france-2ed085da7e1c.herokuapp.com)
+
+Access the code: [michelin_app.py](App/michelin_app.py)
 
 ---
 
