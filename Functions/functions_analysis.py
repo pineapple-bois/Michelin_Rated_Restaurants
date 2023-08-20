@@ -6,6 +6,7 @@ import math
 import re
 import math
 from IPython.core.display import display, HTML
+from matplotlib.colors import LinearSegmentedColormap
 
 
 def plot_high_correlations(df, level='regional', threshold=0.7):
@@ -322,10 +323,13 @@ def plot_side_by_side(df, cols_of_interest, french_means, granularity='departmen
         else:
             unit = ""
 
-        # Map the values to a colormap
-        norm = plt.Normalize(df[col].min(), df[col].max())
+        # Truncate the colormap to use only the latter 70%
         cmap = plt.get_cmap(cmap)
-        colors = cmap(norm(df[col].values))
+        cmap_truncated = LinearSegmentedColormap.from_list('trunc({n},{a:.2f},{b:.2f})'.format(n=cmap.name, a=0.2, b=1),
+                                                           cmap(np.linspace(0.3, 1, 256)))
+        # Map the values to the truncated colormap
+        norm = plt.Normalize(df[col].min(), df[col].max())
+        colors = cmap_truncated(norm(df[col].values))
 
         # Locate corresponding French mean if available
         matching_mean_key = next((key for key in french_means.keys() if re.search(key, col, re.IGNORECASE)), None)
@@ -338,7 +342,7 @@ def plot_side_by_side(df, cols_of_interest, french_means, granularity='departmen
         ax.barh(df[label_column], df[col], label='Value', color=colors)
 
         # Add a colorbar to the right side of each plot
-        cbar = fig.colorbar(plt.cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax, orientation='horizontal')
+        cbar = fig.colorbar(plt.cm.ScalarMappable(norm=norm, cmap=cmap_truncated), ax=ax, orientation='horizontal')
         cbar.set_label(col)
 
         # Set x-axis limits for a better representation
