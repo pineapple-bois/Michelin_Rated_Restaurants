@@ -281,9 +281,9 @@ def display_restaurants(selections):
         print("\n")
 
 
-def plot_side_by_side(df, cols_of_interest, french_means, granularity='department'):
+def plot_side_by_side(df, cols_of_interest, french_means, granularity='department', cmap='Blues'):
     """
-    Plot side-by-side bar charts for each column in cols_of_interest.
+    Plot side-by-side horizontal bar charts for each column in cols_of_interest.
 
     Args:
     - df (DataFrame): Dataframe containing the data.
@@ -293,10 +293,6 @@ def plot_side_by_side(df, cols_of_interest, french_means, granularity='departmen
 
     Returns:
     - None. Displays the plots.
-
-    The function will display a 2xN layout for the plots based on the number of
-    cols_of_interest. If a matching French mean is found for a given column, it will be displayed as
-    a horizontal dashed line on the corresponding plot.
     """
     # Set the label column based on granularity
     label_column = 'code' if granularity == 'department' else 'arrondissement'
@@ -307,7 +303,7 @@ def plot_side_by_side(df, cols_of_interest, french_means, granularity='departmen
     nrows = 2
     ncols = math.ceil(n_metrics / 2)
 
-    fig, axes = plt.subplots(nrows, ncols, figsize=(6 * ncols, 5 * nrows))
+    fig, axes = plt.subplots(nrows, ncols, figsize=(5 * nrows, 6 * ncols))
 
     # Adjust axes to be 2D for consistent indexing
     if n_metrics == 1:
@@ -326,27 +322,48 @@ def plot_side_by_side(df, cols_of_interest, french_means, granularity='departmen
         else:
             unit = ""
 
+        # Map the values to a colormap
+        norm = plt.Normalize(df[col].min(), df[col].max())
+        cmap = plt.get_cmap(cmap)
+        colors = cmap(norm(df[col].values))
+
         # Locate corresponding French mean if available
         matching_mean_key = next((key for key in french_means.keys() if re.search(key, col, re.IGNORECASE)), None)
         matching_mean = french_means.get(matching_mean_key) if matching_mean_key else None
 
         if matching_mean:
-            ax.axhline(y=matching_mean, color='r', linestyle='--', label='French Avg')
+            ax.axvline(x=matching_mean, color='r', linestyle='--', label='French Avg')
 
-        # Plot data
-        ax.bar(df[label_column], df[col], label='Value')
+        # Plot data with color-coding
+        ax.barh(df[label_column], df[col], label='Value', color=colors)
 
-        # Set y-axis limits for a better representation
+        # Add a colorbar to the right side of each plot
+        cbar = fig.colorbar(plt.cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax, orientation='horizontal')
+        cbar.set_label(col)
+
+        # Set x-axis limits for a better representation
         data_min = df[col].min()
         data_max = df[col].max()
+        # Set data_min to 0 if the smallest value is <= 3
+        if data_min <= 3:
+            data_min = 0
         buffer = (data_max - data_min) * 0.10  # 10% of the range as buffer
-        ax.set_ylim(data_min - buffer, data_max + buffer)
+        # Ensure x-axis doesn't start below zero
+        start_limit = max(0, data_min - buffer)
+        ax.set_xlim(start_limit, data_max + buffer)
+
+        # Reverse the y-axis order after plotting
+        ax.invert_yaxis()
 
         # Set title, labels, and ticks
         ax.set_title(col.replace("_", " "))
-        ax.set_xlabel('Department Code' if granularity == 'department' else 'Arrondissement')
-        ax.set_ylabel(f"{col} {unit}")
-        ax.set_xticks(df[label_column])
+        ax.set_xlabel(f"{col} {unit}")
+        # Conditionally set y-axis label based on granularity
+        if granularity == 'department':
+            ax.set_ylabel('Department Code')
+        else:
+            ax.set_ylabel('')  # Set to an empty string for 'arrondissement'
+        ax.set_yticks(df[label_column])
         ax.legend()
 
     plt.tight_layout()
