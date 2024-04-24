@@ -6,7 +6,7 @@
 ## Overview
 This project is multifaceted. While it showcases proficiency in data acquisition, processing, and visualisation, it also delves into the world of Michelin-rated restaurants in France. Leveraging datasets from the Michelin Guide and INSEE, along with French geospatial data, this analysis probes the correlation between elite restaurants and the socio-economic attributes of their surroundings.
 
-Previously I was a Michelin trained chef and lived in France for six transformative years. Those years, rich from the diverse cultural tapestry of France, have instilled in me a deep appreciation for the intricate world of gastronomy and its profound influence on local cultures. This project is not just an analytical endeavor but a personal journey. Through it, I seek to marry my experiences with my current passion for data, aiming to uncover insights that resonate on both a professional and personal level.
+Previously I was a Michelin trained chef and lived in France for six transformative years. Those years instilled in me a deep appreciation for the world of gastronomy and its profound influence on local culture. Through this project, I seek to marry my life experiences with my current passion for data.
 
 
 ---
