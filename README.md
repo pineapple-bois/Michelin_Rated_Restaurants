@@ -42,11 +42,6 @@ An interactive application built using Dash and Plotly provides a dynamic interf
 
 Access the code: [michelin_app.py](App/michelin_app.py)
 
----
-
-## Future Updates
-Given the Michelin Guide's yearly release schedule, this project intends to periodically update the analysis to reflect the latest trends and insights. Automation structures for these updates are currently under consideration.
-
 ----
 
 ## Repository Structure
