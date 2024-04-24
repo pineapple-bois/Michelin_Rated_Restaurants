@@ -1,1 +1,0 @@
-This Section covers 2023
