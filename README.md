@@ -39,14 +39,14 @@ France's administrative divisions are structured hierarchically:
 
 Data processing involved four Jupyter notebooks:
 
-1. [`Data-Preparation.ipynb`](Notebooks/Data-Preparation.ipynb): The Michelin Guide data was partitioned by country to isolate the data relevant to France. The processed dataset `france_data.csv` was subsequently exported.
+1. [`Data-Preparation.ipynb`](Years/2023/Notebooks/Data-Preparation.ipynb): The Michelin Guide data was partitioned by country to isolate the data relevant to France. The processed dataset `france_data.csv` was subsequently exported.
 
-2. [`France_Departments_Regions.ipynb`](Notebooks/France/France_Departments_Regions.ipynb): This notebook was used to aggregate socio-economic data from different sources. Departmental and regional data were scraped from Wikipedia, whereas population statistics were fetched from INSEE. 
+2. [`France_Departments_Regions.ipynb`](Years/2023/Notebooks/France/France_Departments_Demographics.ipynb): This notebook was used to aggregate socio-economic data from different sources. Departmental and regional data were scraped from Wikipedia, whereas population statistics were fetched from INSEE. 
    - The output `demographics.csv` was exported.
 
-3. [`France_Arrondissements.ipynb`](Notebooks/France/France_Arrondissements.ipynb): The data was further granulated to *arrondissement* level
+3. [`France_Arrondissements.ipynb`](Years/2023/Notebooks/France/France_Arrondissements.ipynb): The data was further granulated to *arrondissement* level
 
-4. [`France_Processing.ipynb`](Notebooks/France/France_Processing.ipynb): This notebook performs exploratory data analysis and further processing. It outlines the steps to merge the restaurant data with the socio-economic and geospatial JSON data.
+4. [`France_Processing.ipynb`](Years/2023/Notebooks/France/France_Processing.ipynb): This notebook performs exploratory data analysis and further processing. It outlines the steps to merge the restaurant data with the socio-economic and geospatial JSON data.
 
 After the processing, the following datasets were exported:
 
@@ -57,12 +57,12 @@ After the processing, the following datasets were exported:
 
 ---
 
-## [Visualisations](Notebooks/France/France_Visualisations.ipynb)
+## [Visualisations](Years/2023/Notebooks/France/France_Visualisations.ipynb)
 Intricate functions are presented and [defined](Functions/functions_visualisation.py) to query and represent the data in diverse and insightful manners. 
 
 ---
 
-## [Analysis](Notebooks/France/France_Analysis.ipynb)
+## [Analysis](Years/2023/Notebooks/France/France_Analysis.ipynb)
 The analysis segment of this project is designed for both technical and non-technical audiences. Utilizing the functions from the visualisation phase, this section endeavors to answer pertinent questions with minimal code to ensure readability and comprehension.
 
 ---
@@ -82,20 +82,29 @@ Given the Michelin Guide's yearly release schedule, this project intends to peri
 
 ```
 ├── App
-├── Data
-│   ├── France
-│   │   ├── 2022
-│   │   ├── Demographics
-│   │   ├── Geodata
-│   │   └── Wine
-│   ├── Michelin
-│   └── UK
+├── ExtraData
+│   ├── Demographics
+│   ├── Geodata
+│   └── Wine
 ├── Functions
 ├── Images
-├── Notebooks
-│   ├── France
-│   ├── UK
-│   └── Data-preparation.ipynb
+├── Years
+│   ├── 2023
+│   │   ├── data
+│   │   │   ├──France
+│   │   │   ├──Michelin
+│   │   │   └──UK
+│   │   ├── Notebooks
+│   │   │   ├──France
+│   │   │   └──Uk
+│   ├── 2024
+│   │   ├── data
+│   │   │   ├──France
+│   │   │   ├──Michelin
+│   │   │   └──UK
+│   │   ├── Notebooks
+│   │   │   ├──France
+│   │   │   └──Uk
 ├── README.md
 ```
 ---
