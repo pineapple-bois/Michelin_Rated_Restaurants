@@ -1,0 +1,97 @@
+department_num,department,capital,region,GDP_millions(€),GDP_per_capita(€),poverty_rate(%),average_annual_unemployment_rate(%),average_net_hourly_wage(€),municipal_population,population_density(inhabitants/sq_km),area(sq_km)
+01,Ain,Bourg-en-Bresse,Auvergne-Rhône-Alpes,16726.4,25425.63,10.5,5.5,15.34,657856.0,114.2,5760.56
+02,Aisne,Laon,Hauts-de-France,12016.4,22699.26,18.0,10.5,13.92,529374.0,71.9,7362.64
+03,Allier,Moulins,Auvergne-Rhône-Alpes,8278.98,24667.13,15.3,7.7,13.63,335628.0,45.7,7344.16
+04,Alpes-de-Haute-Provence,Digne-les-Bains,Provence-Alpes-Côte d'Azur,4154.79,25111.91,16.6,8.2,14.15,165451.0,23.9,6922.64
+05,Hautes-Alpes,Gap,Provence-Alpes-Côte d'Azur,3756.22,26714.7,13.9,6.9,13.54,140605.0,25.3,5557.51
+06,Alpes-Maritimes,Nice,Provence-Alpes-Côte d'Azur,36026.2,32828.39,16.2,7.4,16.37,1097410.0,255.3,4298.51
+07,Ardèche,Privas,Auvergne-Rhône-Alpes,7319.02,22224.31,14.3,8.1,14.14,329325.0,59.6,5525.59
+08,Ardennes,Charleville-Mézières,Grand Est,6080.74,22546.23,18.3,9.4,13.87,269701.0,51.6,5226.76
+09,Ariège,Foix,Occitanie,3261.1,21182.3,17.9,9.4,13.37,153954.0,31.5,4887.43
+10,Aube,Troyes,Grand Est,8133.92,26117.55,16.2,9.6,14.0,311435.0,51.9,6000.67
+11,Aude,Carcassonne,Occitanie,8292.59,22100.78,20.0,10.1,13.33,375217.0,61.1,6141.03
+12,Aveyron,Rodez,Occitanie,7181.67,25689.74,14.0,5.7,13.47,279554.0,32.0,8736.06
+13,Bouches-du-Rhône,Marseille,Provence-Alpes-Côte d'Azur,73878.7,36072.35,17.9,8.7,16.39,2048070.0,384.4,5327.97
+14,Calvados,Caen,Normandy,20044.1,28735.12,11.9,6.4,14.48,697547.0,126.0,5536.09
+15,Cantal,Aurillac,Auvergne-Rhône-Alpes,3481.69,24114.93,13.2,4.1,12.8,144379.0,25.2,5729.33
+16,Charente,Angoulême,Nouvelle-Aquitaine,10580.4,30082.05,14.6,6.9,14.19,351718.0,59.1,5951.24
+17,Charente-Maritime,La Rochelle,Nouvelle-Aquitaine,16887.8,25755.02,12.4,6.9,14.21,655709.0,95.5,6866.06
+18,Cher,Bourges,Centre-Val de Loire,7736.66,25708.91,14.0,7.5,14.08,300933.0,41.6,7233.97
+19,Corrèze,Tulle,Nouvelle-Aquitaine,6115.33,25566.83,13.1,6.1,13.67,239190.0,40.8,5862.5
+21,Côte-d'Or,Dijon,Bourgogne-Franche-Comté,18353.0,34299.67,11.5,5.6,14.97,535078.0,61.1,8757.41
+22,Côtes-d'Armor,Saint-Brieuc,Brittany,16093.7,26661.09,12.1,6.3,13.94,603640.0,87.8,6875.17
+23,Creuse,Guéret,Nouvelle-Aquitaine,2351.47,20272.17,18.3,7.0,12.73,115995.0,20.8,5576.68
+24,Dordogne,Périgueux,Nouvelle-Aquitaine,9414.94,22807.12,16.1,7.2,13.29,412807.0,45.6,9052.79
+25,Doubs,Besançon,Bourgogne-Franche-Comté,15317.5,28094.73,12.2,6.6,14.46,545209.0,104.2,5232.33
+26,Drôme,Valence,Auvergne-Rhône-Alpes,16366.7,31613.71,14.4,7.9,14.92,517709.0,79.3,6528.49
+27,Eure,Évreux,Normandy,14453.1,24101.84,12.3,7.1,15.2,599668.0,99.8,6008.7
+28,Eure-et-Loir,Chartres,Centre-Val de Loire,11330.8,26262.57,11.8,6.7,15.25,431443.0,73.4,5877.97
+29,Finistère,Quimper,Brittany,25844.4,28178.14,11.0,6.2,14.32,917179.0,136.2,6734.06
+2A,Corse-du-Sud,Ajaccio,Corsica,4783.9,29748.03,16.3,5.8,14.25,160814.0,40.1,4010.32
+2B,Haute-Corse,Bastia,Corsica,4300.08,23512.22,20.1,6.4,13.82,182887.0,39.2,4665.48
+30,Gard,Nîmes,Occitanie,18293.8,24344.44,19.4,9.9,14.69,751457.0,128.4,5852.47
+31,Haute-Garonne,Toulouse,Occitanie,54174.2,38265.18,13.3,7.4,17.03,1415757.0,224.4,6309.08
+32,Gers,Auch,Occitanie,4283.23,22329.54,15.0,5.7,14.17,191819.0,30.7,6248.18
+33,Gironde,Bordeaux,Nouvelle-Aquitaine,55887.1,34152.66,12.4,6.5,16.01,1636391.0,164.0,9977.99
+34,Hérault,Montpellier,Occitanie,34757.8,29233.46,18.7,10.1,15.1,1188973.0,194.9,6100.43
+35,Ille-et-Vilaine,Rennes,Brittany,38158.6,35044.7,10.7,5.4,15.32,1088855.0,160.7,6775.7
+36,Indre,Châteauroux,Centre-Val de Loire,5194.48,23750.86,14.6,7.1,13.26,218707.0,32.2,6792.14
+37,Indre-et-Loire,Tours,Centre-Val de Loire,18239.2,29796.82,12.4,6.5,15.23,612119.0,99.9,6127.32
+38,Isère,Grenoble,Auvergne-Rhône-Alpes,41959.3,32844.52,11.3,5.9,16.52,1277513.0,171.9,7431.72
+39,Jura,Lons-le-Saunier,Bourgogne-Franche-Comté,6780.22,26198.89,11.2,5.1,14.14,258798.0,51.8,4996.1
+40,Landes,Mont-de-Marsan,Nouvelle-Aquitaine,10424.1,24930.76,11.4,6.9,13.96,418122.0,45.2,9250.49
+41,Loir-et-Cher,Blois,Centre-Val de Loire,8531.24,25902.71,12.5,6.0,14.32,329357.0,51.9,6345.99
+42,Loire,Saint-Étienne,Auvergne-Rhône-Alpes,21411.2,27860.74,15.0,7.2,14.54,768508.0,160.8,4779.28
+43,Haute-Loire,Le Puy-en-Velay,Auvergne-Rhône-Alpes,5288.85,23248.82,11.9,5.6,13.5,227489.0,45.7,4977.88
+44,Loire-Atlantique,Nantes,Pays de la Loire,51591.3,35699.1,10.0,5.7,15.83,1445171.0,210.2,6875.22
+45,Loiret,Orléans,Centre-Val de Loire,21674.9,31767.22,13.2,7.1,15.18,682304.0,100.7,6775.61
+46,Lot,Cahors,Occitanie,4283.47,24523.22,14.9,7.3,13.64,174670.0,33.5,5214.03
+47,Lot-et-Garonne,Agen,Nouvelle-Aquitaine,8380.33,25330.16,16.8,7.4,13.46,330844.0,61.7,5362.14
+48,Lozère,Mende,Occitanie,1916.79,25012.59,14.9,4.7,12.7,76633.0,14.8,5177.91
+49,Maine-et-Loire,Angers,Pays de la Loire,23007.2,28033.19,11.1,6.5,14.23,820713.0,115.5,7105.74
+50,Manche,Saint-Lô,Normandy,12632.3,25515.0,11.4,5.1,14.22,495093.0,83.2,5950.64
+51,Marne,Châlons-en-Champagne,Grand Est,18948.1,33438.28,14.2,7.1,15.06,566659.0,69.4,8165.12
+52,Haute-Marne,Chaumont,Grand Est,4266.83,24836.32,15.0,6.4,13.31,171798.0,27.7,6202.09
+53,Mayenne,Laval,Pays de la Loire,9125.73,29770.31,11.0,5.0,13.72,306538.0,59.2,5178.01
+54,Meurthe-et-Moselle,Nancy,Grand Est,19819.4,27053.88,14.6,7.0,14.77,732590.0,139.6,5247.78
+55,Meuse,Bar-le-Duc,Grand Est,4051.47,22139.06,14.2,7.2,13.7,183001.0,29.5,6203.42
+56,Morbihan,Vannes,Brittany,20297.9,26562.33,11.5,5.8,14.34,764161.0,112.0,6822.87
+57,Moselle,Metz,Grand Est,25447.6,24255.33,15.3,7.2,14.52,1049155.0,168.8,6215.37
+58,Nièvre,Nevers,Bourgogne-Franche-Comté,4817.79,23771.6,15.5,6.7,13.47,202670.0,29.7,6823.91
+59,Nord,Lille,Hauts-de-France,79689.9,30558.92,18.4,9.3,15.34,2607746.0,454.1,5742.67
+60,Oise,Beauvais,Hauts-de-France,21192.7,25542.64,12.8,7.4,16.05,829699.0,141.6,5859.46
+61,Orne,Alençon,Normandy,6718.11,24124.64,15.0,6.6,13.31,278475.0,45.6,6106.91
+62,Pas-de-Calais,Arras,Hauts-de-France,34529.6,23615.36,17.8,8.3,13.94,1462167.0,219.2,6670.47
+63,Puy-de-Dôme,Clermont-Ferrand,Auvergne-Rhône-Alpes,21311.9,32200.4,13.2,6.3,15.19,661852.0,83.0,7974.12
+64,Pyrénées-Atlantiques,Pau,Nouvelle-Aquitaine,20690.7,30106.95,12.2,5.7,15.26,687240.0,89.9,7644.49
+65,Hautes-Pyrénées,Tarbes,Occitanie,5483.0,23861.12,15.5,8.0,13.44,229788.0,51.5,4461.9
+66,Pyrénées-Orientales,Perpignan,Occitanie,11355.4,23521.59,20.7,11.7,13.56,482765.0,117.3,4115.64
+67,Bas-Rhin,Strasbourg,Grand Est,38632.7,33650.04,13.2,6.2,15.55,1148073.0,241.4,4755.89
+68,Haut-Rhin,Colmar,Grand Est,21556.3,28073.87,13.2,6.9,14.86,767842.0,217.8,3525.45
+69,Rhône,Lyon,Auvergne-Rhône-Alpes,88612.4,47048.24,14.1,6.4,17.6,1883437.0,571.3,3296.76
+70,Haute-Saône,Vesoul,Bourgogne-Franche-Comté,4954.31,21118.03,13.0,6.4,13.69,234601.0,43.8,5356.19
+71,Saône-et-Loire,Mâcon,Bourgogne-Franche-Comté,14516.9,26343.45,12.8,6.4,14.22,551063.0,64.3,8570.19
+72,Sarthe,Le Mans,Pays de la Loire,14651.4,25840.53,12.9,7.2,14.22,566993.0,91.4,6203.42
+73,Savoie,Chambéry,Auvergne-Rhône-Alpes,15200.6,34566.46,10.3,5.3,15.64,439750.0,72.9,6032.24
+74,Haute-Savoie,Annecy,Auvergne-Rhône-Alpes,24492.9,29325.58,9.4,5.5,15.72,835206.0,190.3,4388.89
+75,Paris,Paris,Île-de-France,226007.0,105320.08,15.4,5.7,27.14,2145906.0,20454.0,104.91
+76,Seine-Maritime,Rouen,Normandy,38168.9,30419.79,14.6,7.9,15.32,1254739.0,199.9,6276.83
+77,Seine-et-Marne,Melun,Île-de-France,39478.1,27633.42,11.7,6.7,16.82,1428636.0,241.5,5915.68
+78,Yvelines,Versailles,Île-de-France,56649.9,39076.36,9.7,6.4,22.92,1449723.0,634.6,2284.47
+79,Deux-Sèvres,Niort,Nouvelle-Aquitaine,11341.1,30284.85,11.9,5.3,14.42,374481.0,62.4,6001.3
+80,Somme,Amiens,Hauts-de-France,15577.4,27388.93,15.7,8.7,14.19,568748.0,92.2,6168.63
+81,Tarn,Albi,Occitanie,9244.99,23640.49,15.3,7.8,14.21,391066.0,67.9,5759.44
+82,Tarn-et-Garonne,Montauban,Occitanie,6040.45,23027.38,16.3,8.6,13.97,262316.0,70.5,3720.79
+83,Var,Toulon,Provence-Alpes-Côte d'Azur,27056.5,24932.52,15.3,7.4,14.94,1085189.0,181.7,5972.42
+84,Vaucluse,Avignon,Provence-Alpes-Côte d'Azur,17880.2,31818.64,19.5,9.5,14.53,561941.0,157.5,3567.88
+85,Vendée,La Roche-sur-Yon,Pays de la Loire,19767.2,28536.25,8.9,5.2,13.68,692705.0,103.1,6718.77
+86,Vienne,Poitiers,Nouvelle-Aquitaine,12173.0,27707.97,14.0,5.9,14.03,439332.0,62.8,6995.73
+87,Haute-Vienne,Limoges,Nouvelle-Aquitaine,10453.4,28091.25,15.3,6.5,14.1,372123.0,67.4,5521.11
+88,Vosges,Épinal,Grand Est,8958.94,24721.34,14.9,7.5,13.85,362397.0,61.7,5873.53
+89,Yonne,Auxerre,Bourgogne-Franche-Comté,8475.96,25365.28,14.3,6.7,13.98,334156.0,45.0,7425.69
+90,Territoire de Belfort,Belfort,Bourgogne-Franche-Comté,3705.86,26447.76,14.8,8.3,15.82,140120.0,229.9,609.48
+91,Essonne,Évry,Île-de-France,53821.9,41207.53,13.2,6.4,17.85,1306118.0,723.9,1804.28
+92,Hauts-de-Seine,Nanterre,Île-de-France,176675.0,108641.98,11.9,5.9,26.02,1626213.0,9260.4,175.61
+93,Seine-Saint-Denis,Bobigny,Île-de-France,58985.2,35631.52,27.6,10.2,14.98,1655422.0,7008.6,236.2
+94,Val-de-Marne,Créteil,Île-de-France,52512.9,37296.84,16.6,7.1,18.86,1407972.0,5746.1,245.03
+95,Val-d'Oise,Pontoise,Île-de-France,36624.4,29257.3,17.0,8.0,17.03,1251804.0,1004.7,1245.95
