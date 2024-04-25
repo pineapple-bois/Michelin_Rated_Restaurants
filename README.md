@@ -22,9 +22,24 @@ The aim is to better understand the intricate relationship between culinary exce
 ---
 
 ## Data Sources
-- The [Michelin Guide Restaurants](https://www.kaggle.com/datasets/ngshiheng/michelin-guide-restaurants-2021) data has been sourced from Kaggle, a platform for predictive modelling and analytics competitions.
-- Demographic and socio-economic data was sourced from [INSEE](https://www.insee.fr/fr/accueil) (Institut National de la Statistique et des Études Économiques), the National Institute of Statistics and Economic Studies. It is responsible for the production and analysis of official French statistics.
-- The geospatial data used in this analysis is sourced from [France-GeoJSON](https://france-geojson.gregoiredavid.fr). We acknowledge and thank the contributors and maintainers of this resource for making it publicly available.
+#### [Michelin Guide Restaurants](https://www.kaggle.com/datasets/ngshiheng/michelin-guide-restaurants-2021) 
+
+- Sourced from Kaggle
+
+#### [INSEE - (Institut National de la Statistique et des Études Économiques)](https://www.insee.fr/fr/accueil) 
+
+- Demographic and socio-economic data was sourced from the National Institute of Statistics and Economic Studies. 
+- INSEE is responsible for the production and analysis of official French statistics.
+
+#### [France-GeoJSON](https://france-geojson.gregoiredavid.fr)
+
+- The geospatial data used in this analysis. 
+- We acknowledge and thank the contributors and maintainers of this resource for making it publicly available.
+
+---
+
+## [Processing Pipeline](Years)
+Data is from the above sources is merged, transformed and exported.
 
 ---
 
@@ -40,7 +55,7 @@ The analysis segment of this project is designed for both technical and non-tech
 ## [Interactive Application](https://michelin-france-2ed085da7e1c.herokuapp.com)
 An interactive application built using Dash and Plotly provides a dynamic interface for users to explore Michelin-rated establishments in France. Users can select specific regions, zoom into departments, and view detailed restaurant information.
 
-Access the code: [michelin_app.py](App/michelin_app.py)
+Access the source code: [michelin_app.py](App/michelin_app.py)
 
 ----
 
@@ -77,18 +92,24 @@ Access the code: [michelin_app.py](App/michelin_app.py)
 
 ## Installation Guide
 
-### 1. Create and Activate a Virtual Environment
+### 1. Clone the Repository
+```bash
+git https://github.com/pineapple-bois/Michelin_Rated_Restaurants.git
+cd Michelin_Rated_Restaurants
+```
+
+### 2. Create and Activate a Virtual Environment
 ```bash
 python3 -m venv env
 source env/bin/activate
 ```
 
-### 2. Install the required packages
+### 3. Install the required packages
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Deactivate the virtual environment (when done)
+### 4. Deactivate the virtual environment (when done)
 ```bash
 deactivate
 ```
