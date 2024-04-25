@@ -10,12 +10,12 @@ __pycache__/
 
 # Specific directories and their contents
 Functions/__pycache__/
-Notebooks/.DS_Store
-Notebooks/France/.DS_Store
-Notebooks/France/__pycache__/
+Years/2023/Notebooks/.DS_Store
+Years/2023/Notebooks/France/.DS_Store
+Years/2023/Notebooks/France/__pycache__/
 Old_Files/
-data/.DS_Store
-data/France/.DS_Store
-data/France/Demographics/.DS_Store
-data/France/Geodata/.DS_Store
-data/UK/.DS_Store
+Years/2023/data/.DS_Store
+Years/2023/data/France/.DS_Store
+ExtraData/Demographics/.DS_Store
+ExtraData/Geodata/.DS_Store
+Years/2023/data/UK/.DS_Store
