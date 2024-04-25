@@ -26,7 +26,7 @@ The aim is to better understand the intricate relationship between culinary exce
 
 - Sourced from Kaggle
 
-#### [INSEE - (Institut National de la Statistique et des Études Économiques)](https://www.insee.fr/fr/accueil) 
+#### [INSEE - (Institut National de la Statistique et des Études Économiques)](https://statistiques-locales.insee.fr/#c=home) 
 
 - Demographic and socio-economic data was sourced from the National Institute of Statistics and Economic Studies. 
 - INSEE is responsible for the production and analysis of official French statistics.
