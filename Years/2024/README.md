@@ -1,12 +1,45 @@
-# Michelin Guide to France 2023
+# Michelin Guide to France 2024
 
-Data processing involved four Jupyter notebooks:
+----
 
-1. [`Data-Preparation.ipynb`](../../Years/2024/Notebooks/Data-Preparation.ipynb): The Michelin Guide data was partitioned by country to isolate the data relevant to France. The processed dataset `france_data.csv` was subsequently exported.
+## Changes from 2023 Guide
 
-2. [`France_Departments_Regions.ipynb`](../../Years/2024/Notebooks/France/France_Departments_Demographics.ipynb): This notebook was used to aggregate socio-economic data from different sources. Departmental and regional data were scraped from Wikipedia, whereas population statistics were fetched from INSEE. 
-   - The output `demographics.csv` was exported.
+| Change in the Guide | Restaurants |
+|---------------------|-------------|
+| Additions           |             |
+| Deletions           |             |
+| Promotions          |             |
+| Demotions           |             |
 
-3. [`France_Arrondissements.ipynb`](../../Years/2024/Notebooks/France/France_Arrondissements.ipynb): The data was further granulated to *arrondissement* level
+#### Specifics
 
-4. [`France_Processing.ipynb`](../../Years/2024/Notebooks/France/France_Processing.ipynb): This notebook performs exploratory data analysis and further processing. It outlines the steps to merge the restaurant data with the socio-economic and geospatial JSON data.
+---
+
+## [2024 Visualisation Notebook](Notebooks/France/France_Visualisations.ipynb)
+
+----
+
+## Data processing:
+
+### 1. [`Data-Preparation.ipynb`](Notebooks/Data-Preparation.ipynb):
+
+The Michelin Guide data was partitioned by country to isolate the data relevant to France. The processed dataset `france_master.csv` was exported.
+
+### 2. [`France_Processing.ipynb`](Notebooks/France/France_Processing.ipynb): 
+
+This notebook performs exploratory data analysis and further processing. It outlines the steps to merge the restaurant data with the socio-economic and geospatial JSON data.
+
+### 3. [`France_Arrondissements.ipynb`](Notebooks/France/France_Arrondissements.ipynb): 
+
+The data was further granulated to *arrondissement* level
+
+----
+
+#### Output exported:
+
+- `all_restaurants.csv` - Restaurant data appended with regional information.
+- `all_restaurants(arrondissements).csv` - Restaurant data appended with arrondissement information.
+- `arrondissement_restaurants.geojson` - Restaurant data and arrondissement GeoJSON data
+- `department_restaurants.geojson` - Restaurant data and departmental GeoJSON data.
+- `region_restaurants.geojson` - Restaurant data and regional GeoJSON data.
+
