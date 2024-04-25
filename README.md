@@ -52,17 +52,17 @@ Intricate functions are presented and [defined](Functions/functions_visualisatio
 The analysis segment of this project is designed for both technical and non-technical audiences. Utilizing the functions from the visualisation phase, this section endeavors to answer pertinent questions with minimal code to ensure readability and comprehension.
 
 ---
-## [Interactive Application](https://michelin-france-2ed085da7e1c.herokuapp.com)
+
+## [Interactive Application](https://michelin-guide-france-a339b40c80dc.herokuapp.com)
 An interactive application built using Dash and Plotly provides a dynamic interface for users to explore Michelin-rated establishments in France. Users can select specific regions, zoom into departments, and view detailed restaurant information.
 
-Access the source code: [michelin_app.py](App/michelin_app.py)
+Access the source code: [michelin_app.py](https://github.com/pineapple-bois/Michelin_App/blob/main/michelin_app.py)
 
 ----
 
 ## Repository Structure
 
 ```
-├── App
 ├── ExtraData
 │   ├── Demographics
 │   ├── Geodata
