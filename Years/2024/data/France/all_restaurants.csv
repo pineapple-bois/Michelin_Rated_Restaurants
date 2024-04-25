@@ -344,7 +344,7 @@ Helen,3 rue Berryer,"Paris, 75008",75,Paris,Paris,Île-de-France,€€€€,Se
 Le George,"Four Seasons George V, 31 avenue George-V","Paris, 75008",75,Paris,Paris,Île-de-France,€€€€,Italian,https://www.fourseasons.com/fr/paris/dining/restaurants/le_george/,1 Star,1.0,2.3007485,48.8687251
 Restaurant H,13 rue Jean-Beausire,"Paris, 75004",75,Paris,Paris,Île-de-France,€€€,Creative,https://www.restauranth.com/,1 Star,1.0,2.368087,48.8543896
 L'Arôme,3 rue Saint-Philippe-du-Roule,"Paris, 75008",75,Paris,Paris,Île-de-France,€€€€,Modern Cuisine,http://www.larome-paris.com,1 Star,1.0,2.3089154,48.8732722
-Château de la Treyne,"Lacave, 46200, France","None, None",46,Lot,Cahors,Occitanie,€€€€,Classic Cuisine,https://www.chateaudelatreyne.com/fr/restaurant-etoile-dordogne,1 Star,1.0,1.5253884,44.8494743
+Château de la Treyne,"Lacave, 46200","Lacave, 46200",46,Lot,Cahors,Occitanie,€€€€,Classic Cuisine,https://www.chateaudelatreyne.com/fr/restaurant-etoile-dordogne,1 Star,1.0,1.5253884,44.8494743
 Jérôme Feck,19 place Monseigneur-Tissier,"Châlons-en-Champagne, 51000",51,Marne,Châlons-en-Champagne,Grand Est,€€€,Modern Cuisine,https://www.hotel-dangleterre.fr/fr/accueil/,1 Star,1.0,4.3649249,48.9569608
 L'Orée de la Forêt,255 rue de la Forêt,"Étouy, 60600",60,Oise,Beauvais,Hauts-de-France,€€€€,Modern Cuisine,https://www.loreedelaforet.fr/,1 Star,1.0,2.3682263,49.4148556
 La Vieille Fontaine,"Hôtel d'Europe, 12 place Crillon","Avignon, 84000",84,Vaucluse,Avignon,Provence-Alpes-Côte d'Azur,€€€€,Modern Cuisine,https://heurope.com,1 Star,1.0,4.8032742,43.9503845
@@ -355,7 +355,7 @@ La Chapelle Saint-Martin,33 route Saint-Martin-du-Fault,"Nieul, 87510",87,Haute-
 La Vieille Tour,7 rue Nationale,"Cellettes, 41120",41,Loir-et-Cher,Blois,Centre-Val de Loire,€€€,Modern Cuisine,https://www.restaurant-la-vieille-tour-blois.com/,1 Star,1.0,1.3830315,47.5257537
 La Table du Boisniard,Rue du Boisniard,"Chambretaud, 85500",85,Vendée,La Roche-sur-Yon,Pays de la Loire,€€€,Creative,https://www.chateau-boisniard.com,1 Star,1.0,-0.95931,46.92741
 Bruno,2350 route des Arcs,"Lorgues, 83510",83,Var,Toulon,Provence-Alpes-Côte d'Azur,€€€€,Classic Cuisine,https://www.restaurantbruno.com/,1 Star,1.0,6.3794424,43.4699245
-Le Pont de l'Ouysse,"Lacave, 46200, France","None, None",46,Lot,Cahors,Occitanie,€€€,"Modern Cuisine, Classic Cuisine",https://www.lepontdelouysse.com/,1 Star,1.0,1.5502327,44.8442311
+Le Pont de l'Ouysse,"Lacave, 46200","Lacave, 46200",46,Lot,Cahors,Occitanie,€€€,"Modern Cuisine, Classic Cuisine",https://www.lepontdelouysse.com/,1 Star,1.0,1.5502327,44.8442311
 Jean-Claude Leclerc,12 rue Saint-Adjutor,"Clermont-Ferrand, 63000",63,Puy-de-Dôme,Clermont-Ferrand,Auvergne-Rhône-Alpes,€€€€,Modern Cuisine,https://www.restaurant-jcl.com/,1 Star,1.0,3.0804584,45.7788173
 L'Ostal,16 rue Claussmann,"Clermont-Ferrand, 63000",63,Puy-de-Dôme,Clermont-Ferrand,Auvergne-Rhône-Alpes,€€€€,Modern Cuisine,https://www.lostal-restaurant.fr/,1 Star,1.0,3.0879692,45.7810567
 La Tour des Vents,450 route de Malfourat,"Monbazillac, 24240",24,Dordogne,Périgueux,Nouvelle-Aquitaine,€€€,Modern Cuisine,https://www.domainedelatourdesvents.com/,1 Star,1.0,0.461633,44.796818
@@ -384,9 +384,9 @@ Le Grand Cap,Chemin du Phare,"Leucate, 11370",11,Aude,Carcassonne,Occitanie,€�
 La Grande Cascade,"Allée de Longchamp, Bois de Boulogne","Paris, 75016",75,Paris,Paris,Île-de-France,€€€€,Classic Cuisine,https://www.restaurantsparisiens.com/la-grande-cascade/,1 Star,1.0,2.2404762,48.8626663
 Le Violon d'Ingres,135 rue Saint-Dominique,"Paris, 75007",75,Paris,Paris,Île-de-France,€€€€,"Traditional Cuisine, Classic Cuisine",http://www.leviolondingres.paris,1 Star,1.0,2.3017796,48.8582135
 Le Chiberta,3 rue Arsène-Houssaye,"Paris, 75008",75,Paris,Paris,Île-de-France,€€€€,Modern Cuisine,https://www.lechiberta.com/,1 Star,1.0,2.2978116,48.8735298
-Nomicos,"Lacave, 46200","Lacave, 46200",75,Paris,Paris,Île-de-France,€€€€,Modern Cuisine,https://www.nomicos.fr,1 Star,1.0,2.2830139,48.8702708
+Nomicos,16 avenue Bugeaud,"Paris, 75116",75,Paris,Paris,Île-de-France,€€€€,Modern Cuisine,https://www.nomicos.fr,1 Star,1.0,2.2830139,48.8702708
 Sushi B,5 rue Rameau,"Paris, 75002",75,Paris,Paris,Île-de-France,€€€€,Japanese,http://www.sushi-b-fr.com,1 Star,1.0,2.3376315,48.867715
-Le Baudelaire,"Lacave, 46200","Lacave, 46200",75,Paris,Paris,Île-de-France,€€€€,"Creative, Modern Cuisine",http://www.lebaudelaire.com,1 Star,1.0,2.3258002,48.8681212
+Le Baudelaire,"Le Burgundy, 6-8 rue Duphot","Paris, 75001",75,Paris,Paris,Île-de-France,€€€€,"Creative, Modern Cuisine",http://www.lebaudelaire.com,1 Star,1.0,2.3258002,48.8681212
 Alchémille,53 route de Lapoutroie,"Kaysersberg, 68240",68,Haut-Rhin,Colmar,Grand Est,€€€€,Creative,https://www.alchemille.alsace/,1 Star,1.0,7.2500389,48.1487566
 La Table de Nans,126 corniche du Liouquet,"La Ciotat, 13600",13,Bouches-du-Rhône,Marseille,Provence-Alpes-Côte d'Azur,€€€,Mediterranean Cuisine,https://www.latabledenans.com/,1 Star,1.0,5.6666678,43.1828371
 Hostellerie de la Pointe Saint-Mathieu,7 place Saint-Tanguy,"Plougonvelin, 29217",29,Finistère,Quimper,Brittany,€€€,Modern Cuisine,http://www.pointe-saint-mathieu.com/,1 Star,1.0,-4.7706307,48.3309222
