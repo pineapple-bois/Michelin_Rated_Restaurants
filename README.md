@@ -94,7 +94,7 @@ Access the source code: [michelin_app.py](App/michelin_app.py)
 
 ### 1. Clone the Repository
 ```bash
-git https://github.com/pineapple-bois/Michelin_Rated_Restaurants.git
+git clone https://github.com/pineapple-bois/Michelin_Rated_Restaurants.git
 cd Michelin_Rated_Restaurants
 ```
 
