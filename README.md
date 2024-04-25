@@ -53,7 +53,7 @@ The analysis segment of this project is designed for both technical and non-tech
 
 ---
 
-## [Interactive Application](https://michelin-guide-france-a339b40c80dc.herokuapp.com)
+## [Interactive Application](https://www.michelin-guide-france.net)
 An interactive application built using Dash and Plotly provides a dynamic interface for users to explore Michelin-rated establishments in France. Users can select specific regions, zoom into departments, and view detailed restaurant information.
 
 Access the source code: [michelin_app.py](https://github.com/pineapple-bois/Michelin_App/blob/main/michelin_app.py)
