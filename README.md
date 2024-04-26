@@ -43,6 +43,12 @@ Data is from the above sources is merged, transformed and exported.
 
 ---
 
+## [Tracking the changes by year](https://github.com/pineapple-bois/Michelin_Rated_Restaurants/blob/main/Years/2024/Notebooks/France/France_Changes.ipynb) 
+Finding and logging significant changes in star ratings.
+- Currently [2024](https://github.com/pineapple-bois/Michelin_Rated_Restaurants/tree/main/Years/2024) compared to [2023](https://github.com/pineapple-bois/Michelin_Rated_Restaurants/tree/main/Years/2023)
+
+---
+
 ## [Visualisations](Years/2023/Notebooks/France/France_Visualisations.ipynb)
 Intricate functions are presented and [defined](Functions/functions_visualisation.py) to query and represent the data in diverse and insightful manners. 
 
