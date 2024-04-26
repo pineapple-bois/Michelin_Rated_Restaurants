@@ -2,87 +2,44 @@
 
 ----
 
-## Changes from 2023 Guide
+## [Changes from 2023 Guide](https://github.com/pineapple-bois/Michelin_Rated_Restaurants/blob/main/Years/2024/Notebooks/France/France_Changes.ipynb)
 
-| Change in the Guide | Restaurants |
-|---------------------|-------------|
-| Additions           |             |
-| Deletions           |             |
-| Promotions          |             |
-| Demotions           |             |
+| Michelin Stars | 2023 Guide | 2024 Guide |
+|----------------|------------|------------|
+| ⭐️             | 520        | 530        |
+| ⭐️⭐️           | 72         | 73         |
+| ⭐️⭐️⭐️         | 28         | 29         |
 
 
-### From [Reddit](https://www.reddit.com/r/finedining/comments/1b7bzwu/michelin_france_2024_list_of_31_demoted_omitted/):
+### ⭐️⭐️⭐️ Changes
 
-```markdown
-## Going from three to two stars:
+- [Fabien Ferré](https://reportergourmet.com/en/news/6700-fabien-ferre-from-zero-to-3-michelin-stars-at-just-35-meet-the-record-breaking-chef-in-france#:~:text=Three%20years%20as%20sous%2Dchef,site%20for%20about%20a%20decade) at La Table du Castellet promoted from 0 to ⭐️⭐️⭐️
+- [Le Gabriel - La Réserve Paris](https://www.lareserve-paris.com) promoted from ⭐️⭐ to ⭐️⭐️⭐️
+- [René et Maxime Meilleur](https://www.la-bouitte.com/fr/) demoted to ⭐️⭐️
 
-René and Maxime Meilleur, Saint-Martin-de-Belleville (Savoie)
+### ⭐️⭐️️ Changes
 
-----
+New entries:
+- [Maison Benoît Vidal](https://www.maison-benoit-vidal.com)
+- [La Table des Amis by Christophe Bacquié](https://www.leseydins.com/en)
 
-## Going from two to one star:
+Five promotions from ⭐️:
+- [Sylvestre Wahid - Les Grandes Alpes](https://restaurantsylvestre.com)
+- [L'Orangerie](https://www.fourseasons.com/fr/paris/dining/restaurants/l-orangerie/)
+- [Le Jules Verne](https://www.restaurants-toureiffel.com/fr/restaurant-jules-verne.html)
+- [Maison Ruggieri](https://maisonruggieri.fr)
+- [Maison Ronan Kervarrec](https://le-saison.com/fr)
 
-Auberge du Cheval Blanc, Lembach (Bas-Rhin)
+Demoted to ⭐️
+- [Auberge du Cheval Blanc](https://www.cheval-blanc-lembach.fr/fr/)
 
-----
+### ⭐️ Changes
 
-## Moving from one star to a simple recommendation:
+[52 new one-star restaurants](https://www.forbes.com/sites/rooksanahossenally/2024/03/18/michelin-guide-2024-new-stars-for-frances-restaurants-revealed-today/)
 
-Nature *, Armentières (North)
+[26 one-star restaurants demoted](https://www.reddit.com/r/finedining/comments/1b7bzwu/michelin_france_2024_list_of_31_demoted_omitted/)
 
-Les Oliviers *, Bandol (Var)
-
-Le Bénaton, Beaune (Côte-d’Or)
-
-Val d’Auge, Bondues (North)
-
-René' Sens *, La Cadière-d'Azur (Var)
-
-La Signoria *, Calvi (Upper Corsica)
-
-La Barbacane, Carcassonne (Aude)
-
-Hostellerie de l'Abbaye de la Celle, La Celle (Var)
-
-Château de Courban *, Courban (Côte-d’Or)
-
-Le 1825 - La Table *, Gesté (Maine-et-Loire)
-
-La Table de la Mainaz, Gex (Ain)
-
-Le Chiquito, Méry-sur-Oise (Val-d'Oise)
-
-Roza Jin *, Nantes (Loire-Atlantique)
-
-ERH *, Paris 1st arrondissement
-
-Auberge Nicolas Flamel *, Paris 2nd
-
-Ogata *, Paris 3rd
-
-L'Atelier de Joël Robuchon - St-Germain *, Paris 3rd
-
-ASPIC, Paris 7th
-
-La Condesa, Paris 9th
-
-La Dune du Château de Sable *, Porspoder (Finistère)
-
-Le Foch, Reims (Marne)
-
-Le Sérac, Saint-Gervais-les-Bains (Haute-Savoie)
-
-Au Déjeuner de Sousceyrac, Sousceyrac-en-Quercy (Lot)
-
-Buerehiesel, Strasbourg (Bas-Rhin)
-
-Le Cénacle, Toulouse (Haute-Garonne)
-
-*: Among the 26 one-star restaurants demoted due to the quality of the cuisine, 12 were also demoted due to a change or departure of chef, a sale or prolonged closure.
-```
-
-#### Specifics
+##### (Other changes may have involved the departure of a chef)
 
 ---
 
