@@ -1,5 +1,7 @@
 # Michelin Guide to France 2024
 
+## [Analysis Notebooks](https://github.com/pineapple-bois/Michelin_Rated_Restaurants/tree/main/Years/2024/Notebooks) 
+
 ----
 
 ## [Changes from 2023 Guide](https://github.com/pineapple-bois/Michelin_Rated_Restaurants/blob/main/Years/2024/Notebooks/France/France_Changes.ipynb)
@@ -10,12 +12,15 @@
 | ⭐️⭐️           | 72         | 73         |
 | ⭐️⭐️⭐️         | 28         | 29         |
 
+----
 
 ### ⭐️⭐️⭐️ Changes
 
 - [Fabien Ferré](https://reportergourmet.com/en/news/6700-fabien-ferre-from-zero-to-3-michelin-stars-at-just-35-meet-the-record-breaking-chef-in-france#:~:text=Three%20years%20as%20sous%2Dchef,site%20for%20about%20a%20decade) at La Table du Castellet promoted from 0 to ⭐️⭐️⭐️
 - [Le Gabriel - La Réserve Paris](https://www.lareserve-paris.com) promoted from ⭐️⭐ to ⭐️⭐️⭐️
 - [René et Maxime Meilleur](https://www.la-bouitte.com/fr/) demoted to ⭐️⭐️
+
+----
 
 ### ⭐️⭐️️ Changes
 
@@ -33,6 +38,8 @@ Five promotions from ⭐️:
 Demoted to ⭐️
 - [Auberge du Cheval Blanc](https://www.cheval-blanc-lembach.fr/fr/)
 
+----
+
 ### ⭐️ Changes
 
 [52 new one-star restaurants](https://www.forbes.com/sites/rooksanahossenally/2024/03/18/michelin-guide-2024-new-stars-for-frances-restaurants-revealed-today/)
@@ -43,7 +50,7 @@ Demoted to ⭐️
 
 ---
 
-## [Analysis](https://github.com/pineapple-bois/Michelin_Rated_Restaurants/tree/main/Years/2024/Notebooks) Notebooks
+
 
 ----
 
