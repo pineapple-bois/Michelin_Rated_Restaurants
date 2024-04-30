@@ -2,8 +2,6 @@
 
 ## [Analysis Notebooks](https://github.com/pineapple-bois/Michelin_Rated_Restaurants/tree/main/Years/2024/Notebooks) 
 
-----
-
 ## [Changes from 2023 Guide](https://github.com/pineapple-bois/Michelin_Rated_Restaurants/blob/main/Years/2024/Notebooks/France/France_Changes.ipynb)
 
 | Michelin Stars | 2023 Guide | 2024 Guide |
