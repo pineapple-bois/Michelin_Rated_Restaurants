@@ -1,19 +1,19 @@
 
-## [Visualisation Notebook](Notebooks/France/France_Visualisations.ipynb)
+## [Visualisation Notebook](France/France_Visualisations.ipynb)
 
 ----
 
 ## Data processing:
 
-#### 1. [`Data-Preparation.ipynb`](Notebooks/Data-Preparation.ipynb):
+#### 1. [`Data-Preparation.ipynb`](Data-Preparation.ipynb):
 
 The Michelin Guide data was partitioned by country to isolate the data relevant to France. The processed dataset `france_master.csv` was exported.
 
-#### 2. [`France_Processing.ipynb`](Notebooks/France/France_Processing.ipynb): 
+#### 2. [`France_Processing.ipynb`](France/France_Processing.ipynb): 
 
 This notebook performs exploratory data analysis and further processing. It outlines the steps to merge the restaurant data with the socio-economic and geospatial JSON data.
 
-#### 3. [`France_Arrondissements.ipynb`](Notebooks/France/France_Arrondissements.ipynb): 
+#### 3. [`France_Arrondissements.ipynb`](France/France_Arrondissements.ipynb): 
 
 The data was further granulated to *arrondissement* level
 
