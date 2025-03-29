@@ -12,6 +12,7 @@ import geopandas as gpd
 import mapclassify
 import folium
 import branca
+import ast
 
 
 def dataframe_info(data):
@@ -154,7 +155,7 @@ def top_restaurants(data, granularity, star_rating, top_n, display_restaurants=T
         print(f"Top {top_n} {granularity}s with most {star_unicode} restaurants:\n\n")
 
     # Displaying the top restaurants or areas
-    for area, restaurant_count in top_areas.iteritems():
+    for area, restaurant_count in top_areas.items():
         restaurants_in_area = sorted_filtered_data[sorted_filtered_data[granularity] == area][
             ['name', 'address', 'location', granularity, 'cuisine', 'url', 'price']]
 
@@ -299,14 +300,26 @@ def plot_choropleth(df, column, title, granularity='department', restaurants=Fal
             star_colors = {str(star_rating): star_colors[str(star_rating)]}
 
         for star, color in star_colors.items():
-            for _, row in df.iterrows():
+            for idx, row in df.iterrows():
                 locations = row['locations']
-                if star in locations and locations[star] is not None:  # Check if locations for this star rating exist
-                    for lat, lon in locations[star]:  # Get lat, long for each restaurant
-                        x, y = transformer.transform(lon, lat)
+                # If locations is a string, convert it and force keys to be strings
+                if not isinstance(locations, dict):
+                    try:
+                        locations = ast.literal_eval(locations)
+                        locations = {str(k): v for k, v in locations.items()}
+                    except Exception as e:
+                        print(f"Row {idx}: Error converting locations: {e}")
+                        continue
 
-                        # Plot restaurant
-                        ax.scatter(x, y, c=color, s=50, marker='d')
+                if star in locations and locations[star] is not None:
+                    for coord in locations[star]:
+                        # Make sure coord is a pair of numbers
+                        if isinstance(coord, (list, tuple)) and len(coord) == 2:
+                            lat, lon = coord
+                            x, y = transformer.transform(lon, lat)
+                            ax.scatter(x, y, c=color, s=50, marker='d')
+                        else:
+                            print(f"Row {idx}: Unexpected coordinate format: {coord}")
 
             if star not in added_labels:
                 all_handles.append(
