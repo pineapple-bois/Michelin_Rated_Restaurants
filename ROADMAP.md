@@ -34,7 +34,7 @@ data/raw/michelin/
   michelin_data_2026.csv
 ```
 
-The working tree currently contains these uncommitted, manually copied fidelity baselines:
+The canonical partition tree contains generated outputs for the supported historical years:
 
 ```text
 data/partitions/france/france_{2023,2024,2025,2026}.csv
@@ -42,7 +42,7 @@ data/partitions/monaco/monaco_{2023,2024,2025,2026}.csv
 data/partitions/uk/uk_{2023,2024,2025,2026}.csv
 ```
 
-Each observed partition is byte-for-byte identical to its corresponding legacy output under `Years/<year>/data/`. No 2022 country-partition baseline is currently present. These files must remain unmodified and uncommitted while the Stage 1 reproduction contract is developed.
+Each partition is byte-for-byte identical to its corresponding legacy output under `Years/<year>/data/`. The legacy files remain the read-only fidelity evidence. No 2022 country-partition baseline is present.
 
 The sources evolved across years:
 
@@ -74,7 +74,7 @@ geodata/region_restaurants.geojson
 
 ### Tooling
 
-`requirements.txt` is the only dependency configuration. There is no checked-in package metadata, `src/` package, test suite/configuration, CI workflow, or pipeline CLI. The README documents environment creation and dependency installation only. Any package layout, test runner, or pipeline command below is therefore proposed, not current.
+`requirements.txt` remains the only dependency configuration. Stage 1 now has a `src/data_pipeline/` package, standard-library `unittest` coverage, and a `python -m data_pipeline partition` CLI documented in the README and `docs/stage1.md`. There is still no package metadata or CI workflow; commands currently use `PYTHONPATH=src`.
 
 The README and parts of `AGENTS.md` still describe the legacy `Years/<year>/data/Michelin/` locations and pre-partition naming. The tracked `data/raw/michelin/` archive and the approved `data/partitions/` terminology are the forward-looking contracts for this roadmap.
 
@@ -117,7 +117,7 @@ Differences from a baseline must be reported, never silently normalized away.
 
 ### Fidelity milestone
 
-The first implementation milestone is a pure-Python candidate process that reproduces the manually copied partitions without overwriting them. Begin with 2026 because it is the newest reference, then apply the same implementation to 2022–2025.
+The first implementation milestone is complete for 2023-2026: the pure-Python process reproduces all legacy country partitions byte-for-byte, supports disposable candidates and canonical publication, and protects existing outputs. The unresolved 2022 source remains fail-closed.
 
 For each country/year, compare:
 
@@ -140,38 +140,35 @@ Write candidate outputs to a separate temporary or explicitly named comparison l
 
 The missing 2022 baseline prevents the same direct three-country comparison currently available for 2023–2026. Resolve its provenance and expected outputs before declaring 2022 fidelity complete.
 
-### Proposed Python shape
+### Implemented Python shape
 
-A small package could evolve toward:
+Stage 1 currently uses:
 
 ```text
-src/michelin_pipeline/
+src/data_pipeline/
   __init__.py
   __main__.py
   cli.py
   stage1/
     pipeline.py
     schema.py
-    clean.py
-    locations.py
-    awards.py
-    partition.py
-    validate.py
-    paths.py
-tests/
-  stage1/
-  fixtures/
+    validation.py
+    fidelity.py
+tests/test_stage1.py
+tests/test_stage1_fidelity.py
 ```
 
-This is a proposed separation of responsibilities, not a required one-shot scaffold. Adapt it when packaging and test dependencies are chosen. Prefer pure functions, typed/explicit schemas, year-specific compatibility tables at narrow boundaries, small synthetic fixtures, and machine-readable validation reports.
+The implementation keeps transformation, schema compatibility, validation,
+publication, and fidelity comparison separate without introducing a packaging
+framework beyond the repository's current needs.
 
-A future interface may be conceptually similar to:
+The operational interface is:
 
 ```text
-python -m michelin_pipeline partition --year 2026
+PYTHONPATH=src python -m data_pipeline partition --year 2026
 ```
 
-No such command exists yet. Its exact name, arguments, candidate-output behavior, and failure codes belong in the Stage 1 contract before implementation.
+This interface is implemented. With no output override it publishes to `data/partitions/`; `--output-root`, `--validate-only`, and `--replace` provide candidate, no-write, and deliberate rebuild workflows.
 
 ## Non-goals for the first implementation
 
@@ -210,6 +207,8 @@ Stage 1 must not expand to include:
 
 ### Phase 2 — Stage 1 Python implementation
 
+**Status:** complete for the current Stage 1 contract.
+
 - Add the smallest reusable Python modules needed for the agreed contract.
 - Add a year-parameterized proposed CLI only after its interface is documented.
 - Write candidates separately from baselines and accepted outputs.
@@ -218,6 +217,8 @@ Stage 1 must not expand to include:
 **Exit:** Stage 1 can produce and validate candidates without executing or modifying notebooks.
 
 ### Phase 3 — Historical fidelity
+
+**Status:** complete for 2023-2026; 2022 remains unresolved because its source lacks country information for most rows and has no trusted partition baseline.
 
 - Reproduce all three 2026 partitions and issue field-level comparison reports.
 - Extend the same code path to 2023–2025 baselines, then resolve 2022.
@@ -297,7 +298,7 @@ Tests should use small synthetic fixtures for parsing and failure behavior; full
 - Preserve raw yearly Michelin files as immutable snapshots.
 - Implement replacement transformations as reusable pure Python, not copied annual notebooks.
 - Do not edit legacy notebooks in place; retain them as historical evidence until replacements are validated.
-- Use the manually copied partitions as read-only historical reproduction baselines initially.
+- Use the legacy yearly CSV outputs under `Years/` as read-only historical reproduction baselines; generated canonical partitions must match them for 2023-2026.
 - Keep Michelin acquisition, Stage 1 partitioning, reference-data ETL, and Stage 2 publication as separate concerns.
 - Start fidelity implementation with 2026, then apply the same pipeline to 2022–2025 with explicit compatibility classification.
 - Fail closed on critical validation and on apparently stale 2027 French source content; never publish or replace accepted data implicitly.

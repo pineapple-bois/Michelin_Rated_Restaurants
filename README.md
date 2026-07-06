@@ -119,5 +119,44 @@ pip install -r requirements.txt
 ```bash
 deactivate
 ```
-----
 
+## Stage 1 country partitions
+
+Stage 1 is implemented as reusable Python code in `src/data_pipeline/stage1/`.
+It turns an accepted local raw snapshot into validated France, Monaco, and UK
+partitions.
+
+Build canonical partitions:
+
+```bash
+PYTHONPATH=src python -m data_pipeline partition --year 2026
+```
+
+Build a disposable candidate:
+
+```bash
+PYTHONPATH=src python -m data_pipeline partition \
+  --year 2026 \
+  --output-root /tmp/michelin-stage1-2026
+```
+
+Validate without publishing, or deliberately rebuild an existing year:
+
+```bash
+PYTHONPATH=src python -m data_pipeline partition --year 2026 --validate-only
+PYTHONPATH=src python -m data_pipeline partition --year 2026 --replace
+```
+
+Existing outputs are protected unless `--replace` is supplied. Replacement is
+attempted only after all three outputs validate and stage successfully.
+
+Run the automated tests:
+
+```bash
+PYTHONPATH=src python -m unittest discover -s tests -v
+```
+
+See [`docs/stage1.md`](docs/stage1.md) for the notebook-to-Python mapping,
+schemas, validation rules, historical fidelity, and publication behavior.
+
+----
