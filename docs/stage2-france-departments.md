@@ -193,3 +193,97 @@ accepted France output without duplicating those transformations. A future
 demographics ETL will own retrieval, provenance, release-year selection, and
 normalization of department reference data; once accepted into `data/raw/`, it
 can invoke this stage through the same explicit file boundary.
+
+## Monaco branch
+
+The Monaco branch replaces the production transformations in
+`Years/<year>/Notebooks/France/Monaco_Processing.ipynb`. It is supported for
+2025 and 2026, the years with both a reference notebook and historical
+application products.
+
+Inputs:
+
+```text
+data/partitions/monaco/monaco_<year>.csv
+data/raw/geodata/monaco.geojson
+```
+
+Canonical outputs:
+
+```text
+data/products/france/<year>/monaco_restaurants.csv
+data/products/france/<year>/geodata/monaco_restaurants.geojson
+```
+
+The products remain below `france/<year>` because that reproduces the existing
+application-facing layout; this does not classify Monaco as a French country
+partition.
+
+### Commands
+
+```bash
+# Canonical build
+PYTHONPATH=src python -m data_pipeline monaco --year 2026
+
+# Disposable candidate
+PYTHONPATH=src python -m data_pipeline monaco --year 2026 \
+  --output-root /tmp/michelin-stage2-monaco-2026
+
+# No-write validation and deliberate replacement
+PYTHONPATH=src python -m data_pipeline monaco --year 2026 --validate-only
+PYTHONPATH=src python -m data_pipeline monaco --year 2026 --replace
+```
+
+### Notebook-to-Python mapping
+
+| Notebook operation | Python replacement |
+|---|---|
+| Drop Stage 1 `city` and `country` | `prepare_monaco_restaurants()` selects only the application contract. |
+| Split address/location/postcode | `_parse_monaco_address()` requires a main address, `Monaco`, a `98xxx` postcode, and an accepted historical country suffix. |
+| Add administrative fields | `prepare_monaco_restaurants()` assigns arrondissement/department/capital `Monaco`, synthetic code `98`, and region `Provence-Alpes-Côte d'Azur`. |
+| Build Michelin indicators and totals | `aggregate_monaco()` uses the shared Stage 2 Michelin category contract and computes total stars and starred restaurants. |
+| Add demographic fields | `aggregate_monaco()` adds zero-valued schema placeholders in the France departmental column order. |
+| Group coordinates by category | `aggregate_monaco()` creates the historical `Selected`, `Bib`, `1`, `2`, and `3` location dictionary. |
+| Attach Monaco geometry and export | `aggregate_monaco()` attaches the single accepted geometry; staged output is reloaded before the two-file transaction publishes. |
+
+Plots, dataframe displays, format-count prints, and other exploratory cells are
+not production transformations and are intentionally excluded.
+
+### Contracts and validation
+
+`monaco_restaurants.csv` has the France application restaurant columns plus
+`arrondissement`, with the same order as the notebook:
+
+```text
+name,address,location,arrondissement,department_num,department,capital,region,
+price,cuisine,url,award,greenstar,stars,longitude,latitude
+```
+
+The GeoJSON uses the departmental property schema documented above and contains
+one feature with `code=98`. Code `98` is a synthetic application compatibility
+code, not a French department code. Monaco is associated with
+`Provence-Alpes-Côte d'Azur` solely for compatibility with the existing
+application. All GDP, population, wage, poverty, unemployment, density, and
+area values are `0.0` schema placeholders; they are not Monaco statistics.
+
+Addresses must parse into a non-empty street/address, literal city `Monaco`, a
+five-digit `98xxx` postcode, and either the historical `France` suffix (2025)
+or `Principality of Monaco` (2026 onward). Malformed input fails instead of
+creating notebook-style `None, None` location strings. Rows are never dropped.
+Coordinates must be complete and in geographic ranges; fixed administrative
+values, output schema, row reconciliation, the single geometry feature, and
+EPSG:4326 are validated before publication.
+
+The canonical geometry is `data/raw/geodata/monaco.geojson`. It is byte-identical
+to the legacy `ExtraData/Geodata/monaco.geojson` and contains a pre-existing ring
+self-intersection also present in both historical products. This migration
+preserves that accepted boundary for fidelity and does not silently repair it;
+replacing it with valid geometry requires a separately reviewed reference-data
+change.
+
+The two outputs are staged, serialized, reloaded, and compared before either
+canonical path changes. Existing files require `--replace`; a publication error
+rolls back the complete pair. Integration tests demonstrate byte-for-byte
+fidelity for both products in 2025 and 2026. No application-product baselines
+exist for 2023-2024, so those years remain unsupported rather than being
+declared faithful from partitions alone.

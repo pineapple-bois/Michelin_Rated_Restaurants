@@ -174,4 +174,15 @@ Canonical products are stored under `data/products/france/<year>/`.
 See [`docs/stage2-france-departments.md`](docs/stage2-france-departments.md)
 for inputs, notebook mapping, schemas, validation, fidelity, and publication.
 
+Build Monaco application products with the same candidate, validation, and
+replacement conventions:
+
+```bash
+PYTHONPATH=src python -m data_pipeline monaco --year 2026
+PYTHONPATH=src python -m data_pipeline monaco --year 2026 --validate-only
+```
+
+The detailed Stage 2 document also describes Monaco's synthetic application
+code and placeholder demographic fields.
+
 ----

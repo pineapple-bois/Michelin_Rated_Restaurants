@@ -10,6 +10,7 @@ from .stage1.fidelity import compare_partition_roots
 from .stage1.pipeline import Stage1PublicationError, run_stage1, validate_stage1
 from .stage1.validation import Stage1ValidationError
 from .stage2.pipeline import Stage2PublicationError, run_stage2, validate_stage2
+from .stage2.monaco import run_monaco_stage2, validate_monaco_stage2
 from .stage2.validation import Stage2ValidationError
 
 
@@ -97,6 +98,25 @@ def _parser() -> argparse.ArgumentParser:
         action="store_true",
         help="deliberately replace existing products after full validation",
     )
+
+    monaco = subparsers.add_parser(
+        "monaco",
+        help="create Monaco restaurant and aggregate application products",
+    )
+    monaco.add_argument("--year", required=True, type=int)
+    monaco.add_argument(
+        "--partition-root", type=Path, default=Path("data/partitions")
+    )
+    monaco.add_argument(
+        "--geometry-path",
+        type=Path,
+        default=Path("data/raw/geodata/monaco.geojson"),
+    )
+    monaco.add_argument(
+        "--output-root", type=Path, default=Path("data/products")
+    )
+    monaco.add_argument("--validate-only", action="store_true")
+    monaco.add_argument("--replace", action="store_true")
     return parser
 
 
@@ -203,10 +223,48 @@ def _run_departments(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_monaco(args: argparse.Namespace) -> int:
+    if args.validate_only and args.replace:
+        print("Monaco Stage 2 failed: --replace cannot be used with --validate-only", file=sys.stderr)
+        return 2
+    options = {
+        "year": args.year,
+        "partition_root": args.partition_root,
+        "geometry_path": args.geometry_path,
+    }
+    try:
+        if args.validate_only:
+            result = validate_monaco_stage2(**options)
+        else:
+            result = run_monaco_stage2(
+                **options, output_root=args.output_root, replace=args.replace
+            )
+    except (
+        Stage2PublicationError,
+        Stage2ValidationError,
+        FileExistsError,
+        FileNotFoundError,
+    ) as error:
+        print(f"Monaco Stage 2 failed: {error}", file=sys.stderr)
+        return 2
+    print(
+        f"Monaco Stage 2 validated {result.validation.restaurant_rows} restaurants "
+        f"and {result.validation.aggregate_rows} aggregate row for {result.year}."
+    )
+    if args.validate_only:
+        print("Validation complete; no files were published.")
+    else:
+        for path in result.paths.values():
+            print(f"  wrote: {path}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     if args.command == "partition":
         return _run_partition(args)
     if args.command == "departments":
         return _run_departments(args)
+    if args.command == "monaco":
+        return _run_monaco(args)
     raise AssertionError(f"Unhandled command: {args.command}")
