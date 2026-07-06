@@ -35,7 +35,7 @@ The aim is to better understand the intricate relationship between culinary exce
 
 ---
 
-## [Processing Pipeline (by year)](Years)
+## [Processing Pipeline (by year)](legacy/Years)
 Data is from the above sources is merged, transformed and exported.
 
 ---
@@ -46,12 +46,12 @@ Finding and logging significant changes in star ratings.
 
 ---
 
-## [Visualisations](Years/2023/Notebooks/France/France_Visualisations.ipynb)
+## [Visualisations](legacy/Years/2023/Notebooks/France/France_Visualisations.ipynb)
 Intricate functions are presented and [defined](Functions/functions_visualisation.py) to query and represent the data in diverse and insightful manners. 
 
 ---
 
-## [Analysis](Years/2023/Notebooks/France/France_Analysis.ipynb)
+## [Analysis](legacy/Years/2023/Notebooks/France/France_Analysis.ipynb)
 The analysis segment of this project is designed for both technical and non-technical audiences. Utilizing the functions from the visualisation phase, this section endeavors to answer pertinent questions with minimal code to ensure readability and comprehension.
 
 ---
