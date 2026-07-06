@@ -1,10 +1,7 @@
-# Michelin Rated Restaurants in France: An Analysis
-![Michelin Star](Images/Etoile_Michelin.svg)
-
----
+# Michelin Rated Restaurants in France
 
 ## Overview
-This project is multifaceted. While it showcases proficiency in data acquisition, processing, and visualisation, it also delves into the world of Michelin-rated restaurants in France. Leveraging datasets from the Michelin Guide and INSEE, along with French geospatial data, this analysis probes the correlation between elite restaurants and the socio-economic attributes of their surroundings.
+This project showcases proficiency in data acquisition, processing, and visualisation. It also delves into the world of Michelin-rated restaurants in France. Leveraging datasets from the Michelin Guide and INSEE, along with French geospatial data, this analysis probes the correlation between elite restaurants and the socio-economic attributes of their surroundings.
 
 Previously I was a Michelin trained chef and lived in France for six transformative years. Those years instilled in me a deep appreciation for the world of gastronomy and its profound influence on local culture. Through this project, I seek to marry my life experiences with my current passion for data.
 
@@ -184,5 +181,19 @@ PYTHONPATH=src python -m data_pipeline monaco --year 2026 --validate-only
 
 The detailed Stage 2 document also describes Monaco's synthetic application
 code and placeholder demographic fields.
+
+## Stage 3 arrondissements and Paris
+
+Build the arrondissement-enriched restaurant CSV and national/Paris GeoJSON:
+
+```bash
+PYTHONPATH=src python -m data_pipeline arrondissements --year 2026
+```
+
+Use `--output-root`, `--validate-only`, and `--replace` as in earlier stages.
+The separate `acquire-paris-arrondissements` command creates the local Paris
+naming reference; normal Stage 3 builds are offline. See
+[`docs/stage3-arrondissements.md`](docs/stage3-arrondissements.md) for the
+reference contract, notebook mapping, spatial validation, and fidelity report.
 
 ----

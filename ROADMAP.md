@@ -257,7 +257,9 @@ The expected upstream candidate is `https://github.com/ngshiheng/michelin-my-map
 
 **Status:** enriched France restaurant, departmental and regional GeoJSON, and
 Monaco restaurant/GeoJSON products are implemented and verified for 2025-2026.
-Arrondissement, Paris, and broader application publication remain later work.
+The arrondissement-enriched CSV plus national and Paris arrondissement GeoJSON
+are now implemented for the 2025-2026 Stage 2 contract; broader application
+publication remains later work.
 
 - Inventory the notebooks that produce each current France/Monaco CSV and GeoJSON.
 - Inspect the separate application's actual paths, schemas, null/category expectations, CRS, and geographic granularity.

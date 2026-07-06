@@ -12,6 +12,8 @@ from .stage1.validation import Stage1ValidationError
 from .stage2.pipeline import Stage2PublicationError, run_stage2, validate_stage2
 from .stage2.monaco import run_monaco_stage2, validate_monaco_stage2
 from .stage2.validation import Stage2ValidationError
+from .stage3.acquisition import ParisReferenceError, extract_paris_reference
+from .stage3.pipeline import Stage3PublicationError, run_stage3, validate_stage3
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -117,6 +119,51 @@ def _parser() -> argparse.ArgumentParser:
     )
     monaco.add_argument("--validate-only", action="store_true")
     monaco.add_argument("--replace", action="store_true")
+
+    arrondissements = subparsers.add_parser(
+        "arrondissements",
+        help="create national arrondissement and Paris municipal-arrondissement products",
+    )
+    arrondissements.add_argument("--year", required=True, type=int)
+    arrondissements.add_argument("--stage2-root", type=Path, default=Path("data/products"))
+    arrondissements.add_argument("--output-root", type=Path, default=Path("data/products"))
+    arrondissements.add_argument(
+        "--demographics-path", type=Path,
+        default=Path("data/raw/demographics/arrondissement_stats_2023.csv"),
+    )
+    arrondissements.add_argument(
+        "--paris-reference-path", type=Path,
+        default=Path("data/raw/demographics/paris_arrondissements.csv"),
+    )
+    arrondissements.add_argument(
+        "--arrondissement-geometry-path", type=Path,
+        default=Path("data/raw/geodata/arrondissements-avec-outre-mer.geojson"),
+    )
+    arrondissements.add_argument(
+        "--department-reference-path", type=Path,
+        default=Path("data/raw/demographics/departments.csv"),
+    )
+    arrondissements.add_argument(
+        "--department-geometry-path", type=Path,
+        default=Path("data/raw/geodata/departments.geojson"),
+    )
+    arrondissements.add_argument(
+        "--paris-geometry-path", type=Path,
+        default=Path("data/raw/geodata/paris_arrondissements.geojson"),
+    )
+    arrondissements.add_argument("--validate-only", action="store_true")
+    arrondissements.add_argument("--replace", action="store_true")
+
+    paris_reference = subparsers.add_parser(
+        "acquire-paris-arrondissements",
+        help="retrieve and validate the Wikipedia Paris arrondissement naming table",
+    )
+    paris_reference.add_argument(
+        "--output-path", type=Path,
+        default=Path("data/raw/demographics/paris_arrondissements.csv"),
+    )
+    paris_reference.add_argument("--refresh", action="store_true")
+    paris_reference.add_argument("--timeout", type=float, default=30.0)
     return parser
 
 
@@ -259,6 +306,56 @@ def _run_monaco(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_arrondissements(args: argparse.Namespace) -> int:
+    if args.validate_only and args.replace:
+        print("Stage 3 failed: --replace cannot be used with --validate-only", file=sys.stderr)
+        return 2
+    try:
+        inputs = {
+            "year": args.year,
+            "stage2_root": args.stage2_root,
+            "demographics_path": args.demographics_path,
+            "paris_reference_path": args.paris_reference_path,
+            "arrondissement_geometry_path": args.arrondissement_geometry_path,
+            "department_reference_path": args.department_reference_path,
+            "department_geometry_path": args.department_geometry_path,
+            "paris_geometry_path": args.paris_geometry_path,
+        }
+        if args.validate_only:
+            result = validate_stage3(**inputs)
+        else:
+            result = run_stage3(
+                **inputs, output_root=args.output_root, replace=args.replace,
+            )
+    except (Stage3PublicationError, Stage2ValidationError, FileExistsError, FileNotFoundError) as error:
+        print(f"Stage 3 failed: {error}", file=sys.stderr)
+        return 2
+    print(
+        f"Stage 3 validated {result.validation.restaurant_rows} restaurants, "
+        f"{result.validation.arrondissement_rows} national arrondissements, and "
+        f"{result.validation.paris_rows} Paris arrondissements for {result.year}."
+    )
+    print(f"  coastal fallbacks: {len(result.validation.coastal_fallbacks)}")
+    if args.validate_only:
+        print("Validation complete; no files were published.")
+    else:
+        for path in result.paths.values():
+            print(f"  wrote: {path}")
+    return 0
+
+
+def _run_paris_reference(args: argparse.Namespace) -> int:
+    try:
+        path = extract_paris_reference(
+            output_path=args.output_path, refresh=args.refresh, timeout=args.timeout
+        )
+    except (ParisReferenceError, FileExistsError, OSError, ValueError) as error:
+        print(f"Paris reference acquisition failed: {error}", file=sys.stderr)
+        return 2
+    print(f"Wrote validated Paris arrondissement reference: {path}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     if args.command == "partition":
@@ -267,4 +364,8 @@ def main(argv: list[str] | None = None) -> int:
         return _run_departments(args)
     if args.command == "monaco":
         return _run_monaco(args)
+    if args.command == "arrondissements":
+        return _run_arrondissements(args)
+    if args.command == "acquire-paris-arrondissements":
+        return _run_paris_reference(args)
     raise AssertionError(f"Unhandled command: {args.command}")
