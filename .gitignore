@@ -21,3 +21,9 @@ Years/2023/data/France/.DS_Store
 ExtraData/Demographics/.DS_Store
 ExtraData/Geodata/.DS_Store
 Years/2023/data/UK/.DS_Store
+
+# Wine content
+/ExtraData/Wine/aoc.gpkg
+/ExtraData/Wine/vineyards.geojson
+/Years/2025/Notebooks/France/WineRegions/
+/Years/2026/Notebooks/France/WineRegions/
