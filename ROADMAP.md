@@ -271,6 +271,10 @@ publication remains later work.
 
 ### Phase 7 — Replace yearly notebook copying
 
+**Status:** consecutive-year France Guide changes reporting is implemented as
+an auditable downstream Python report for 2023→2024 through 2025→2026. Pairwise
+matching remains intentionally separate from a future master identity system.
+
 - Parameterize accepted transformations by guide year and explicit reference versions.
 - Preserve legacy notebooks unchanged as evidence until replacement outputs are validated.
 - Generate annual CSV/GeoJSON products deterministically with validation reports.

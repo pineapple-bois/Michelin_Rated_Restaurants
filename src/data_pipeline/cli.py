@@ -14,6 +14,12 @@ from .stage2.monaco import run_monaco_stage2, validate_monaco_stage2
 from .stage2.validation import Stage2ValidationError
 from .stage3.acquisition import ParisReferenceError, extract_paris_reference
 from .stage3.pipeline import Stage3PublicationError, run_stage3, validate_stage3
+from .changes.pipeline import (
+    ChangesPublicationError,
+    ChangesValidationError,
+    run_changes,
+    validate_changes,
+)
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -164,6 +170,20 @@ def _parser() -> argparse.ArgumentParser:
     )
     paris_reference.add_argument("--refresh", action="store_true")
     paris_reference.add_argument("--timeout", type=float, default=30.0)
+
+    changes = subparsers.add_parser(
+        "changes", help="compare consecutive annual France Michelin Guide products"
+    )
+    changes.add_argument("--previous-year", required=True, type=int)
+    changes.add_argument("--current-year", required=True, type=int)
+    changes.add_argument("--product-root", type=Path, default=Path("data/products"))
+    changes.add_argument("--output-root", type=Path, default=Path("data/reports"))
+    changes.add_argument(
+        "--overrides-path", type=Path,
+        default=Path("data/overrides/france_change_matches.csv"),
+    )
+    changes.add_argument("--validate-only", action="store_true")
+    changes.add_argument("--replace", action="store_true")
     return parser
 
 
@@ -356,6 +376,46 @@ def _run_paris_reference(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_changes(args: argparse.Namespace) -> int:
+    if args.validate_only and args.replace:
+        print("Changes report failed: --replace cannot be used with --validate-only", file=sys.stderr)
+        return 2
+    options = {
+        "previous_year": args.previous_year,
+        "current_year": args.current_year,
+        "product_root": args.product_root,
+        "overrides_path": args.overrides_path,
+    }
+    try:
+        if args.validate_only:
+            result = validate_changes(**options)
+        else:
+            result = run_changes(
+                **options, output_root=args.output_root, replace=args.replace
+            )
+    except (
+        ChangesPublicationError,
+        ChangesValidationError,
+        FileExistsError,
+        FileNotFoundError,
+    ) as error:
+        print(f"Changes report failed: {error}", file=sys.stderr)
+        return 2
+    validation = result.validation
+    print(
+        f"Changes {result.previous_year}->{result.current_year}: "
+        f"{validation.matched_rows} matched, {validation.new_entries} new, "
+        f"{validation.removed_entries} removed, "
+        f"{validation.fuzzy_candidates} fuzzy review candidates."
+    )
+    if args.validate_only:
+        print("Validation complete; no reports were published.")
+    else:
+        for path in result.paths.values():
+            print(f"  wrote: {path}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     if args.command == "partition":
@@ -368,4 +428,6 @@ def main(argv: list[str] | None = None) -> int:
         return _run_arrondissements(args)
     if args.command == "acquire-paris-arrondissements":
         return _run_paris_reference(args)
+    if args.command == "changes":
+        return _run_changes(args)
     raise AssertionError(f"Unhandled command: {args.command}")

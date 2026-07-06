@@ -196,4 +196,18 @@ naming reference; normal Stage 3 builds are offline. See
 [`docs/stage3-arrondissements.md`](docs/stage3-arrondissements.md) for the
 reference contract, notebook mapping, spatial validation, and fidelity report.
 
+## France Guide changes reports
+
+Compare consecutive accepted annual products and publish structured CSV/JSON
+plus a readable material-change report:
+
+```bash
+PYTHONPATH=src python -m data_pipeline changes \
+  --previous-year 2025 --current-year 2026
+```
+
+Candidate, validation-only, and replacement behavior follows the other
+pipelines. See [`docs/guide-changes.md`](docs/guide-changes.md) for matching,
+materiality, fuzzy-review, optional-field, and override contracts.
+
 ----
