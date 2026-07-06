@@ -255,6 +255,10 @@ The expected upstream candidate is `https://github.com/ngshiheng/michelin-my-map
 
 ### Phase 6 — Stage 2 France application contract
 
+**Status:** enriched restaurant plus departmental and regional GeoJSON products
+are implemented and verified for 2025-2026. Arrondissement, Paris, Monaco, and broader application
+publication remain later work.
+
 - Inventory the notebooks that produce each current France/Monaco CSV and GeoJSON.
 - Inspect the separate application's actual paths, schemas, null/category expectations, CRS, and geographic granularity.
 - Classify each product as intermediate, app-facing, or analysis-only.

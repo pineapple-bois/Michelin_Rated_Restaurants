@@ -159,4 +159,19 @@ PYTHONPATH=src python -m unittest discover -s tests -v
 See [`docs/stage1.md`](docs/stage1.md) for the notebook-to-Python mapping,
 schemas, validation rules, historical fidelity, and publication behavior.
 
+## Stage 2 France geographic products
+
+Build the enriched France restaurant CSV plus departmental and regional GeoJSON:
+
+```bash
+PYTHONPATH=src python -m data_pipeline departments --year 2026
+```
+
+Use `--output-root /tmp/michelin-stage2-2026` for a candidate,
+`--validate-only` for a no-write check, or `--replace` for a deliberate rebuild.
+Canonical products are stored under `data/products/france/<year>/`.
+
+See [`docs/stage2-france-departments.md`](docs/stage2-france-departments.md)
+for inputs, notebook mapping, schemas, validation, fidelity, and publication.
+
 ----
