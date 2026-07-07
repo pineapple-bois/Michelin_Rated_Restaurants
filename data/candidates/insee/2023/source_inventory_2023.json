@@ -14,8 +14,8 @@
       "cache_path": "tmp/insee_pipeline/2023/insee/DS_BTS_SAL_EQTP_SEX_AGE.zip",
       "sha256": "ed5898367d06da5f25a6b152eff063103b12f8f1968876b83a69ca3b18525bf2",
       "bytes": 5216982,
-      "fetched": false,
-      "observed_at": "2026-07-07T18:17:48.443757+00:00",
+      "fetched": true,
+      "observed_at": "2026-07-07T18:35:13.605983+00:00",
       "retention_policy": "disposable build cache; safe to delete and regenerate"
     },
     {
@@ -25,8 +25,8 @@
       "cache_path": "tmp/insee_pipeline/2023/insee/DS_FILOSOFI_CC.zip",
       "sha256": "5b622c113fc1ae68a75b64f2fe148c1d1830d675b4b56b192a73d545e9a0d8f4",
       "bytes": 6004488,
-      "fetched": false,
-      "observed_at": "2026-07-07T18:17:48.448296+00:00",
+      "fetched": true,
+      "observed_at": "2026-07-07T18:35:16.565602+00:00",
       "retention_policy": "disposable build cache; safe to delete and regenerate"
     },
     {
@@ -36,8 +36,8 @@
       "cache_path": "tmp/insee_pipeline/2023/insee/DS_RP_EMPLOI_LR_COMP.zip",
       "sha256": "0372633ecef40aa6d4771ce30857807bf80b13530af784d61b046c501a22eb77",
       "bytes": 17742302,
-      "fetched": false,
-      "observed_at": "2026-07-07T18:17:48.461027+00:00",
+      "fetched": true,
+      "observed_at": "2026-07-07T18:35:24.829721+00:00",
       "retention_policy": "disposable build cache; safe to delete and regenerate"
     },
     {
@@ -47,8 +47,8 @@
       "cache_path": "tmp/insee_pipeline/2023/insee/DS_POPULATIONS_REFERENCE.zip",
       "sha256": "f862ddd2a9135f80034fb3408ec8939626da044710406cabef887c2393a3984f",
       "bytes": 985016,
-      "fetched": false,
-      "observed_at": "2026-07-07T18:17:48.462066+00:00",
+      "fetched": true,
+      "observed_at": "2026-07-07T18:35:25.518735+00:00",
       "retention_policy": "disposable build cache; safe to delete and regenerate"
     },
     {
@@ -58,8 +58,8 @@
       "cache_path": "tmp/insee_pipeline/2023/oecd/oecd_gdp_regions.csv",
       "sha256": "2dfe600202f9ec0919c70b68c8340b3b176b0d352621cdd703517597b329c619",
       "bytes": 11158836,
-      "fetched": false,
-      "observed_at": "2026-07-07T18:17:48.469089+00:00",
+      "fetched": true,
+      "observed_at": "2026-07-07T18:35:25.767308+00:00",
       "retention_policy": "disposable build cache; safe to delete and regenerate"
     }
   ],
