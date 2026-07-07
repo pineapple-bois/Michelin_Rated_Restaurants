@@ -13,6 +13,7 @@ from pandas.testing import assert_frame_equal
 import requests
 
 from .paths import PipelinePaths
+from .product import build_product
 from .sources import INSEE_DATASETS, acquire_sources
 from .transform import (
     assemble_departmental_table,
@@ -205,6 +206,12 @@ def _parser() -> argparse.ArgumentParser:
     build_parser.add_argument("--source-cache-root", type=Path)
     build_parser.add_argument("--legacy-statistics-path", type=Path, default=Path("data/raw/demographics/departmental_stats_2023.csv"))
     build_parser.add_argument("--replace", action="store_true")
+    product_parser = subparsers.add_parser("product", help="build a Michelin-consumable product from a validated candidate")
+    product_parser.add_argument("--year", required=True, type=int)
+    product_parser.add_argument("--candidate-root", type=Path, default=Path("data/candidates/insee"))
+    product_parser.add_argument("--product-root", type=Path, default=Path("data/products/insee"))
+    product_parser.add_argument("--department-lookup-path", type=Path, default=Path("data/raw/demographics/departments.csv"))
+    product_parser.add_argument("--replace", action="store_true")
     return parser
 
 
@@ -221,15 +228,29 @@ def main(argv: list[str] | None = None) -> int:
                 legacy_statistics_path=args.legacy_statistics_path,
                 replace=args.replace,
             )
+            print(f"Built INSEE/OECD departmental candidate for {result.year}: {result.rows} rows")
+            for name, path in result.paths.items():
+                print(f"  {name}: {path}")
+            print(f"  validation checks: {len(result.validation)}")
+            if result.legacy_comparison.get("available"):
+                print(f"  legacy shared department codes: {result.legacy_comparison['shared_department_codes']}")
+            return 0
+        if args.command == "product":
+            result = build_product(
+                year=args.year,
+                candidate_root=args.candidate_root,
+                product_root=args.product_root,
+                department_lookup_path=args.department_lookup_path,
+                replace=args.replace,
+            )
+            print(f"Built INSEE/OECD departmental product for {result.year}: {result.rows} rows")
+            for name, path in result.paths.items():
+                print(f"  {name}: {path}")
+            print(f"  output sha256: {result.output_hash}")
+            return 0
         else:
             raise AssertionError(args.command)
     except (FileExistsError, FileNotFoundError, InseeValidationError, ValueError, requests.RequestException) as error:
         print(f"INSEE pipeline failed: {error}", file=sys.stderr)
         return 2
-    print(f"Built INSEE/OECD departmental candidate for {result.year}: {result.rows} rows")
-    for name, path in result.paths.items():
-        print(f"  {name}: {path}")
-    print(f"  validation checks: {len(result.validation)}")
-    if result.legacy_comparison.get("available"):
-        print(f"  legacy shared department codes: {result.legacy_comparison['shared_department_codes']}")
     return 0

@@ -12,6 +12,7 @@ class PipelinePaths:
     raw_insee_root: Path
     raw_oecd_root: Path
     candidate_root: Path
+    product_root: Path
     geometry_path: Path
     source_cache_root: Path | None = None
 
@@ -22,6 +23,7 @@ class PipelinePaths:
         year: int,
         raw_root: Path = Path("tmp/insee_pipeline"),
         candidate_root: Path = Path("data/candidates/insee"),
+        product_root: Path = Path("data/products/insee"),
         geometry_path: Path = Path("data/raw/geodata/departments.geojson"),
         source_cache_root: Path | None = None,
     ) -> "PipelinePaths":
@@ -30,6 +32,7 @@ class PipelinePaths:
             raw_insee_root=raw_root / str(year) / "insee",
             raw_oecd_root=raw_root / str(year) / "oecd",
             candidate_root=candidate_root / str(year),
+            product_root=product_root / str(year),
             geometry_path=geometry_path,
             source_cache_root=source_cache_root,
         )
@@ -60,3 +63,11 @@ class PipelinePaths:
     @property
     def validation_report(self) -> Path:
         return self.candidate_root / f"validation_report_{self.year}.json"
+
+    @property
+    def product_table(self) -> Path:
+        return self.product_root / f"france_departments_{self.year}.csv"
+
+    @property
+    def product_manifest(self) -> Path:
+        return self.product_root / f"manifest_{self.year}.json"

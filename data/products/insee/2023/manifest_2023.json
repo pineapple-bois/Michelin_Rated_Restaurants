@@ -1,0 +1,80 @@
+{
+  "reference_year": 2023,
+  "rows": 96,
+  "schema": [
+    "department_code",
+    "department_name",
+    "capital",
+    "region",
+    "reference_year",
+    "average_net_monthly_wage_fte_eur",
+    "median_living_standard_eur",
+    "poverty_rate_percent",
+    "census_unemployment_rate_15_64_percent",
+    "municipal_population",
+    "area_sq_km",
+    "population_density_per_sq_km",
+    "gdp_current_prices_million_eur",
+    "gdp_per_capita_eur"
+  ],
+  "dtypes": {
+    "department_code": "string",
+    "department_name": "string",
+    "capital": "string",
+    "region": "string",
+    "reference_year": "int64",
+    "municipal_population": "int64",
+    "average_net_monthly_wage_fte_eur": "float64",
+    "median_living_standard_eur": "float64",
+    "poverty_rate_percent": "float64",
+    "census_unemployment_rate_15_64_percent": "float64",
+    "area_sq_km": "float64",
+    "population_density_per_sq_km": "float64",
+    "gdp_current_prices_million_eur": "float64",
+    "gdp_per_capita_eur": "float64"
+  },
+  "inputs": {
+    "candidate_table": {
+      "path": "data/candidates/insee/2023/france_departments_2023.csv",
+      "sha256": "8022988f8d9f6cff8e66f039f72b4091431cf1e17dfd0179fc731c449e002ad0"
+    },
+    "candidate_manifest": {
+      "path": "data/candidates/insee/2023/manifest_2023.json",
+      "sha256": "77cb54ae7b6d1e5602c91a0b6398ffd6397e895cab989ca3d98cde7df676dbbb"
+    },
+    "validation_report": {
+      "path": "data/candidates/insee/2023/validation_report_2023.json",
+      "sha256": "69fab0b9cb6a5c8026af606c9f3c1b209d7d9612dd2995e662720a3a5948154f"
+    },
+    "department_lookup": {
+      "path": "data/raw/demographics/departments.csv",
+      "sha256": "4d0874d498bcedee2e0f694c7dc677bde4ddbb73c067cc93d500c4f1072dc32f"
+    }
+  },
+  "candidate_manifest": {
+    "reference_year": 2023,
+    "rows": 96
+  },
+  "validation_report": {
+    "reference_year": 2023,
+    "checks": 9
+  },
+  "derivations": {
+    "gdp_per_capita_eur": "gdp_current_prices_million_eur * 1_000_000 / municipal_population"
+  },
+  "excluded_candidate_fields": [
+    "population_counted_separately",
+    "total_population",
+    "employed_population_15_64",
+    "unemployed_population_15_64",
+    "active_population_15_64",
+    "oecd_tl3_code",
+    "gdp_observation_status",
+    "gdp_observation_status_label"
+  ],
+  "outputs": {
+    "departmental_product": "data/products/insee/2023/france_departments_2023.csv",
+    "manifest": "data/products/insee/2023/manifest_2023.json"
+  },
+  "output_hash": "9c15e4f42de035205688cc2fc643bedbbdb393f53d048d0000e473a92a3ae934"
+}

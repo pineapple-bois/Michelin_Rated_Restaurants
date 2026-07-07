@@ -32,6 +32,13 @@ Normal invocation:
 PYTHONPATH=src .venv/bin/python -m insee_pipeline build --year 2023
 ```
 
+After a candidate has been validated, build the Michelin-consumable product
+without rebuilding the candidate:
+
+```bash
+PYTHONPATH=src .venv/bin/python -m insee_pipeline product --year 2023
+```
+
 Implemented CLI options:
 
 | Option | Default | Purpose |
@@ -43,6 +50,16 @@ Implemented CLI options:
 | `--source-cache-root SOURCE_CACHE_ROOT` | unset | Optional local cache consulted before network download. The pipeline looks for files matching the destination filename, such as `DS_FILOSOFI_CC.zip` or `oecd_gdp_regions.csv`, and copies them into the disposable source working path when the working file is absent. |
 | `--legacy-statistics-path LEGACY_STATISTICS_PATH` | `data/raw/demographics/departmental_stats_2023.csv` | Optional legacy file used only for the candidate validation report's comparison section. It is not an input to metric derivation. |
 | `--replace` | false | Allows existing candidate output files to be replaced. Without this flag, the build refuses to overwrite existing candidate table, crosswalk, manifest, source inventory, or validation report files. |
+
+The `product` command supports:
+
+| Option | Default | Purpose |
+|---|---|---|
+| `--year YEAR` | required | Requested product year. The product command requires an existing candidate manifest, validation report, and candidate table for this year. |
+| `--candidate-root CANDIDATE_ROOT` | `data/candidates/insee` | Root containing validated candidate artifacts. The command reads from `<candidate-root>/<year>/`. |
+| `--product-root PRODUCT_ROOT` | `data/products/insee` | Root used for Michelin-consumable product outputs. The command writes to `<product-root>/<year>/`. |
+| `--department-lookup-path DEPARTMENT_LOOKUP_PATH` | `data/raw/demographics/departments.csv` | Authoritative department-code lookup used to add `capital` and `region`. |
+| `--replace` | false | Allows existing product CSV or product manifest to be replaced. |
 
 Source working files are reused rather than re-downloaded when the expected
 cache path already exists, but they are safe to delete and regenerate.
@@ -67,6 +84,8 @@ The implemented lifecycle is:
    output serialization.
 7. Write the departmental candidate table, OECD crosswalk, source inventory,
    manifest, and validation report.
+8. Optionally transform the validated candidate into a narrower Michelin-facing
+   product with `product.build_product()`.
 
 The package uses shared helpers for ZIP inspection, chunked CSV loading,
 requested-year filtering, numeric conversion, SHA-256 hashing, and deterministic
@@ -129,6 +148,75 @@ Validated 2023 candidate artifacts:
 These remain candidate artifacts even after validation passes. Validation does
 not promote the files to `data/raw/demographics/`, does not update Stage 2
 statistics inputs, and does not alter the Michelin product pipeline.
+
+## Michelin-Consumable Product
+
+The `product` command converts the validated departmental candidate into a
+smaller asset intended for later Michelin pipeline consumption. It reads the
+existing candidate artifacts under `data/candidates/insee/<year>/`; it does not
+acquire sources, rebuild the candidate, or modify candidate reports.
+
+Validated 2023 product artifacts:
+
+| Path | Purpose |
+|---|---|
+| `data/products/insee/2023/france_departments_2023.csv` | Michelin-consumable 96-row departmental product table. |
+| `data/products/insee/2023/manifest_2023.json` | Product manifest with input paths and hashes, schema, dtypes, derivations, excluded candidate fields, row count, and output hash. |
+
+The product joins `data/raw/demographics/departments.csv` by exact department
+code to add `capital` and `region`. The join is validated as one-to-one and
+fails on duplicate or unmatched department codes. Department codes are strings,
+so leading zeros and Corsican codes such as `2A` and `2B` are preserved.
+
+The ordered product schema is:
+
+```python
+[
+    "department_code",
+    "department_name",
+    "capital",
+    "region",
+    "reference_year",
+    "average_net_monthly_wage_fte_eur",
+    "median_living_standard_eur",
+    "poverty_rate_percent",
+    "census_unemployment_rate_15_64_percent",
+    "municipal_population",
+    "area_sq_km",
+    "population_density_per_sq_km",
+    "gdp_current_prices_million_eur",
+    "gdp_per_capita_eur",
+]
+```
+
+`gdp_per_capita_eur` is derived as:
+
+```text
+gdp_current_prices_million_eur * 1_000_000 / municipal_population
+```
+
+The product intentionally excludes the candidate's provenance and
+reconciliation fields:
+
+- `population_counted_separately`
+- `total_population`
+- `employed_population_15_64`
+- `unemployed_population_15_64`
+- `active_population_15_64`
+- `oecd_tl3_code`
+- `gdp_observation_status`
+- `gdp_observation_status_label`
+
+Those fields remain available in the candidate dataset, source inventory,
+manifest, crosswalk, and validation report.
+
+The product stage enforces explicit type classes: department identifiers,
+department names, capitals, and regions as strings; `reference_year` and
+`municipal_population` as integers; all remaining metric columns as
+floating-point numeric values. It requires an existing candidate manifest and a
+validation report whose checks all passed, requires exactly 96 departments,
+rejects null required values, validates the GDP-per-capita derivation, and
+writes deterministic CSV output.
 
 ## Canonical Candidate Schema
 
@@ -242,36 +330,25 @@ Important differences:
 Do not rename the candidate wage or unemployment fields to the legacy names:
 the definitions are different.
 
-## Future Michelin-Facing Shape
+## Future Michelin Integration
 
-A future integration tranche may produce a narrower Michelin-facing
-departmental table shaped like:
+The product table is designed as the first Michelin-consumable INSEE/OECD
+asset, but it is not yet integrated into `data_pipeline`. A later integration
+tranche should:
 
-```python
-[
-    "department_num",
-    "department",
-    "capital",
-    "region",
-    # selected numeric columns
-]
-```
-
-That later tranche should:
-
-- join or restore department metadata such as capital and region;
 - select only the numeric metrics required by the Michelin pipeline;
 - rename columns only when the names remain definitionally accurate;
 - enforce explicit output dtypes;
 - preserve the canonical provenance-rich candidate separately;
 - define the join and publication contract with `data_pipeline`.
 
-The current implementation does not establish the final numeric-column
-selection and does not publish a legacy-shaped departmental table.
+The current implementation does not update existing Michelin Stage 2
+departmental outputs and does not replace
+`data/raw/demographics/departmental_stats_2023.csv`.
 
 ## Data Types
 
-The stored CSV is plain text. When loaded with pandas using
+The stored candidate CSV is plain text. When loaded with pandas using
 `dtype={"department_code": str}`, the current 2023 candidate reads as:
 
 | Column group | Intended type class | Current pandas read behavior |
@@ -285,6 +362,14 @@ The stored CSV is plain text. When loaded with pandas using
 Future consumer-facing outputs should define their own explicit dtype contract
 instead of relying on pandas inference from CSV.
 
+The product command applies its own dtype contract before writing:
+
+| Product column group | Enforced in-memory type class |
+|---|---|
+| `department_code`, `department_name`, `capital`, `region` | pandas string |
+| `reference_year`, `municipal_population` | `int64` |
+| all metric columns, including `gdp_per_capita_eur` | `float64` |
+
 ## Testing and Known Limitations
 
 Run the focused INSEE pipeline tests with:
@@ -294,8 +379,11 @@ PYTHONPATH=src .venv/bin/python -m unittest tests.test_insee_pipeline -v
 ```
 
 The new INSEE tests pass. They cover requested-year filtering, fail-closed
-unemployment reconciliation, fail-closed population reconciliation, and a
-complete local-cache build using fixture data without live network calls.
+unemployment reconciliation, fail-closed population reconciliation, a complete
+local-cache candidate build using fixture data without live network calls, and
+the candidate-to-product transformation including schema, dtypes, code
+preservation, metadata joins, GDP-per-capita derivation, failure conditions,
+and deterministic serialization.
 
 Broader repository test-suite note: `PYTHONPATH=src .venv/bin/python -m unittest
 discover -s tests -v` may fail when expected legacy `Years/...` baseline files
@@ -305,9 +393,10 @@ INSEE pipeline tests.
 Known limitations:
 
 - 2023 is the first validated tranche.
-- The candidate output is not yet consumed by the Michelin pipeline.
-- No final legacy-shaped departmental table has been produced.
-- Candidate retention and future consumer publication are separate concerns.
+- The product output is not yet consumed by the Michelin pipeline.
+- No legacy-shaped departmental table has been produced.
+- Candidate retention, product publication, and Michelin integration are
+  separate concerns.
 - Source ZIP/CSV files are disposable cache inputs. Byte-perfect reconstruction
   depends on the upstream sources remaining available unless source binaries
   are archived externally.
@@ -315,4 +404,3 @@ Known limitations:
   or external object storage for upstream source binaries.
 - The OECD TL3 crosswalk is currently written as a candidate artifact; it has
   not yet been promoted as an accepted static reference.
-- The candidate table does not currently include `capital` or `region`.
