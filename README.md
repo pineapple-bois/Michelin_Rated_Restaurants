@@ -181,7 +181,6 @@ data/
     france/<year>/      France and Monaco CSV/GeoJSON products
   partitions/           Stage 1 country partitions
   reports/              annual guide-change outputs
-  wine/                 separate retained wine geospatial inputs
 ```
 
 `tmp/` is used for disposable downloads, caches, and build working files. It is

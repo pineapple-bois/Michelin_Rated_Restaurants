@@ -34,6 +34,9 @@ htmlcov/
 /data/raw/insee/
 /data/raw/oecd/
 
+# local wine geodata
+/data/wine/
+
 # Generated wine-region artifacts
 /legacy/ExtraData/Wine/aoc.gpkg
 /legacy/ExtraData/Wine/vineyards.geojson
