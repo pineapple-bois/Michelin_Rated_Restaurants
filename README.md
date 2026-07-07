@@ -1,213 +1,252 @@
-# Michelin Rated Restaurants in France
+# Michelin Rated Restaurants Data Pipeline
 
-## Overview
-This project showcases proficiency in data acquisition, processing, and visualisation. It also delves into the world of Michelin-rated restaurants in France. Leveraging datasets from the Michelin Guide and INSEE, along with French geospatial data, this analysis probes the correlation between elite restaurants and the socio-economic attributes of their surroundings.
+This repository maintains the local data pipeline behind the Michelin-rated
+restaurant analysis and downstream application datasets. It accepts annual
+Michelin restaurant snapshots, combines the French partition with departmental
+INSEE/OECD reference data and local French geographic boundaries, and publishes
+validated CSV, GeoJSON, and guide-change report assets.
 
-Previously I was a Michelin trained chef and lived in France for six transformative years. Those years instilled in me a deep appreciation for the world of gastronomy and its profound influence on local culture. Through this project, I seek to marry my life experiences with my current passion for data.
+The project began as an analysis of Michelin restaurants and French
+socioeconomic geography. The maintained focus is now the reproducible annual
+data pipeline; historical notebooks and helper code are retained separately as
+legacy material.
 
+## What This Repository Produces
 
----
+The maintained pipeline produces:
 
-## Project Objective
+- country partitions for each accepted Michelin snapshot;
+- France restaurant products enriched with department and region fields;
+- departmental, regional, arrondissement, Paris, and Monaco GeoJSON products;
+- a versioned INSEE/OECD departmental product consumed by Stage 2;
+- annual France guide-change reports in CSV, JSON, and Markdown.
 
-This analysis seeks to address the question:
+Canonical outputs are stored under `data/partitions/`, `data/products/`, and
+`data/reports/`. The implementation is in `src/data_pipeline/` and
+`src/insee_pipeline/`.
 
-*"How do Michelin-starred establishments correlate with the socio-economic metrics of their respective regions?"* 
+## Source Data And Provenance
 
-The aim is to better understand the intricate relationship between culinary excellence, its geographical distribution, and the socio-economic fabric of France.
+| Source family | Source | Repository role |
+|---|---|---|
+| Michelin restaurant data | [ngshiheng/michelin-my-maps](https://github.com/ngshiheng/michelin-my-maps) | Upstream Michelin restaurant dataset used to create accepted annual snapshots. |
+| INSEE data | [INSEE Melodi API catalog](https://portail-api.insee.fr/catalog/api/a890b735-159c-4c91-90b7-35159c7c9126?aq=ALL) | Machine-readable departmental demographic and socioeconomic source products. |
+| INSEE exploration | [Statistiques locales](https://statistiques-locales.insee.fr/#c=home) | Graphical exploration site, not the machine-readable pipeline source. |
+| OECD data | [OECD Data Explorer](https://data-explorer.oecd.org/) | Regional/TL3 GDP source used by the INSEE pipeline. |
+| French geographic data | [gregoiredavid/france-geojson](https://github.com/gregoiredavid/france-geojson/tree/master) | Boundary GeoJSON files retained locally so normal transformations run offline. |
 
----
+### Michelin Annual Snapshots
 
-## Data Sources
-#### [Michelin Guide Restaurants](https://www.kaggle.com/datasets/ngshiheng/michelin-guide-restaurants-2021) 
+Stage 1 reads accepted local snapshots named:
 
-- Sourced from Kaggle
-
-#### [INSEE - (Institut National de la Statistique et des Études Économiques)](https://statistiques-locales.insee.fr/#c=home) 
-
-- Demographic and socio-economic data was sourced from the National Institute of Statistics and Economic Studies. 
-- INSEE is responsible for the production and analysis of official French statistics.
-
-#### [France-GeoJSON](https://france-geojson.gregoiredavid.fr)
-
-- The geospatial data used in this analysis. 
-- We acknowledge and thank the contributors and maintainers of this resource for making it publicly available.
-
----
-
-## [Processing Pipeline (by year)](legacy/Years)
-Data is from the above sources is merged, transformed and exported.
-
----
-
-## [Tracking the changes by year](https://github.com/pineapple-bois/Michelin_Rated_Restaurants/blob/main/Years/2024/Notebooks/France/France_Changes.ipynb) 
-Finding and logging significant changes in star ratings.
-- Currently [2024](https://github.com/pineapple-bois/Michelin_Rated_Restaurants/tree/main/Years/2024) compared to [2023](https://github.com/pineapple-bois/Michelin_Rated_Restaurants/tree/main/Years/2023)
-
----
-
-## [Visualisations](legacy/Years/2023/Notebooks/France/France_Visualisations.ipynb)
-Intricate functions are presented and [defined](Functions/functions_visualisation.py) to query and represent the data in diverse and insightful manners. 
-
----
-
-## [Analysis](legacy/Years/2023/Notebooks/France/France_Analysis.ipynb)
-The analysis segment of this project is designed for both technical and non-technical audiences. Utilizing the functions from the visualisation phase, this section endeavors to answer pertinent questions with minimal code to ensure readability and comprehension.
-
----
-
-## [Interactive Application](https://www.restaurant-guide-france.net)
-An interactive application built using Dash and Plotly provides a dynamic interface for users to explore Michelin-rated establishments in France. Users can select specific regions, zoom into departments, and view detailed restaurant information.
-
-### [Access the source code:](https://github.com/pineapple-bois/Michelin_App_Development)
-
-----
-
-## Repository Structure
-
-```
-├── ExtraData
-│   ├── Demographics
-│   ├── Geodata
-│   └── Wine
-├── Functions
-├── Images
-├── Years
-│   ├── 2023
-│   │   ├── data
-│   │   │   ├──France
-│   │   │   ├──Michelin
-│   │   │   └──UK
-│   │   ├── Notebooks
-│   │   │   ├──France
-│   │   │   └──Uk
-│   ├── 2024
-│   │   ├── data
-│   │   │   ├──France
-│   │   │   ├──Michelin
-│   │   │   └──UK
-│   │   ├── Notebooks
-│   │   │   ├──France
-│   │   │   └──Uk
-├── README.md
-```
----
-
-## Installation Guide
-
-### 1. Clone the Repository
-```bash
-git clone https://github.com/pineapple-bois/Michelin_Rated_Restaurants.git
-cd Michelin_Rated_Restaurants
+```text
+data/raw/michelin/michelin_data_<year>.csv
 ```
 
-### 2. Create and Activate a Virtual Environment
-```bash
-python3 -m venv env
-source env/bin/activate
+The current pipeline does not automate annual Michelin acquisition. The
+intended upcoming maintenance workflow is:
+
+1. Check the upstream Michelin repository when the France guide is normally
+   updated, approximately April or May.
+2. Compare the new upstream France data with the previously accepted year.
+3. Review whether the schema or interpretation has fundamentally changed.
+4. If compatible, store the accepted annual snapshot using the established
+   filename convention, for example `michelin_data_<year>.csv`.
+5. After the 2026 snapshot, the next expected annual snapshot would be 2027.
+
+The upstream release timing is not guaranteed by this repository.
+
+### INSEE And OECD Reference Data
+
+`src/insee_pipeline/` builds departmental reference data from INSEE Melodi
+products and OECD regional GDP. The candidate layer is deliberately
+provenance-rich:
+
+```text
+data/candidates/insee/<year>/
 ```
 
-### 3. Install the required packages
-```bash
-pip install -r requirements.txt
+For 2023 it contains `france_departments_2023.csv`,
+`oecd_tl3_crosswalk_2023.csv`, `source_inventory_2023.json`,
+`validation_report_2023.json`, and `manifest_2023.json`. These files retain
+source identifiers, URLs, hashes, byte sizes, validation checks, and the
+controlled TL3-to-department GDP crosswalk.
+
+The consumer-facing product layer is narrower:
+
+```text
+data/products/insee/<year>/
 ```
 
-### 4. Deactivate the virtual environment (when done)
-```bash
-deactivate
+For 2023 it contains `france_departments_2023.csv` and `manifest_2023.json`.
+Stage 2 consumes this product layer, not the candidate table directly.
+
+Downloaded INSEE ZIP files and OECD CSV files are disposable build/cache files
+under `tmp/insee_pipeline/<year>/`. They are not the durable provenance layer.
+
+### Local Geographic Inputs
+
+The normal pipeline uses local GeoJSON files:
+
+```text
+data/raw/geodata/departments.geojson
+data/raw/geodata/regions.geojson
+data/raw/geodata/arrondissements-avec-outre-mer.geojson
+data/raw/geodata/paris_arrondissements.geojson
+data/raw/geodata/monaco.geojson
 ```
 
-## Stage 1 country partitions
+These are treated as retained source/reference inputs for the transformation
+pipeline.
 
-Stage 1 is implemented as reusable Python code in `src/data_pipeline/stage1/`.
-It turns an accepted local raw snapshot into validated France, Monaco, and UK
-partitions.
+## Operating Sequence
 
-Build canonical partitions:
+The maintained flow is:
 
-```bash
-PYTHONPATH=src python -m data_pipeline partition --year 2026
+```text
+External source data
+  -> accepted annual Michelin snapshot
+  -> Stage 1 country partitions
+  -> INSEE/OECD candidate and departmental product
+  -> Stage 2 France department and region enrichment
+  -> Stage 2 Monaco products
+  -> Stage 3 arrondissement and Paris products
+  -> annual France guide-change reports
 ```
 
-Build a disposable candidate:
+The INSEE product must exist before Stage 2 France departmental products are
+built. By default, Stage 2 selects the latest numeric year under
+`data/products/insee/<year>/`; pass `--insee-year` to require a specific INSEE
+product year.
 
-```bash
-PYTHONPATH=src python -m data_pipeline partition \
-  --year 2026 \
-  --output-root /tmp/michelin-stage1-2026
-```
+| Stage | Purpose | Main input | Main output | Normal command | Details |
+|---|---|---|---|---|---|
+| Stage 1 | Build France, Monaco, and UK partitions from one accepted Michelin snapshot. | `data/raw/michelin/michelin_data_<year>.csv` | `data/partitions/{france,monaco,uk}/..._<year>.csv` | `PYTHONPATH=src .venv/bin/python -m data_pipeline partition --year 2026` | [`docs/stage1.md`](docs/stage1.md) |
+| INSEE candidate | Build validated, provenance-rich departmental statistics. | INSEE Melodi, OECD GDP, local department geometry | `data/candidates/insee/<year>/` | `PYTHONPATH=src .venv/bin/python -m insee_pipeline build --year 2023` | [`docs/insee_data.md`](docs/insee_data.md) |
+| INSEE product | Convert a valid candidate into the Michelin-facing departmental product. | `data/candidates/insee/<year>/` | `data/products/insee/<year>/` | `PYTHONPATH=src .venv/bin/python -m insee_pipeline product --year 2023` | [`docs/insee_data.md`](docs/insee_data.md) |
+| Stage 2 France | Enrich France restaurants and build department/region GeoJSON. | `data/partitions/france/france_<year>.csv`, INSEE product, local geography | `data/products/france/<year>/all_restaurants.csv` and geodata | `PYTHONPATH=src .venv/bin/python -m data_pipeline departments --year 2026` | [`docs/stage2-france-departments.md`](docs/stage2-france-departments.md) |
+| Stage 2 Monaco | Build Monaco restaurant and aggregate products. | `data/partitions/monaco/monaco_<year>.csv`, local Monaco geometry | `data/products/france/<year>/monaco_restaurants.csv` and geodata | `PYTHONPATH=src .venv/bin/python -m data_pipeline monaco --year 2026` | [`docs/stage2-france-departments.md`](docs/stage2-france-departments.md) |
+| Stage 3 | Add arrondissements and publish national/Paris arrondissement GeoJSON. | `data/products/france/<year>/all_restaurants.csv`, local references/geography | `all_restaurants(arrondissements).csv`, arrondissement and Paris GeoJSON | `PYTHONPATH=src .venv/bin/python -m data_pipeline arrondissements --year 2026` | [`docs/stage3-arrondissements.md`](docs/stage3-arrondissements.md) |
+| Guide changes | Compare consecutive accepted France products. | arrondissement-enriched annual France products | `data/reports/france/changes_<previous>_<current>.*` | `PYTHONPATH=src .venv/bin/python -m data_pipeline changes --previous-year 2025 --current-year 2026` | [`docs/guide-changes.md`](docs/guide-changes.md) |
 
-Validate without publishing, or deliberately rebuild an existing year:
+## Implemented CLI Commands
+
+The implemented Michelin command group is:
 
 ```bash
-PYTHONPATH=src python -m data_pipeline partition --year 2026 --validate-only
-PYTHONPATH=src python -m data_pipeline partition --year 2026 --replace
+PYTHONPATH=src .venv/bin/python -m data_pipeline partition --year 2026
+PYTHONPATH=src .venv/bin/python -m data_pipeline departments --year 2026
+PYTHONPATH=src .venv/bin/python -m data_pipeline monaco --year 2026
+PYTHONPATH=src .venv/bin/python -m data_pipeline arrondissements --year 2026
+PYTHONPATH=src .venv/bin/python -m data_pipeline acquire-paris-arrondissements
+PYTHONPATH=src .venv/bin/python -m data_pipeline changes --previous-year 2025 --current-year 2026
 ```
 
-Existing outputs are protected unless `--replace` is supplied. Replacement is
-attempted only after all three outputs validate and stage successfully.
-
-Run the automated tests:
+The implemented INSEE command group is:
 
 ```bash
-PYTHONPATH=src python -m unittest discover -s tests -v
+PYTHONPATH=src .venv/bin/python -m insee_pipeline build --year 2023
+PYTHONPATH=src .venv/bin/python -m insee_pipeline product --year 2023
 ```
 
-See [`docs/stage1.md`](docs/stage1.md) for the notebook-to-Python mapping,
-schemas, validation rules, historical fidelity, and publication behavior.
+Common publication commands protect existing outputs. Where implemented,
+`--validate-only` checks transformations without writing final files,
+`--replace` deliberately replaces existing accepted outputs after validation,
+and `--output-root` writes a candidate tree outside the canonical location.
+Stage 2 France also supports `--insee-year` and `--insee-product-root`.
 
-## Stage 2 France geographic products
+Supported year behavior is stage-specific:
 
-Build the enriched France restaurant CSV plus departmental and regional GeoJSON:
+- Stage 1 supports the known raw snapshot schemas from 2022 onward; tracked
+  canonical partitions currently cover 2023-2026.
+- Stage 2 France, Stage 2 Monaco, and Stage 3 are supported from 2025 under the
+  current application-product contracts.
+- The current validated INSEE candidate and product are for 2023.
+- Guide-change reports require consecutive years and can read legacy 2023/2024
+  arrondissement CSV paths as well as current `data/products/france/<year>/`
+  products.
+
+## Data Directory Lifecycle
+
+```text
+data/
+  raw/                  accepted or locally retained source/reference inputs
+    michelin/           accepted annual Michelin snapshots
+    demographics/       department and Paris reference tables
+    geodata/            retained French and Monaco GeoJSON boundaries
+  candidates/           validated, provenance-rich intermediate outputs
+    insee/<year>/       INSEE/OECD candidate, crosswalk, inventory, reports
+  products/             derived assets for later pipeline or app consumption
+    insee/<year>/       normalized departmental product for Stage 2
+    france/<year>/      France and Monaco CSV/GeoJSON products
+  partitions/           Stage 1 country partitions
+  reports/              annual guide-change outputs
+  wine/                 separate retained wine geospatial inputs
+```
+
+`tmp/` is used for disposable downloads, caches, and build working files. It is
+not a provenance layer.
+
+Important representative product paths include:
+
+```text
+data/products/france/<year>/all_restaurants.csv
+data/products/france/<year>/all_restaurants(arrondissements).csv
+data/products/france/<year>/monaco_restaurants.csv
+data/products/france/<year>/geodata/department_restaurants.geojson
+data/products/france/<year>/geodata/region_restaurants.geojson
+data/products/france/<year>/geodata/arrondissement_restaurants.geojson
+data/products/france/<year>/geodata/paris_restaurants.geojson
+data/products/france/<year>/geodata/monaco_restaurants.geojson
+data/products/insee/<year>/france_departments_<year>.csv
+```
+
+## Repository Map
+
+```text
+src/data_pipeline/      Michelin Stage 1, Stage 2, Stage 3, Monaco, and guide-change code
+src/insee_pipeline/     INSEE/OECD source acquisition, candidate build, and product build
+docs/                   durable stage and reference-data documentation
+tests/                  unittest coverage for implemented pipeline behavior
+data/                   raw inputs, candidates, partitions, products, reports, and retained reference data
+notebooks/              parameterized posterity copies of legacy notebook workflows
+legacy/                 archived notebook-era material, not maintained pipeline code
+tmp/                    disposable local build/download workspace
+```
+
+There is currently no `pyproject.toml`; dependencies are listed in
+`requirements.txt`.
+
+## Documentation Index
+
+- [`docs/stage1.md`](docs/stage1.md) - Stage 1 country partitions.
+- [`docs/stage2-france-departments.md`](docs/stage2-france-departments.md) -
+  France department/region products and Monaco products.
+- [`docs/stage3-arrondissements.md`](docs/stage3-arrondissements.md) - Stage 3
+  arrondissements and Paris products.
+- [`docs/guide-changes.md`](docs/guide-changes.md) - annual France guide-change
+  reports.
+- [`docs/insee_data.md`](docs/insee_data.md) - INSEE/OECD candidate and product
+  lifecycle.
+
+## Prerequisites And Validation
+
+Install the checked-in dependencies:
 
 ```bash
-PYTHONPATH=src python -m data_pipeline departments --year 2026
+.venv/bin/python -m pip install -r requirements.txt
 ```
 
-Use `--output-root /tmp/michelin-stage2-2026` for a candidate,
-`--validate-only` for a no-write check, or `--replace` for a deliberate rebuild.
-Canonical products are stored under `data/products/france/<year>/`.
+Run commands from the repository root with `PYTHONPATH=src`, because the source
+tree is not packaged by project metadata at present.
 
-See [`docs/stage2-france-departments.md`](docs/stage2-france-departments.md)
-for inputs, notebook mapping, schemas, validation, fidelity, and publication.
-
-Build Monaco application products with the same candidate, validation, and
-replacement conventions:
+The principal test command is:
 
 ```bash
-PYTHONPATH=src python -m data_pipeline monaco --year 2026
-PYTHONPATH=src python -m data_pipeline monaco --year 2026 --validate-only
+PYTHONPATH=src .venv/bin/python -m unittest discover -s tests -v
 ```
 
-The detailed Stage 2 document also describes Monaco's synthetic application
-code and placeholder demographic fields.
-
-## Stage 3 arrondissements and Paris
-
-Build the arrondissement-enriched restaurant CSV and national/Paris GeoJSON:
-
-```bash
-PYTHONPATH=src python -m data_pipeline arrondissements --year 2026
-```
-
-Use `--output-root`, `--validate-only`, and `--replace` as in earlier stages.
-The separate `acquire-paris-arrondissements` command creates the local Paris
-naming reference; normal Stage 3 builds are offline. See
-[`docs/stage3-arrondissements.md`](docs/stage3-arrondissements.md) for the
-reference contract, notebook mapping, spatial validation, and fidelity report.
-
-## France Guide changes reports
-
-Compare consecutive accepted annual products and publish structured CSV/JSON
-plus a readable material-change report:
-
-```bash
-PYTHONPATH=src python -m data_pipeline changes \
-  --previous-year 2025 --current-year 2026
-```
-
-Candidate, validation-only, and replacement behavior follows the other
-pipelines. See [`docs/guide-changes.md`](docs/guide-changes.md) for matching,
-materiality, fuzzy-review, optional-field, and override contracts.
-
-----
+Pipeline commands validate schemas, row reconciliation, duplicate and join
+cardinality checks, required values, geographic ranges/geometries, deterministic
+serialization, and protected publication. Validation failures block publication;
+records are not dropped to make outputs pass.
