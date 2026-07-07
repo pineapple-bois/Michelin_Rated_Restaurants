@@ -17,12 +17,13 @@ The current validated candidate is for reference year 2023 and contains 96
 metropolitan French departments. The candidate table is intentionally
 provenance-rich: it retains source components, OECD mapping fields, and GDP
 observation status fields that are useful for validation and reproducibility.
-It is not yet the final Michelin-facing departmental table.
+It is not the final Michelin-facing departmental table.
 
 Validation writes durable candidate artifacts under `data/candidates/`; it
-does not promote them, reshape them, or integrate them into the Michelin
-application products automatically. Runtime source ZIP/CSV files are disposable
-cache inputs, not durable repository data.
+does not promote them or reshape them automatically. Runtime source ZIP/CSV
+files are disposable cache inputs, not durable repository data. The separate
+`product` command writes the narrower INSEE product consumed by the Michelin
+Stage 2 France pipeline.
 
 ## Running the Pipeline
 
@@ -43,7 +44,7 @@ Implemented CLI options:
 
 | Option | Default | Purpose |
 |---|---|---|
-| `--year YEAR` | required | Requested reference year. The year is passed through acquisition, filtering, validation, and output naming. Sources must provide a valid slice for this exact year. |
+| `--year YEAR` | required | Requested common reference year. The same year is passed through acquisition, filtering, validation, and output naming for every required source. Metrics must not independently select their newest available year. Sources must provide a valid slice for this exact year. |
 | `--raw-root RAW_ROOT` | `tmp/insee_pipeline` | Backward-compatible option name for the disposable source working/cache root. INSEE files are written under `<raw-root>/<year>/insee/`; OECD files under `<raw-root>/<year>/oecd/`. |
 | `--candidate-root CANDIDATE_ROOT` | `data/candidates/insee` | Root used for candidate outputs. The build writes to `<candidate-root>/<year>/`. |
 | `--geometry-path GEOMETRY_PATH` | `data/raw/geodata/departments.geojson` | Department geometry source used for the 96-department target and area derivation. |
@@ -104,6 +105,43 @@ loader functions.
 | INSEE reference population data | `DS_POPULATIONS_REFERENCE`; source components for `municipal_population`, `population_counted_separately`, and `total_population`. |
 | Departmental geometry | `data/raw/geodata/departments.geojson`; source for 96-department geography and geometry-derived `area_sq_km`. |
 | OECD TL3 GDP data | `OECD.CFE.EDS:DSD_REG_ECO@DF_GDP(2.4)`; source for `gdp_current_prices_million_eur` and GDP status fields. |
+
+### Implemented Source Filters
+
+Every statistical source is filtered to the requested common `--year`. The
+implemented source selectors are:
+
+| Output field(s) | Source | Principal filters and measures |
+|---|---|---|
+| `average_net_monthly_wage_fte_eur` | INSEE Melodi `DS_BTS_SAL_EQTP_SEX_AGE` | `GEO_OBJECT == "DEP"`, `FREQ == "A"`, `SEX == "_T"`, `AGE == "_T"`, `DERA_MEASURE == "SALAIRE_NET_EQTP_MENSUEL_MOYENNE"`, requested `TIME_PERIOD`. |
+| `median_living_standard_eur`, `poverty_rate_percent` | INSEE Melodi `DS_FILOSOFI_CC` | `GEO_OBJECT == "DEP"`, `FILOSOFI_MEASURE in {"MED_SL", "PR_MD60"}`, requested `TIME_PERIOD`. |
+| `census_unemployment_rate_15_64_percent` and employment components | INSEE Melodi `DS_RP_EMPLOI_LR_COMP` | `GEO_OBJECT == "DEP"`, `FREQ == "A"`, `PCS == "_T"`, `AGE == "Y15T64"`, `EMPSTA_ENQ in {"1", "2", "1T2"}`, requested `TIME_PERIOD`. |
+| `municipal_population`, `population_counted_separately`, `total_population` | INSEE Melodi `DS_POPULATIONS_REFERENCE` | `GEO_OBJECT == "DEP"`, `FREQ == "A"`, `POPREF_MEASURE in {"PMUN", "PCAP", "PTOT"}`, requested `TIME_PERIOD`. |
+| `gdp_current_prices_million_eur` and GDP status fields | OECD `OECD.CFE.EDS:DSD_REG_ECO@DF_GDP(2.4)` | `COUNTRY == "FRA"`, `TERRITORIAL_LEVEL == "TL3"`, requested `TIME_PERIOD`, `MEASURE == "GDP"`, `ACTIVITY == "_T"`, `PRICES == "V"`, `UNIT_MEASURE == "XDC"`, `UNIT_MULT == "6"`, `CURRENCY == "EUR"`. |
+
+The authoritative geography set is the 96 metropolitan department codes in
+`data/raw/geodata/departments.geojson`. Overseas source observations and
+non-regionalised source observations are excluded by design because they do not
+belong to this 96-code target.
+
+OECD TL3 records are reconciled to departments through an explicit controlled
+crosswalk artifact, `oecd_tl3_crosswalk_<year>.csv`, containing department code,
+department name, OECD TL3 code, and OECD reference-area name. Runtime fuzzy
+matching is not part of the pipeline contract.
+
+### Source Decisions
+
+Three discovery decisions are now settled in the implemented pipeline:
+
+- INSEE regional accounts were investigated for GDP, but did not provide the
+  required 96-department GDP coverage for this contract; OECD TL3 GDP is used
+  instead.
+- The old local-statistics export is superseded by source-specific INSEE
+  Melodi datasets with explicit measure codes, statuses, and a common
+  reference year.
+- Arrondissement-level INSEE statistics are outside this departmental reference
+  pipeline. Stage 3 arrondissement products are built from restaurant data and
+  local geography, not arrondissement-level INSEE metrics.
 
 ### Source Cache Paths
 
@@ -224,25 +262,25 @@ writes deterministic CSV output.
 
 | Column | Meaning | Unit | Expected type class | Role | Source or derivation |
 |---|---|---|---|---|---|
-| `department_code` | Metropolitan department code, including Corsica codes `2A` and `2B`. | none | string | Join/provenance field | Repository geometry `code`; used to join all source slices. |
-| `department_name` | Department name from accepted geometry. | none | string | Join/provenance field | Repository geometry `nom`. |
+| `department_code` | Metropolitan department code, including Corsica codes `2A` and `2B`. | none | string | Geometry/provenance field | Repository geometry `code`; defines the 96-code target and joins all source slices. |
+| `department_name` | Department name from accepted geometry. | none | string | Geometry/provenance field | Repository geometry `nom`. |
 | `reference_year` | Candidate tranche year requested by CLI. | year | integer | Join/provenance field | CLI `--year`. |
-| `average_net_monthly_wage_fte_eur` | Average net monthly wage in full-time-equivalent terms. | euros per month | numeric float | Primary consumer metric | Direct INSEE observation from `DS_BTS_SAL_EQTP_SEX_AGE`, measure `SALAIRE_NET_EQTP_MENSUEL_MOYENNE`, total sex, total age. |
-| `median_living_standard_eur` | Median living standard. | euros | integer-compatible numeric | Primary consumer metric | Direct INSEE Filosofi observation `MED_SL`. |
-| `poverty_rate_percent` | Poverty rate. | percent | numeric float | Primary consumer metric | Direct INSEE Filosofi observation `PR_MD60`. |
-| `census_unemployment_rate_15_64_percent` | Census-derived unemployment rate for ages 15-64. | percent | numeric float | Primary consumer metric | Derived from INSEE employment statuses: unemployed active population divided by active population times 100. |
-| `municipal_population` | Municipal population used as resident population and density numerator. | people | integer-compatible numeric | Primary consumer metric | Direct INSEE reference-population observation `PMUN`. |
-| `area_sq_km` | Department area derived from geometry. | square kilometres | numeric float | Primary consumer metric | Geometry reprojected to `EPSG:2154`; `geometry.area / 1_000_000`. |
-| `population_density_per_sq_km` | Municipal-population density. | people per square kilometre | numeric float | Primary consumer metric | Derived as `municipal_population / area_sq_km`. |
-| `gdp_current_prices_million_eur` | Gross domestic product at current prices. | million euros | numeric float | Primary consumer metric | Direct OECD TL3 GDP observation after source filtering and department mapping. |
-| `population_counted_separately` | Population counted separately. | people | integer-compatible numeric | Audit component | Direct INSEE reference-population observation `PCAP`; retained to validate `PMUN + PCAP == PTOT`. |
-| `total_population` | Total population. | people | integer-compatible numeric | Audit component | Direct INSEE reference-population observation `PTOT`; retained to validate `PMUN + PCAP == PTOT`. |
-| `employed_population_15_64` | Employed active population age 15-64. | people | numeric float | Audit component | Direct INSEE census employment-status observation `EMPSTA_ENQ == "1"`. |
-| `unemployed_population_15_64` | Unemployed population age 15-64. | people | numeric float | Audit component | Direct INSEE census employment-status observation `EMPSTA_ENQ == "2"`. |
-| `active_population_15_64` | Active population age 15-64. | people | numeric float | Audit component | Direct INSEE census employment-status observation `EMPSTA_ENQ == "1T2"`. |
-| `oecd_tl3_code` | OECD TL3 reference-area code mapped to the department. | none | string | Join/provenance field | OECD `REF_AREA`, retained from the GDP mapping. |
-| `gdp_observation_status` | OECD GDP observation status code. | none | string | Observation-status field | OECD `OBS_STATUS`; 2023 candidate values are `P`. |
-| `gdp_observation_status_label` | OECD GDP observation status label. | none | string | Observation-status field | OECD `Observation status`; 2023 candidate values are `Provisional value`. |
+| `average_net_monthly_wage_fte_eur` | Average net monthly wage in full-time-equivalent terms. | euros per month | numeric float | Directly sourced primary metric | Direct INSEE observation from `DS_BTS_SAL_EQTP_SEX_AGE`, measure `SALAIRE_NET_EQTP_MENSUEL_MOYENNE`, total sex, total age. |
+| `median_living_standard_eur` | Median living standard. | euros | integer-compatible numeric | Directly sourced primary metric | Direct INSEE Filosofi observation `MED_SL`. |
+| `poverty_rate_percent` | Poverty rate. | percent | numeric float | Directly sourced primary metric | Direct INSEE Filosofi observation `PR_MD60`. |
+| `census_unemployment_rate_15_64_percent` | Census-derived unemployment rate for ages 15-64. | percent | numeric float | Calculated primary metric | Derived from INSEE employment statuses: unemployed active population divided by active population times 100. |
+| `municipal_population` | Municipal population used as resident population and density numerator. | people | integer-compatible numeric | Directly sourced primary metric | Direct INSEE reference-population observation `PMUN`. |
+| `area_sq_km` | Department area derived from geometry. | square kilometres | numeric float | Geometry-derived primary metric | Geometry reprojected to `EPSG:2154`; `geometry.area / 1_000_000`. |
+| `population_density_per_sq_km` | Municipal-population density. | people per square kilometre | numeric float | Calculated primary metric | Derived as `municipal_population / area_sq_km`. |
+| `gdp_current_prices_million_eur` | Gross domestic product at current prices. | million euros | numeric float | Directly sourced primary metric | Direct OECD TL3 GDP observation after source filtering and department mapping. |
+| `population_counted_separately` | Population counted separately. | people | integer-compatible numeric | Reconciliation/provenance field | Direct INSEE reference-population observation `PCAP`; retained to validate `PMUN + PCAP == PTOT`. |
+| `total_population` | Total population. | people | integer-compatible numeric | Reconciliation/provenance field | Direct INSEE reference-population observation `PTOT`; retained to validate `PMUN + PCAP == PTOT`. |
+| `employed_population_15_64` | Employed active population age 15-64. | people | numeric float | Reconciliation/provenance field | Direct INSEE census employment-status observation `EMPSTA_ENQ == "1"`. |
+| `unemployed_population_15_64` | Unemployed population age 15-64. | people | numeric float | Reconciliation/provenance field | Direct INSEE census employment-status observation `EMPSTA_ENQ == "2"`. |
+| `active_population_15_64` | Active population age 15-64. | people | numeric float | Reconciliation/provenance field | Direct INSEE census employment-status observation `EMPSTA_ENQ == "1T2"`. |
+| `oecd_tl3_code` | OECD TL3 reference-area code mapped to the department. | none | string | Mapping/provenance field | OECD `REF_AREA`, retained from the GDP mapping. |
+| `gdp_observation_status` | OECD GDP observation status code. | none | string | Mapping/provenance field | OECD `OBS_STATUS`; 2023 candidate values are `P`. |
+| `gdp_observation_status_label` | OECD GDP observation status label. | none | string | Mapping/provenance field | OECD `Observation status`; 2023 candidate values are `Provisional value`. |
 
 The schema deliberately retains population components, unemployment components,
 OECD mapping information, and GDP status fields. Those columns are part of the
@@ -330,20 +368,22 @@ Important differences:
 Do not rename the candidate wage or unemployment fields to the legacy names:
 the definitions are different.
 
-## Future Michelin Integration
+## Michelin Integration
 
-The product table is designed as the first Michelin-consumable INSEE/OECD
-asset, but it is not yet integrated into `data_pipeline`. A later integration
-tranche should:
+The product table is the Michelin-consumable INSEE/OECD asset used by Stage 2
+France departmental processing. Stage 2 selects the latest numeric product year
+under `data/products/insee/` unless an explicit INSEE year is supplied.
+
+Future integration changes should:
 
 - select only the numeric metrics required by the Michelin pipeline;
 - rename columns only when the names remain definitionally accurate;
 - enforce explicit output dtypes;
 - preserve the canonical provenance-rich candidate separately;
-- define the join and publication contract with `data_pipeline`.
+- preserve the existing Stage 2 join and publication contract unless a
+  separately reviewed schema change updates it.
 
-The current implementation does not update existing Michelin Stage 2
-departmental outputs and does not replace
+The current implementation does not replace
 `data/raw/demographics/departmental_stats_2023.csv`.
 
 ## Data Types
@@ -393,7 +433,6 @@ INSEE pipeline tests.
 Known limitations:
 
 - 2023 is the first validated tranche.
-- The product output is not yet consumed by the Michelin pipeline.
 - No legacy-shaped departmental table has been produced.
 - Candidate retention, product publication, and Michelin integration are
   separate concerns.
