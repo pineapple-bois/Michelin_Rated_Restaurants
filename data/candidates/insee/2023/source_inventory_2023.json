@@ -1,0 +1,70 @@
+{
+  "reference_year": 2023,
+  "source_artifact_retention": {
+    "policy": "Source ZIP/CSV files are disposable build-cache inputs, not durable repository data.",
+    "cache_root": "tmp/insee_pipeline/2023",
+    "safe_to_delete": true,
+    "reproducibility_note": "Hashes, sizes, URLs, source identifiers, candidate outputs, validation reports, and pipeline code are retained; byte-perfect reconstruction requires the upstream source bytes to remain available or be archived outside this repository."
+  },
+  "artifacts": [
+    {
+      "provider": "INSEE Melodi",
+      "source_id": "DS_BTS_SAL_EQTP_SEX_AGE",
+      "url": "https://api.insee.fr/melodi/file/DS_BTS_SAL_EQTP_SEX_AGE/DS_BTS_SAL_EQTP_SEX_AGE_2023_CSV_FR",
+      "cache_path": "tmp/insee_pipeline/2023/insee/DS_BTS_SAL_EQTP_SEX_AGE.zip",
+      "sha256": "ed5898367d06da5f25a6b152eff063103b12f8f1968876b83a69ca3b18525bf2",
+      "bytes": 5216982,
+      "fetched": false,
+      "observed_at": "2026-07-07T18:17:48.443757+00:00",
+      "retention_policy": "disposable build cache; safe to delete and regenerate"
+    },
+    {
+      "provider": "INSEE Melodi",
+      "source_id": "DS_FILOSOFI_CC",
+      "url": "https://api.insee.fr/melodi/file/DS_FILOSOFI_CC/DS_FILOSOFI_CC_2023_CSV_FR",
+      "cache_path": "tmp/insee_pipeline/2023/insee/DS_FILOSOFI_CC.zip",
+      "sha256": "5b622c113fc1ae68a75b64f2fe148c1d1830d675b4b56b192a73d545e9a0d8f4",
+      "bytes": 6004488,
+      "fetched": false,
+      "observed_at": "2026-07-07T18:17:48.448296+00:00",
+      "retention_policy": "disposable build cache; safe to delete and regenerate"
+    },
+    {
+      "provider": "INSEE Melodi",
+      "source_id": "DS_RP_EMPLOI_LR_COMP",
+      "url": "https://api.insee.fr/melodi/file/DS_RP_EMPLOI_LR_COMP/DS_RP_EMPLOI_LR_COMP_2023_CSV_FR",
+      "cache_path": "tmp/insee_pipeline/2023/insee/DS_RP_EMPLOI_LR_COMP.zip",
+      "sha256": "0372633ecef40aa6d4771ce30857807bf80b13530af784d61b046c501a22eb77",
+      "bytes": 17742302,
+      "fetched": false,
+      "observed_at": "2026-07-07T18:17:48.461027+00:00",
+      "retention_policy": "disposable build cache; safe to delete and regenerate"
+    },
+    {
+      "provider": "INSEE Melodi",
+      "source_id": "DS_POPULATIONS_REFERENCE",
+      "url": "https://api.insee.fr/melodi/file/DS_POPULATIONS_REFERENCE/DS_POPULATIONS_REFERENCE_2023_CSV_FR",
+      "cache_path": "tmp/insee_pipeline/2023/insee/DS_POPULATIONS_REFERENCE.zip",
+      "sha256": "f862ddd2a9135f80034fb3408ec8939626da044710406cabef887c2393a3984f",
+      "bytes": 985016,
+      "fetched": false,
+      "observed_at": "2026-07-07T18:17:48.462066+00:00",
+      "retention_policy": "disposable build cache; safe to delete and regenerate"
+    },
+    {
+      "provider": "OECD SDMX",
+      "source_id": "OECD.CFE.EDS:DSD_REG_ECO@DF_GDP(2.4)",
+      "url": "https://sdmx.oecd.org/public/rest/data/OECD.CFE.EDS,DSD_REG_ECO@DF_GDP,2.4/all?startPeriod=2023&endPeriod=2023&dimensionAtObservation=AllDimensions&format=csvfilewithlabels",
+      "cache_path": "tmp/insee_pipeline/2023/oecd/oecd_gdp_regions.csv",
+      "sha256": "2dfe600202f9ec0919c70b68c8340b3b176b0d352621cdd703517597b329c619",
+      "bytes": 11158836,
+      "fetched": false,
+      "observed_at": "2026-07-07T18:17:48.469089+00:00",
+      "retention_policy": "disposable build cache; safe to delete and regenerate"
+    }
+  ],
+  "sources": {
+    "geometry": "data/raw/geodata/departments.geojson",
+    "legacy_comparison": "data/raw/demographics/departmental_stats_2023.csv"
+  }
+}

@@ -1,0 +1,183 @@
+{
+  "reference_year": 2023,
+  "checks": [
+    {
+      "name": "geometry_metropolitan_coverage",
+      "passed": true,
+      "details": {
+        "rows": 96,
+        "crs": "EPSG:4326",
+        "area_crs": "EPSG:2154"
+      }
+    },
+    {
+      "name": "wages_complete",
+      "passed": true,
+      "details": {
+        "rows": 96,
+        "statuses": {
+          "CONF_STATUS": {
+            "F": 96
+          }
+        }
+      }
+    },
+    {
+      "name": "filosofi_MED_SL_complete",
+      "passed": true,
+      "details": {
+        "rows": 96,
+        "statuses": {
+          "CONF_STATUS": {
+            "F": 96
+          },
+          "OBS_STATUS": {
+            "A": 96
+          }
+        }
+      }
+    },
+    {
+      "name": "filosofi_PR_MD60_complete",
+      "passed": true,
+      "details": {
+        "rows": 96,
+        "statuses": {
+          "CONF_STATUS": {
+            "F": 96
+          },
+          "OBS_STATUS": {
+            "A": 96
+          }
+        }
+      }
+    },
+    {
+      "name": "unemployment_components_reconcile",
+      "passed": true,
+      "details": {
+        "rows": 96,
+        "max_active_balance": 1.00000761449337e-05
+      }
+    },
+    {
+      "name": "population_components_reconcile",
+      "passed": true,
+      "details": {
+        "rows": 96,
+        "max_population_balance": 0.0
+      }
+    },
+    {
+      "name": "oecd_gdp_tl3_crosswalk",
+      "passed": true,
+      "details": {
+        "raw_french_tl3_rows": 102,
+        "matched_metropolitan_rows": 96,
+        "unmatched_reference_areas": [
+          {
+            "REF_AREA": "FRY20",
+            "Reference area": "Martinique"
+          },
+          {
+            "REF_AREA": "FRY40",
+            "Reference area": "La Réunion"
+          },
+          {
+            "REF_AREA": "FRY30",
+            "Reference area": "French Guiana"
+          },
+          {
+            "REF_AREA": "FRY10",
+            "Reference area": "Guadeloupe"
+          },
+          {
+            "REF_AREA": "FRY50",
+            "Reference area": "Mayotte"
+          },
+          {
+            "REF_AREA": "FRZZZ",
+            "Reference area": "France, not regionalised"
+          }
+        ],
+        "status_counts": {
+          "gdp_observation_status": {
+            "P": 96
+          },
+          "gdp_observation_status_label": {
+            "Provisional value": 96
+          }
+        }
+      }
+    },
+    {
+      "name": "unique_metropolitan_departments",
+      "passed": true,
+      "details": {
+        "rows": 96,
+        "unique_departments": 96,
+        "null_codes": 0,
+        "duplicate_codes": 0
+      }
+    },
+    {
+      "name": "required_values",
+      "passed": true,
+      "details": {
+        "missing_columns": [],
+        "nulls": {}
+      }
+    }
+  ],
+  "legacy_comparison": {
+    "legacy_path": "data/raw/demographics/departmental_stats_2023.csv",
+    "available": true,
+    "candidate_rows": 96,
+    "legacy_rows": 96,
+    "shared_department_codes": 96,
+    "candidate_columns": [
+      "department_code",
+      "department_name",
+      "reference_year",
+      "average_net_monthly_wage_fte_eur",
+      "median_living_standard_eur",
+      "poverty_rate_percent",
+      "census_unemployment_rate_15_64_percent",
+      "municipal_population",
+      "area_sq_km",
+      "population_density_per_sq_km",
+      "gdp_current_prices_million_eur",
+      "population_counted_separately",
+      "total_population",
+      "employed_population_15_64",
+      "unemployed_population_15_64",
+      "active_population_15_64",
+      "oecd_tl3_code",
+      "gdp_observation_status",
+      "gdp_observation_status_label"
+    ],
+    "legacy_columns": [
+      "department_code",
+      "department",
+      "capital",
+      "region",
+      "GDP_millions(€)",
+      "GDP_per_capita(€)",
+      "poverty_rate(%)",
+      "average_annual_unemployment_rate(%)",
+      "average_net_hourly_wage(€)",
+      "municipal_population",
+      "population_density(inhabitants/sq_km)",
+      "area(sq_km)"
+    ],
+    "obsolete_or_incompatible_legacy_columns": [
+      "GDP_millions(€)",
+      "GDP_per_capita(€)",
+      "poverty_rate(%)",
+      "average_annual_unemployment_rate(%)",
+      "average_net_hourly_wage(€)",
+      "population_density(inhabitants/sq_km)",
+      "area(sq_km)"
+    ]
+  }
+}
