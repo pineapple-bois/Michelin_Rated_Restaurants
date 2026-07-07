@@ -11,6 +11,8 @@ socioeconomic geography. The maintained focus is now the reproducible annual
 data pipeline; historical notebooks and helper code are retained separately as
 legacy material.
 
+This data serves a dash application: [Michelin Guide to France](https://restaurant-guide-france.net)
+
 ## What This Repository Produces
 
 The maintained pipeline produces:
