@@ -6,7 +6,6 @@ import unittest
 from unittest.mock import patch
 
 import pandas as pd
-import geopandas as gpd
 
 from data_pipeline.stage3.acquisition import ParisReferenceError, normalize_paris_table
 from data_pipeline.stage3.pipeline import (
@@ -18,6 +17,20 @@ from data_pipeline.stage3.pipeline import (
 
 
 ROOT = Path(__file__).resolve().parents[1]
+ARRONDISSEMENT_INSEE_FIELDS = {
+    "municipal_population",
+    "population_density(inhabitants/sq_km)",
+    "poverty_rate(%)",
+    "average_net_hourly_wage(€)",
+}
+
+
+def expected_arrondissement_columns() -> list[str]:
+    return [
+        "code", "arrondissement", "department_num", "department", "capital", "region",
+        "selected", "bib_gourmand", "1_star", "2_star", "3_star",
+        "total_stars", "starred_restaurants", "green_stars", "locations", "geometry",
+    ]
 
 
 class Stage3Tests(unittest.TestCase):
@@ -53,6 +66,26 @@ class Stage3Tests(unittest.TestCase):
         self.assertEqual(result.validation.paris_rows, 20)
         self.assertEqual(len(result.validation.coastal_fallbacks), 7)
         self.assertFalse(result.restaurants["arrondissement"].isna().any())
+        self.assertEqual(result.arrondissements.columns.tolist(), expected_arrondissement_columns())
+        self.assertFalse(ARRONDISSEMENT_INSEE_FIELDS & set(result.arrondissements.columns))
+        self.assertEqual(len(result.arrondissements["code"]), 320)
+        self.assertTrue(result.arrondissements["code"].is_unique)
+        self.assertIn("01001", set(result.arrondissements["code"]))
+        self.assertIn("95003", set(result.arrondissements["code"]))
+        self.assertFalse(result.arrondissements.geometry.isna().any())
+        self.assertFalse(result.arrondissements.geometry.is_empty.any())
+        self.assertEqual(int(result.arrondissements["selected"].sum()), int(result.restaurants["stars"].eq(0.25).sum()))
+        self.assertEqual(int(result.arrondissements["bib_gourmand"].sum()), int(result.restaurants["stars"].eq(0.5).sum()))
+        self.assertEqual(int(result.arrondissements["1_star"].sum()), int(result.restaurants["stars"].eq(1).sum()))
+        self.assertEqual(int(result.arrondissements["2_star"].sum()), int(result.restaurants["stars"].eq(2).sum()))
+        self.assertEqual(int(result.arrondissements["3_star"].sum()), int(result.restaurants["stars"].eq(3).sum()))
+        self.assertEqual(int(result.arrondissements["green_stars"].sum()), int(result.restaurants["greenstar"].eq(1).sum()))
+        self.assertTrue(result.arrondissements["locations"].astype(str).str.startswith("{").all())
+
+    def test_stage3_does_not_require_arrondissement_demographics_input(self) -> None:
+        result = validate_stage3(year=2026)
+        self.assertEqual(result.validation.arrondissement_rows, 320)
+        self.assertFalse(ARRONDISSEMENT_INSEE_FIELDS & set(result.arrondissements.columns))
 
     def test_publication_is_atomic(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -86,46 +119,34 @@ class Stage3Tests(unittest.TestCase):
             second = run_stage3(year=2026, output_root=output, replace=True)
             self.assertEqual(before, {name: path.read_bytes() for name, path in second.paths.items()})
 
-    def test_historical_fidelity_has_only_documented_coastal_differences(self) -> None:
+    def test_outputs_have_expected_schema_and_optional_paris_fidelity(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             output = Path(temporary)
             for year in (2025, 2026):
                 with self.subTest(year=year):
                     result = run_stage3(year=year, output_root=output)
                     baseline = ROOT / "Years" / str(year) / "data/France"
+                    paris_baseline = baseline / "geodata/paris_restaurants.geojson"
+                    if paris_baseline.is_file():
+                        self.assertEqual(
+                            result.paths["paris"].read_bytes(),
+                            paris_baseline.read_bytes(),
+                        )
+                    self.assertEqual(result.arrondissements.columns.tolist(), expected_arrondissement_columns())
+                    self.assertFalse(ARRONDISSEMENT_INSEE_FIELDS & set(result.arrondissements.columns))
+                    self.assertEqual(len(result.arrondissements), 320)
+                    self.assertEqual(set(result.arrondissements["code"].str.len()), {5})
+                    self.assertFalse(result.arrondissements.geometry.isna().any())
+                    self.assertFalse(result.arrondissements.geometry.is_empty.any())
                     self.assertEqual(
-                        result.paths["paris"].read_bytes(),
-                        (baseline / "geodata/paris_restaurants.geojson").read_bytes(),
+                        int(result.arrondissements[["selected", "bib_gourmand", "1_star", "2_star", "3_star"]].to_numpy().sum()),
+                        len(result.restaurants),
                     )
-
-                    candidate_csv = pd.read_csv(result.paths["restaurants"])
-                    legacy_csv = pd.read_csv(baseline / "all_restaurants(arrondissements).csv")
-                    different_columns = []
-                    for column in candidate_csv.columns:
-                        equal = candidate_csv[column].eq(legacy_csv[column]) | (
-                            candidate_csv[column].isna() & legacy_csv[column].isna()
-                        )
-                        if not equal.all():
-                            different_columns.append((column, int((~equal).sum())))
-                    self.assertEqual(different_columns, [("arrondissement", 7)])
-
-                    candidate_geo = gpd.read_file(result.paths["arrondissements"])
-                    legacy_geo = gpd.read_file(
-                        baseline / "geodata/arrondissement_restaurants.geojson"
+                    self.assertEqual(
+                        int(result.arrondissements["green_stars"].sum()),
+                        int(result.restaurants["greenstar"].eq(1).sum()),
                     )
-                    property_differences = {}
-                    for column in candidate_geo.columns.drop("geometry"):
-                        equal = candidate_geo[column].eq(legacy_geo[column]) | (
-                            candidate_geo[column].isna() & legacy_geo[column].isna()
-                        )
-                        if not equal.all():
-                            property_differences[column] = int((~equal).sum())
-                    self.assertEqual(property_differences, {"selected": 6, "bib_gourmand": 1})
-                    self.assertTrue(
-                        candidate_geo.geometry.geom_equals_exact(
-                            legacy_geo.geometry, tolerance=0
-                        ).all()
-                    )
+                    self.assertTrue(result.arrondissements["locations"].astype(str).str.startswith("{").all())
 
 
 if __name__ == "__main__":

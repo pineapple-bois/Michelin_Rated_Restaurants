@@ -11,7 +11,6 @@ Inputs:
 
 ```text
 data/products/france/<year>/all_restaurants.csv
-data/raw/demographics/arrondissement_stats_2023.csv
 data/raw/demographics/paris_arrondissements.csv
 data/raw/demographics/departments.csv
 data/raw/geodata/arrondissements-avec-outre-mer.geojson
@@ -19,10 +18,11 @@ data/raw/geodata/departments.geojson
 data/raw/geodata/paris_arrondissements.geojson
 ```
 
-`arrondissement_stats_2023.csv` is the accepted legacy snapshot equivalent to
-`ExtraData/Demographics/arrondissements_data_2023.csv`. It is parsed with its
-third physical row as the header. Reconstructing it from INSEE is outside this
-stage.
+The national arrondissement reference is built directly from
+`arrondissements-avec-outre-mer.geojson` after excluding overseas codes. Earlier
+pipeline versions also attached a small set of arrondissement-level INSEE
+statistics, but those fields are not required for Stage 3 processing and are no
+longer included in the national arrondissement product.
 
 Canonical outputs:
 
@@ -63,13 +63,12 @@ columns, rather than relying on `tables[1]`, and writes only
 
 | Notebook operation | Python replacement |
 |---|---|
-| Promote row three and remove metadata | `load_arrondissement_demographics()` parses and validates the accepted semicolon file. |
-| Remove overseas rows | Demographic and geometry codes beginning `97` are excluded; both mainland sets must contain 320 unique rows. |
-| Reconcile definite articles | `reconcile_arrondissement_references()` uses article-free comparison while preserving demographic names. |
-| Correct Briey | Geometry `Briey` explicitly reconciles to demographic `Val-de-Briey`. |
+| Remove overseas rows | `load_arrondissement_geometry()` excludes geometry codes beginning `97` and requires 320 unique mainland rows. |
+| Build arrondissement reference | `build_arrondissement_reference()` uses geometry `code`, `nom`, and `geometry` as the national reference. |
+| Correct Briey | Geometry label `Briey` is normalized to `Val-de-Briey` for current repository naming compatibility. |
 | Spatially join restaurants | `assign_restaurants()` uses `within`, detects duplicate matches, and applies a bounded same-department coastal fallback. |
 | Replace Paris labels | `enrich_paris_labels()` parses Paris postcodes and maps the local 20-row reference to labels such as `1st (Louvre)`. |
-| Aggregate national arrondissements | `build_arrondissement_product()` zero-fills all 320 geometries, joins department metadata and demographics, and groups Michelin counts/coordinates. |
+| Aggregate national arrondissements | `build_arrondissement_product()` zero-fills all 320 geometries, joins department metadata, and groups Michelin counts/coordinates. |
 | Build Paris GeoJSON | `build_paris_product()` validates all 20 municipal geometries and produces codes `75001` through `75020`. |
 | Export three products | `_write_products()` stages, reloads, and compares all outputs before `run_stage3()` publishes the transaction. |
 
@@ -95,12 +94,11 @@ Breizh Café Cancale -> Saint-Malo
 Domaine de Rochevilaine -> Vannes
 ```
 
-Any remaining or ambiguous match fails publication. No restaurant,
-demographic row, or geometry is dropped. The pipeline also validates required
-columns, unique names/codes, the 320-row mainland contract, department join
-cardinality, valid EPSG:4326 geometries, numeric demographics, category-count
-reconciliation, complete Paris coverage, deterministic reloads, and all-three
-atomic publication.
+Any remaining or ambiguous match fails publication. No restaurant or geometry
+row is dropped. The pipeline also validates required columns, unique geometry
+codes, the 320-row mainland contract, department join cardinality, valid
+EPSG:4326 geometries, category-count reconciliation, complete Paris coverage,
+deterministic reloads, and all-three atomic publication.
 
 ## Paris rules and the removed positional drop
 
@@ -121,26 +119,33 @@ The enriched CSV preserves the Stage 2 restaurant order and columns, inserting
 labels; other values use the national arrondissement name. Region labels use
 the same French normalization as Stage 2 geographic products.
 
-The national GeoJSON contains 320 rows and the historical properties:
-administrative identity, Michelin category counts, total stars, starred
-restaurant count, Green Star count, four accepted demographic fields, and
-grouped one/two/three-star coordinates. Arrondissements without restaurants
-receive integer zero counts and `None` coordinate groups.
+The national GeoJSON contains 320 rows with administrative identity, geometry,
+Michelin category counts, total stars, starred restaurant count, Green Star
+count, and grouped one/two/three-star coordinates. It does not contain
+arrondissement-level INSEE-derived statistics. Arrondissements without
+restaurants receive integer zero counts and `None` coordinate groups.
+
+National arrondissement properties for 2025 onward:
+
+```text
+code,arrondissement,department_num,department,capital,region,selected,
+bib_gourmand,1_star,2_star,3_star,total_stars,starred_restaurants,
+green_stars,locations
+```
 
 The Paris GeoJSON contains 20 rows, codes `75001` through `75020`, the same
 Michelin counts/totals, and grouped coordinates for all Michelin categories.
 
 ## Fidelity and intentional differences
 
-For 2025 and 2026, `paris_restaurants.geojson` is byte-identical to the legacy
-product. The enriched CSV differs only for the seven coastal assignments that
-were null in the notebook. Consequently, the national GeoJSON differs only by
-six `selected` increments and one `bib_gourmand` increment in their assigned
-arrondissements. These are intentional validation corrections, not
-serialization drift.
+For 2025 and 2026, `paris_restaurants.geojson` remains byte-identical to the
+legacy product where the historical baseline files are available. The enriched
+CSV still differs only for the seven coastal assignments that were null in the
+notebook. The national GeoJSON is now validated by explicit schema, geometry,
+row-count, and Michelin-count assertions rather than byte comparison to the
+legacy product because the arrondissement-level INSEE fields have been removed.
 
 Other deliberate changes are separation of Wikipedia acquisition from the
 offline transformation, table identification by schema, explicit `75116`
-normalization instead of `drop(index=15)`, and fail-closed spatial/join checks.
-Future reference-data ETL should version and replace the accepted demographic
-and geometry snapshots without changing this Stage 3 interface.
+normalization instead of `drop(index=15)`, geometry-only national reference
+construction, and fail-closed spatial/join checks.

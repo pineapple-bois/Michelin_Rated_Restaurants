@@ -5,7 +5,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 import os
 from pathlib import Path
-import re
 import shutil
 import tempfile
 
@@ -19,12 +18,6 @@ from data_pipeline.stage2.validation import Stage2ValidationError, require_colum
 
 
 COASTAL_FALLBACK_MAX_METRES = 500.0
-NUMERIC_STATS = (
-    "municipal_population",
-    "population_density(inhabitants/sq_km)",
-    "poverty_rate(%)",
-    "average_net_hourly_wage(€)",
-)
 
 
 class Stage3PublicationError(RuntimeError):
@@ -38,7 +31,6 @@ class Stage3Validation:
     paris_rows: int
     coastal_fallbacks: tuple[str, ...]
     unmatched_restaurants: tuple[str, ...] = ()
-    unmatched_demographics: tuple[str, ...] = ()
     unmatched_geometries: tuple[str, ...] = ()
 
 
@@ -61,37 +53,6 @@ def stage3_paths(year: int, output_root: Path) -> dict[str, Path]:
     }
 
 
-def _clean_name(value: str) -> str:
-    return re.sub(r"^(?:Le |La |Les |L')", "", value).strip()
-
-
-def load_arrondissement_demographics(path: Path) -> pd.DataFrame:
-    raw = pd.read_csv(path, sep=";", header=None, dtype=str)
-    if len(raw) < 4:
-        raise Stage2ValidationError("Arrondissement demographics lacks metadata/header rows")
-    raw.columns = raw.iloc[2]
-    frame = raw.iloc[3:].reset_index(drop=True).rename(columns={
-        "Code": "code",
-        "Libellé": "arrondissement",
-        "Taux de pauvreté 2021": "poverty_rate(%)",
-        "Salaire net horaire moyen 2022": "average_net_hourly_wage(€)",
-        "Population municipale 2022": "municipal_population",
-        "Densité de population (historique depuis 1876) 2021": "population_density(inhabitants/sq_km)",
-    })
-    columns = ("code", "arrondissement", *NUMERIC_STATS)
-    require_columns(frame, columns, "arrondissement demographics")
-    frame = frame.loc[:, columns]
-    frame = frame[~frame["code"].str.startswith("97")].sort_values("code").reset_index(drop=True)
-    if len(frame) != 320 or frame["code"].duplicated().any() or frame["code"].isna().any():
-        raise Stage2ValidationError("Expected 320 unique mainland arrondissement demographic codes")
-    for column in NUMERIC_STATS:
-        frame[column] = pd.to_numeric(
-            frame[column].str.replace(r"[^\d,.\-]", "", regex=True).str.replace(",", ".", regex=False),
-            errors="raise",
-        )
-    return frame
-
-
 def load_arrondissement_geometry(path: Path) -> gpd.GeoDataFrame:
     geometry = gpd.read_file(path)
     require_columns(geometry, ("code", "nom", "geometry"), "arrondissement geometry")
@@ -105,21 +66,11 @@ def load_arrondissement_geometry(path: Path) -> gpd.GeoDataFrame:
     return geometry
 
 
-def reconcile_arrondissement_references(
-    demographics: pd.DataFrame, geometry: gpd.GeoDataFrame
-) -> gpd.GeoDataFrame:
-    stats = demographics.rename(columns={"code": "demographic_code"}).copy()
-    stats["join_name"] = stats["arrondissement"].map(_clean_name)
-    shapes = geometry.copy()
-    shapes["join_name"] = shapes["nom"].replace({"Briey": "Val-de-Briey"}).map(_clean_name)
-    if stats["join_name"].duplicated().any() or shapes["join_name"].duplicated().any():
-        raise Stage2ValidationError("Normalized arrondissement names are not unique")
-    if set(stats["join_name"]) != set(shapes["join_name"]):
-        raise Stage2ValidationError("Arrondissement demographic and geometry names do not reconcile")
-    product = shapes.merge(stats, on="join_name", how="left", validate="one_to_one")
-    product["nom"] = product["arrondissement"]
-    product.drop(columns=["join_name", "demographic_code"], inplace=True)
-    return gpd.GeoDataFrame(product, geometry="geometry", crs=geometry.crs)
+def build_arrondissement_reference(geometry: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    reference = geometry.loc[:, ["code", "nom", "geometry"]].copy()
+    reference["nom"] = reference["nom"].replace({"Briey": "Val-de-Briey"})
+    reference["arrondissement"] = reference["nom"]
+    return gpd.GeoDataFrame(reference, geometry="geometry", crs=geometry.crs)
 
 
 def assign_restaurants(
@@ -242,7 +193,7 @@ def build_arrondissement_product(
                "total_stars", "starred_restaurants"]
     if year >= 2025:
         columns.append("green_stars")
-    columns.extend((*NUMERIC_STATS, "locations", "geometry"))
+    columns.extend(("locations", "geometry"))
     product = gpd.GeoDataFrame(base.loc[:, columns], geometry="geometry", crs=reference.crs)
     if (
         len(product) != 320
@@ -312,7 +263,6 @@ def build_paris_product(
 def validate_stage3(
     *, year: int,
     stage2_root: Path = Path("data/products"),
-    demographics_path: Path = Path("data/raw/demographics/arrondissement_stats_2023.csv"),
     paris_reference_path: Path = Path("data/raw/demographics/paris_arrondissements.csv"),
     arrondissement_geometry_path: Path = Path("data/raw/geodata/arrondissements-avec-outre-mer.geojson"),
     department_reference_path: Path = Path("data/raw/demographics/departments.csv"),
@@ -322,15 +272,14 @@ def validate_stage3(
     if year < 2025:
         raise Stage2ValidationError("Stage 3 is supported from 2025 under the current Stage 2 schema")
     restaurant_path = stage2_root / "france" / str(year) / "all_restaurants.csv"
-    inputs = [restaurant_path, demographics_path, paris_reference_path, arrondissement_geometry_path,
+    inputs = [restaurant_path, paris_reference_path, arrondissement_geometry_path,
               department_reference_path, department_geometry_path, paris_geometry_path]
     missing = [str(path) for path in inputs if not path.is_file()]
     if missing:
         raise FileNotFoundError("Missing Stage 3 inputs: " + ", ".join(missing))
     source = pd.read_csv(restaurant_path, dtype={"department_num": "string"})
-    demographics = load_arrondissement_demographics(demographics_path)
     geometry = load_arrondissement_geometry(arrondissement_geometry_path)
-    reference = reconcile_arrondissement_references(demographics, geometry)
+    reference = build_arrondissement_reference(geometry)
     assigned, fallbacks = assign_restaurants(source, reference)
     paris_reference = load_paris_reference(paris_reference_path)
     enriched = enrich_paris_labels(assigned, paris_reference)

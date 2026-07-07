@@ -140,10 +140,6 @@ def _parser() -> argparse.ArgumentParser:
     arrondissements.add_argument("--stage2-root", type=Path, default=Path("data/products"))
     arrondissements.add_argument("--output-root", type=Path, default=Path("data/products"))
     arrondissements.add_argument(
-        "--demographics-path", type=Path,
-        default=Path("data/raw/demographics/arrondissement_stats_2023.csv"),
-    )
-    arrondissements.add_argument(
         "--paris-reference-path", type=Path,
         default=Path("data/raw/demographics/paris_arrondissements.csv"),
     )
@@ -341,7 +337,6 @@ def _run_arrondissements(args: argparse.Namespace) -> int:
         inputs = {
             "year": args.year,
             "stage2_root": args.stage2_root,
-            "demographics_path": args.demographics_path,
             "paris_reference_path": args.paris_reference_path,
             "arrondissement_geometry_path": args.arrondissement_geometry_path,
             "department_reference_path": args.department_reference_path,
