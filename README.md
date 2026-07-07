@@ -214,8 +214,8 @@ legacy/                 archived notebook-era material, not maintained pipeline 
 tmp/                    disposable local build/download workspace
 ```
 
-There is currently no `pyproject.toml`; dependencies are listed in
-`requirements.txt`.
+The maintained Python packages use the `src/` layout and are packaged through
+`pyproject.toml`.
 
 ## Documentation Index
 
@@ -231,14 +231,25 @@ There is currently no `pyproject.toml`; dependencies are listed in
 
 ## Prerequisites And Validation
 
-Install the checked-in dependencies:
+Install the maintained pipeline and development/test extras:
 
 ```bash
-.venv/bin/python -m pip install -r requirements.txt
+python -m pip install -e ".[dev]"
 ```
 
-Run commands from the repository root with `PYTHONPATH=src`, because the source
-tree is not packaged by project metadata at present.
+The existing module invocation style remains supported:
+
+```bash
+python -m data_pipeline --help
+python -m insee_pipeline --help
+```
+
+Editable installation also provides console scripts:
+
+```bash
+data_pipeline --help
+insee_pipeline --help
+```
 
 The principal test command is:
 

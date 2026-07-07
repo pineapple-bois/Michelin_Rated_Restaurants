@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "michelin-rated-restaurants"
+version = "0.1.0"
+description = "Maintained Michelin restaurant data pipeline and INSEE/OECD reference-data tooling."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+  { name = "Ian; pineapple-bois" },
+]
+dependencies = [
+  "pandas>=2.2,<3",
+  "geopandas>=1.0,<2",
+  "numpy>=2.0,<3",
+  "requests>=2.32,<3",
+]
+
+[project.optional-dependencies]
+dev = [
+  "shapely>=2.0,<3",
+]
+
+[project.scripts]
+data_pipeline = "data_pipeline.cli:main"
+insee_pipeline = "insee_pipeline.pipeline:main"
+
+[tool.setuptools.package-dir]
+"" = "src"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["data_pipeline*", "insee_pipeline*"]
