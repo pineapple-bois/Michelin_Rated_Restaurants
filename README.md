@@ -121,32 +121,32 @@ product year.
 
 | Stage | Purpose | Main input | Main output | Normal command | Details |
 |---|---|---|---|---|---|
-| Stage 1 | Build France, Monaco, and UK partitions from one accepted Michelin snapshot. | `data/raw/michelin/michelin_data_<year>.csv` | `data/partitions/{france,monaco,uk}/..._<year>.csv` | `PYTHONPATH=src .venv/bin/python -m data_pipeline partition --year 2026` | [`docs/stage1.md`](docs/stage1.md) |
-| INSEE candidate | Build validated, provenance-rich departmental statistics. | INSEE Melodi, OECD GDP, local department geometry | `data/candidates/insee/<year>/` | `PYTHONPATH=src .venv/bin/python -m insee_pipeline build --year 2023` | [`docs/insee_data.md`](docs/insee_data.md) |
-| INSEE product | Convert a valid candidate into the Michelin-facing departmental product. | `data/candidates/insee/<year>/` | `data/products/insee/<year>/` | `PYTHONPATH=src .venv/bin/python -m insee_pipeline product --year 2023` | [`docs/insee_data.md`](docs/insee_data.md) |
-| Stage 2 France | Enrich France restaurants and build department/region GeoJSON. | `data/partitions/france/france_<year>.csv`, INSEE product, local geography | `data/products/france/<year>/all_restaurants.csv` and geodata | `PYTHONPATH=src .venv/bin/python -m data_pipeline departments --year 2026` | [`docs/stage2-france-departments.md`](docs/stage2-france-departments.md) |
-| Stage 2 Monaco | Build Monaco restaurant and aggregate products. | `data/partitions/monaco/monaco_<year>.csv`, local Monaco geometry | `data/products/france/<year>/monaco_restaurants.csv` and geodata | `PYTHONPATH=src .venv/bin/python -m data_pipeline monaco --year 2026` | [`docs/stage2-france-departments.md`](docs/stage2-france-departments.md) |
-| Stage 3 | Add arrondissements and publish national/Paris arrondissement GeoJSON. | `data/products/france/<year>/all_restaurants.csv`, local references/geography | `all_restaurants(arrondissements).csv`, arrondissement and Paris GeoJSON | `PYTHONPATH=src .venv/bin/python -m data_pipeline arrondissements --year 2026` | [`docs/stage3-arrondissements.md`](docs/stage3-arrondissements.md) |
-| Guide changes | Compare consecutive accepted France products. | arrondissement-enriched annual France products | `data/reports/france/changes_<previous>_<current>.*` | `PYTHONPATH=src .venv/bin/python -m data_pipeline changes --previous-year 2025 --current-year 2026` | [`docs/guide-changes.md`](docs/guide-changes.md) |
+| Stage 1 | Build France, Monaco, and UK partitions from one accepted Michelin snapshot. | `data/raw/michelin/michelin_data_<year>.csv` | `data/partitions/{france,monaco,uk}/..._<year>.csv` | `data_pipeline partition --year 2026` | [`docs/stage1.md`](docs/stage1.md) |
+| INSEE candidate | Build validated, provenance-rich departmental statistics. | INSEE Melodi, OECD GDP, local department geometry | `data/candidates/insee/<year>/` | `insee_pipeline build --year 2023` | [`docs/insee_data.md`](docs/insee_data.md) |
+| INSEE product | Convert a valid candidate into the Michelin-facing departmental product. | `data/candidates/insee/<year>/` | `data/products/insee/<year>/` | `insee_pipeline product --year 2023` | [`docs/insee_data.md`](docs/insee_data.md) |
+| Stage 2 France | Enrich France restaurants and build department/region GeoJSON. | `data/partitions/france/france_<year>.csv`, INSEE product, local geography | `data/products/france/<year>/all_restaurants.csv` and geodata | `data_pipeline departments --year 2026` | [`docs/stage2-france-departments.md`](docs/stage2-france-departments.md) |
+| Stage 2 Monaco | Build Monaco restaurant and aggregate products. | `data/partitions/monaco/monaco_<year>.csv`, local Monaco geometry | `data/products/france/<year>/monaco_restaurants.csv` and geodata | `data_pipeline monaco --year 2026` | [`docs/stage2-france-departments.md`](docs/stage2-france-departments.md) |
+| Stage 3 | Add arrondissements and publish national/Paris arrondissement GeoJSON. | `data/products/france/<year>/all_restaurants.csv`, local references/geography | `all_restaurants(arrondissements).csv`, arrondissement and Paris GeoJSON | `data_pipeline arrondissements --year 2026` | [`docs/stage3-arrondissements.md`](docs/stage3-arrondissements.md) |
+| Guide changes | Compare consecutive accepted France products. | arrondissement-enriched annual France products | `data/reports/france/changes_<previous>_<current>.*` | `data_pipeline changes --previous-year 2025 --current-year 2026` | [`docs/guide-changes.md`](docs/guide-changes.md) |
 
 ## Implemented CLI Commands
 
 The implemented Michelin command group is:
 
 ```bash
-PYTHONPATH=src .venv/bin/python -m data_pipeline partition --year 2026
-PYTHONPATH=src .venv/bin/python -m data_pipeline departments --year 2026
-PYTHONPATH=src .venv/bin/python -m data_pipeline monaco --year 2026
-PYTHONPATH=src .venv/bin/python -m data_pipeline arrondissements --year 2026
-PYTHONPATH=src .venv/bin/python -m data_pipeline acquire-paris-arrondissements
-PYTHONPATH=src .venv/bin/python -m data_pipeline changes --previous-year 2025 --current-year 2026
+data_pipeline partition --year 2026
+data_pipeline departments --year 2026
+data_pipeline monaco --year 2026
+data_pipeline arrondissements --year 2026
+data_pipeline acquire-paris-arrondissements
+data_pipeline changes --previous-year 2025 --current-year 2026
 ```
 
 The implemented INSEE command group is:
 
 ```bash
-PYTHONPATH=src .venv/bin/python -m insee_pipeline build --year 2023
-PYTHONPATH=src .venv/bin/python -m insee_pipeline product --year 2023
+insee_pipeline build --year 2023
+insee_pipeline product --year 2023
 ```
 
 Common publication commands protect existing outputs. Where implemented,
@@ -254,7 +254,7 @@ insee_pipeline --help
 The principal test command is:
 
 ```bash
-PYTHONPATH=src .venv/bin/python -m unittest discover -s tests -v
+python -m unittest discover -s tests -v
 ```
 
 Pipeline commands validate schemas, row reconciliation, duplicate and join

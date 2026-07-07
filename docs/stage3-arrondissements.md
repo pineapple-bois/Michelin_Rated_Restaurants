@@ -36,19 +36,19 @@ data/products/france/<year>/geodata/paris_restaurants.geojson
 
 ```bash
 # Create the local Paris naming reference (networked, one-time acquisition)
-PYTHONPATH=src python -m data_pipeline acquire-paris-arrondissements
+data_pipeline acquire-paris-arrondissements
 
 # Deliberately refresh an accepted reference
-PYTHONPATH=src python -m data_pipeline acquire-paris-arrondissements --refresh
+data_pipeline acquire-paris-arrondissements --refresh
 
 # Canonical, candidate, and no-write Stage 3 builds
-PYTHONPATH=src python -m data_pipeline arrondissements --year 2026
-PYTHONPATH=src python -m data_pipeline arrondissements --year 2026 \
+data_pipeline arrondissements --year 2026
+data_pipeline arrondissements --year 2026 \
   --output-root /tmp/michelin-stage3-2026
-PYTHONPATH=src python -m data_pipeline arrondissements --year 2026 --validate-only
+data_pipeline arrondissements --year 2026 --validate-only
 
 # Replace an existing complete product set after validation
-PYTHONPATH=src python -m data_pipeline arrondissements --year 2026 --replace
+data_pipeline arrondissements --year 2026 --replace
 ```
 
 The extractor requests

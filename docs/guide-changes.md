@@ -19,21 +19,21 @@ data/products/france/2026/all_restaurants(arrondissements).csv
 Canonical report:
 
 ```bash
-PYTHONPATH=src python -m data_pipeline changes \
+data_pipeline changes \
   --previous-year 2023 --current-year 2024
 ```
 
 Candidate, validation-only, and deliberate replacement:
 
 ```bash
-PYTHONPATH=src python -m data_pipeline changes \
+data_pipeline changes \
   --previous-year 2025 --current-year 2026 \
   --output-root /tmp/michelin-changes
 
-PYTHONPATH=src python -m data_pipeline changes \
+data_pipeline changes \
   --previous-year 2025 --current-year 2026 --validate-only
 
-PYTHONPATH=src python -m data_pipeline changes \
+data_pipeline changes \
   --previous-year 2025 --current-year 2026 --replace
 ```
 

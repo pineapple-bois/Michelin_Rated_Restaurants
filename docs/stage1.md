@@ -34,13 +34,13 @@ Run commands from the repository root with the project environment active.
 Build a year into the canonical partition tree:
 
 ```bash
-PYTHONPATH=src python -m data_pipeline partition --year 2026
+data_pipeline partition --year 2026
 ```
 
 Build a review candidate elsewhere:
 
 ```bash
-PYTHONPATH=src python -m data_pipeline partition \
+data_pipeline partition \
   --year 2026 \
   --output-root /tmp/michelin-stage1-2026
 ```
@@ -49,13 +49,13 @@ Validate source, transformations, and all three in-memory outputs without
 publishing:
 
 ```bash
-PYTHONPATH=src python -m data_pipeline partition --year 2026 --validate-only
+data_pipeline partition --year 2026 --validate-only
 ```
 
 Existing targets are protected. Rebuild them only with an explicit option:
 
 ```bash
-PYTHONPATH=src python -m data_pipeline partition --year 2026 --replace
+data_pipeline partition --year 2026 --replace
 ```
 
 `--compare-root <path>` may be added to a published candidate build when that

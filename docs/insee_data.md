@@ -30,14 +30,14 @@ Stage 2 France pipeline.
 Normal invocation:
 
 ```bash
-PYTHONPATH=src .venv/bin/python -m insee_pipeline build --year 2023
+insee_pipeline build --year 2023
 ```
 
 After a candidate has been validated, build the Michelin-consumable product
 without rebuilding the candidate:
 
 ```bash
-PYTHONPATH=src .venv/bin/python -m insee_pipeline product --year 2023
+insee_pipeline product --year 2023
 ```
 
 Implemented CLI options:
@@ -415,7 +415,7 @@ The product command applies its own dtype contract before writing:
 Run the focused INSEE pipeline tests with:
 
 ```bash
-PYTHONPATH=src .venv/bin/python -m unittest tests.test_insee_pipeline -v
+python -m unittest tests.test_insee_pipeline -v
 ```
 
 The new INSEE tests pass. They cover requested-year filtering, fail-closed
@@ -425,10 +425,9 @@ the candidate-to-product transformation including schema, dtypes, code
 preservation, metadata joins, GDP-per-capita derivation, failure conditions,
 and deterministic serialization.
 
-Broader repository test-suite note: `PYTHONPATH=src .venv/bin/python -m unittest
-discover -s tests -v` may fail when expected legacy `Years/...` baseline files
-are absent. That fidelity-baseline availability issue is separate from the
-INSEE pipeline tests.
+Broader repository test-suite note: `python -m unittest discover -s tests -v`
+includes optional legacy fidelity checks. Those checks are skipped when the
+local historical fixtures under `legacy/Years/...` are absent.
 
 Known limitations:
 

@@ -46,13 +46,13 @@ immediately if the corresponding product is missing or invalid. Use
 Build canonical products:
 
 ```bash
-PYTHONPATH=src python -m data_pipeline departments --year 2026
+data_pipeline departments --year 2026
 ```
 
 Build with an explicit INSEE product year:
 
 ```bash
-PYTHONPATH=src python -m data_pipeline departments \
+data_pipeline departments \
   --year 2026 \
   --insee-year 2023
 ```
@@ -60,7 +60,7 @@ PYTHONPATH=src python -m data_pipeline departments \
 Build a disposable candidate:
 
 ```bash
-PYTHONPATH=src python -m data_pipeline departments \
+data_pipeline departments \
   --year 2026 \
   --output-root /tmp/michelin-stage2-2026
 ```
@@ -68,8 +68,8 @@ PYTHONPATH=src python -m data_pipeline departments \
 Validate without publishing, or explicitly rebuild accepted products:
 
 ```bash
-PYTHONPATH=src python -m data_pipeline departments --year 2026 --validate-only
-PYTHONPATH=src python -m data_pipeline departments --year 2026 --replace
+data_pipeline departments --year 2026 --validate-only
+data_pipeline departments --year 2026 --replace
 ```
 
 Existing targets are never silently replaced.
@@ -266,15 +266,15 @@ partition.
 
 ```bash
 # Canonical build
-PYTHONPATH=src python -m data_pipeline monaco --year 2026
+data_pipeline monaco --year 2026
 
 # Disposable candidate
-PYTHONPATH=src python -m data_pipeline monaco --year 2026 \
+data_pipeline monaco --year 2026 \
   --output-root /tmp/michelin-stage2-monaco-2026
 
 # No-write validation and deliberate replacement
-PYTHONPATH=src python -m data_pipeline monaco --year 2026 --validate-only
-PYTHONPATH=src python -m data_pipeline monaco --year 2026 --replace
+data_pipeline monaco --year 2026 --validate-only
+data_pipeline monaco --year 2026 --replace
 ```
 
 ### Notebook-to-Python mapping
