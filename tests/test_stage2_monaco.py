@@ -21,6 +21,20 @@ from data_pipeline.stage2.validation import Stage2ValidationError
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
+LEGACY_ROOT = REPOSITORY_ROOT / "legacy" / "Years"
+
+# Optional migration-confidence checks in this module compare regenerated
+# Monaco products with local historical artifacts. They are skipped when those
+# uncommitted fixtures are absent and are not the validation strategy for future
+# annual tranches.
+
+
+def legacy_monaco_baselines(year: int) -> dict[str, Path]:
+    root = LEGACY_ROOT / str(year) / "data" / "France"
+    return {
+        "restaurants": root / "monaco_restaurants.csv",
+        "aggregate": root / "geodata" / "monaco_restaurants.geojson",
+    }
 
 
 def partition() -> pd.DataFrame:
@@ -105,17 +119,29 @@ class MonacoStage2Tests(unittest.TestCase):
             self.assertFalse((root / "geodata" / "monaco_restaurants.geojson").exists())
 
     def test_2025_and_2026_match_legacy_products(self) -> None:
+        required = [
+            path
+            for year in (2025, 2026)
+            for path in legacy_monaco_baselines(year).values()
+        ]
+        missing = [path for path in required if not path.is_file()]
+        if missing:
+            raise unittest.SkipTest(
+                "optional Monaco legacy regression fixtures absent: "
+                + ", ".join(str(path) for path in missing)
+            )
+
         with tempfile.TemporaryDirectory() as temporary:
             output = Path(temporary)
             for year in (2025, 2026):
                 with self.subTest(year=year):
                     result = run_monaco_stage2(year=year, output_root=output)
-                    baseline = REPOSITORY_ROOT / "Years" / str(year) / "data" / "France"
+                    baseline = legacy_monaco_baselines(year)
                     csv = compare_restaurant_csv(
-                        result.paths["restaurants"], baseline / "monaco_restaurants.csv"
+                        result.paths["restaurants"], baseline["restaurants"]
                     )
                     geo = compare_department_geojson(
-                        result.paths["aggregate"], baseline / "geodata" / "monaco_restaurants.geojson"
+                        result.paths["aggregate"], baseline["aggregate"]
                     )
                     self.assertEqual(csv.summary, "byte-identical")
                     self.assertEqual(geo.summary, "byte-identical")

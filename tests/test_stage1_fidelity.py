@@ -9,10 +9,16 @@ from data_pipeline.stage1.pipeline import run_stage1
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
+LEGACY_ROOT = REPOSITORY_ROOT / "legacy" / "Years"
+
+# Optional migration-confidence checks: these compare regenerated outputs with
+# local historical artifacts. They are useful when the uncommitted legacy
+# fixtures are present, but they are not the validation strategy for future
+# annual tranches.
 
 
 def legacy_baselines(year: int) -> dict[str, Path]:
-    year_root = REPOSITORY_ROOT / "Years" / str(year) / "data"
+    year_root = LEGACY_ROOT / str(year) / "data"
     suffix = "" if year == 2023 else f"_{year}"
     return {
         "france": year_root / "France" / f"france_master{suffix}.csv",
@@ -28,6 +34,13 @@ class HistoricalFidelityTests(unittest.TestCase):
             candidate_root = Path(temporary)
             for year in (2026, 2023, 2024, 2025):
                 with self.subTest(year=year):
+                    baselines = legacy_baselines(year)
+                    missing = [path for path in baselines.values() if not path.is_file()]
+                    if missing:
+                        raise unittest.SkipTest(
+                            "optional Stage 1 legacy regression fixtures absent: "
+                            + ", ".join(str(path) for path in missing)
+                        )
                     result = run_stage1(
                         year=year,
                         raw_root=raw_root,
@@ -37,7 +50,7 @@ class HistoricalFidelityTests(unittest.TestCase):
                         country: compare_partition_files(
                             result.paths[country], baseline,
                         )
-                        for country, baseline in legacy_baselines(year).items()
+                        for country, baseline in baselines.items()
                     }
                     self.assertEqual(
                         {country: report.summary for country, report in comparisons.items()},

@@ -17,6 +17,7 @@ from data_pipeline.stage3.pipeline import (
 
 
 ROOT = Path(__file__).resolve().parents[1]
+LEGACY_ROOT = ROOT / "legacy" / "Years"
 ARRONDISSEMENT_INSEE_FIELDS = {
     "municipal_population",
     "population_density(inhabitants/sq_km)",
@@ -123,15 +124,26 @@ class Stage3Tests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             output = Path(temporary)
             for year in (2025, 2026):
-                with self.subTest(year=year):
-                    result = run_stage3(year=year, output_root=output)
-                    baseline = ROOT / "Years" / str(year) / "data/France"
-                    paris_baseline = baseline / "geodata/paris_restaurants.geojson"
-                    if paris_baseline.is_file():
-                        self.assertEqual(
-                            result.paths["paris"].read_bytes(),
-                            paris_baseline.read_bytes(),
+                result = run_stage3(year=year, output_root=output)
+                paris_baseline = (
+                    LEGACY_ROOT
+                    / str(year)
+                    / "data"
+                    / "France"
+                    / "geodata"
+                    / "paris_restaurants.geojson"
+                )
+                with self.subTest(year=year, check="optional_paris_fidelity"):
+                    if not paris_baseline.is_file():
+                        raise unittest.SkipTest(
+                            "optional Stage 3 Paris legacy fixture absent: "
+                            + str(paris_baseline)
                         )
+                    self.assertEqual(
+                        result.paths["paris"].read_bytes(),
+                        paris_baseline.read_bytes(),
+                    )
+                with self.subTest(year=year, check="schema"):
                     self.assertEqual(result.arrondissements.columns.tolist(), expected_arrondissement_columns())
                     self.assertFalse(ARRONDISSEMENT_INSEE_FIELDS & set(result.arrondissements.columns))
                     self.assertEqual(len(result.arrondissements), 320)
