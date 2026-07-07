@@ -1,29 +1,38 @@
-# System files
+# macOS
 .DS_Store
 
+# Python environments
+.venv/
 venv/
+
+# Python cache and build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
 
 # IDE settings
 .idea/
+.vscode/
 
-# Python cached files
-__pycache__/
-*.pyc
+# Temporary files and local scratch work
+/tmp/
+/test_insee.ipynb
 
-# Specific directories and their contents
-Functions/__pycache__/
-Years/2023/Notebooks/.DS_Store
-Years/2023/Notebooks/France/.DS_Store
-Years/2023/Notebooks/France/__pycache__/
-Old_Files/
-Years/2023/data/.DS_Store
-Years/2023/data/France/.DS_Store
-ExtraData/Demographics/.DS_Store
-ExtraData/Geodata/.DS_Store
-Years/2023/data/UK/.DS_Store
+# Legacy project content
+/legacy/
+/notebooks/
 
-# Wine content
-/ExtraData/Wine/aoc.gpkg
-/ExtraData/Wine/vineyards.geojson
-/Years/2025/Notebooks/France/WineRegions/
-/Years/2026/Notebooks/France/WineRegions/
+# Disposable INSEE/OECD source caches
+/data/raw/insee/
+/data/raw/oecd/
+
+# Generated wine-region artifacts
+/legacy/ExtraData/Wine/aoc.gpkg
+/legacy/ExtraData/Wine/vineyards.geojson
+/legacy/Years/2025/Notebooks/France/WineRegions/
+/legacy/Years/2026/Notebooks/France/WineRegions/
