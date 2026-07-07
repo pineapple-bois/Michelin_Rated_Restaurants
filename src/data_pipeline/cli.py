@@ -76,9 +76,15 @@ def _parser() -> argparse.ArgumentParser:
         default=Path("data/raw/demographics/departments.csv"),
     )
     departments.add_argument(
-        "--statistics-path",
+        "--insee-product-root",
         type=Path,
-        default=Path("data/raw/demographics/departmental_stats_2023.csv"),
+        default=Path("data/products/insee"),
+        help="root containing versioned INSEE departmental products",
+    )
+    departments.add_argument(
+        "--insee-year",
+        type=int,
+        help="explicit INSEE product year; defaults to the latest numeric year",
     )
     departments.add_argument(
         "--geometry-path",
@@ -255,7 +261,8 @@ def _run_departments(args: argparse.Namespace) -> int:
         "year": args.year,
         "partition_root": args.partition_root,
         "departments_path": args.departments_path,
-        "statistics_path": args.statistics_path,
+        "insee_product_root": args.insee_product_root,
+        "insee_year": args.insee_year,
         "geometry_path": args.geometry_path,
         "region_geometry_path": args.region_geometry_path,
     }

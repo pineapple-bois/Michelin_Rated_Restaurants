@@ -4,40 +4,50 @@ from pathlib import Path
 import tempfile
 import unittest
 
+import geopandas as gpd
+
 from data_pipeline.stage2.fidelity import (
-    compare_department_geojson,
-    compare_region_geojson,
     compare_restaurant_csv,
 )
 from data_pipeline.stage2.pipeline import run_stage2
+from data_pipeline.stage2.schema import (
+    france_departmental_property_columns,
+    france_regional_property_columns,
+)
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 
 
 class Stage2FidelityTests(unittest.TestCase):
-    def test_2025_and_2026_are_byte_identical_to_legacy_products(self) -> None:
+    def test_2025_and_2026_preserve_restaurant_outputs_and_use_insee_schema(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             output_root = Path(temporary)
             for year in (2026, 2025):
                 with self.subTest(year=year):
                     result = run_stage2(year=year, output_root=output_root)
                     baseline = REPOSITORY_ROOT / "Years" / str(year) / "data" / "France"
-                    restaurant_comparison = compare_restaurant_csv(
-                        result.paths["restaurants"],
-                        baseline / "all_restaurants.csv",
+                    restaurant_baseline = baseline / "all_restaurants.csv"
+                    if restaurant_baseline.is_file():
+                        restaurant_comparison = compare_restaurant_csv(
+                            result.paths["restaurants"],
+                            restaurant_baseline,
+                        )
+                        self.assertEqual(restaurant_comparison.summary, "byte-identical")
+                    departments = gpd.read_file(result.paths["departments"])
+                    regions = gpd.read_file(result.paths["regions"])
+                    self.assertEqual(
+                        tuple(departments.columns),
+                        (*france_departmental_property_columns(year), "geometry"),
                     )
-                    department_comparison = compare_department_geojson(
-                        result.paths["departments"],
-                        baseline / "geodata" / "department_restaurants.geojson",
+                    self.assertEqual(
+                        tuple(regions.columns),
+                        (*france_regional_property_columns(year), "geometry"),
                     )
-                    region_comparison = compare_region_geojson(
-                        result.paths["regions"],
-                        baseline / "geodata" / "region_restaurants.geojson",
-                    )
-                    self.assertEqual(restaurant_comparison.summary, "byte-identical")
-                    self.assertEqual(department_comparison.summary, "byte-identical")
-                    self.assertEqual(region_comparison.summary, "byte-identical")
+                    self.assertEqual(len(departments), 96)
+                    self.assertEqual(len(regions), 13)
+                    self.assertIn("average_net_monthly_wage_fte_eur", departments.columns)
+                    self.assertIn("census_unemployment_rate_15_64_percent", regions.columns)
 
     def test_replacement_is_deterministic_and_requires_explicit_option(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

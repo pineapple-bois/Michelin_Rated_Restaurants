@@ -8,8 +8,9 @@ import geopandas as gpd
 import pandas as pd
 
 from .schema import (
-    departmental_property_columns,
-    regional_property_columns,
+    FRANCE_INSEE_PRODUCT_COLUMNS,
+    france_departmental_property_columns,
+    france_regional_property_columns,
     restaurant_output_columns,
 )
 
@@ -46,20 +47,14 @@ def validate_reference_data(
     )
     require_columns(
         statistics,
-        (
-            "department_num", "department", "capital", "region",
-            "GDP_millions(€)", "GDP_per_capita(€)", "poverty_rate(%)",
-            "average_annual_unemployment_rate(%)", "average_net_hourly_wage(€)",
-            "municipal_population", "population_density(inhabitants/sq_km)",
-            "area(sq_km)",
-        ),
-        "departmental statistics",
+        FRANCE_INSEE_PRODUCT_COLUMNS,
+        "INSEE departmental product",
     )
     require_columns(geometry, ("code", "nom", "geometry"), "department geometry")
 
     for label, frame, key in (
         ("department reference", departments, "department_num"),
-        ("departmental statistics", statistics, "department_num"),
+        ("INSEE departmental product", statistics, "department_code"),
         ("department geometry", geometry, "code"),
     ):
         if frame[key].isna().any() or frame[key].duplicated().any():
@@ -67,15 +62,24 @@ def validate_reference_data(
 
     code_sets = {
         "department reference": set(departments["department_num"]),
-        "departmental statistics": set(statistics["department_num"]),
+        "INSEE departmental product": set(statistics["department_code"]),
         "department geometry": set(geometry["code"]),
     }
     if len({frozenset(codes) for codes in code_sets.values()}) != 1:
         raise Stage2ValidationError(f"Reference department code sets differ: {code_sets}")
 
     reference = departments.set_index("department_num")
-    accepted = statistics.set_index("department_num")
+    accepted = statistics.set_index("department_code")
+    name_mismatches = reference.index[
+        reference["department"].astype(str) != accepted.loc[reference.index, "department_name"].astype(str)
+    ].tolist()
+    if name_mismatches:
+        raise Stage2ValidationError(
+            f"Reference department values disagree for codes: {name_mismatches}"
+        )
     for column in ("department", "capital", "region"):
+        if column == "department":
+            continue
         mismatched = reference.index[
             reference[column].astype(str) != accepted.loc[reference.index, column].astype(str)
         ].tolist()
@@ -139,7 +143,7 @@ def validate_department_output(
     expected_codes: set[str],
     year: int,
 ) -> None:
-    expected_columns = (*departmental_property_columns(year), "geometry")
+    expected_columns = (*france_departmental_property_columns(year), "geometry")
     if tuple(departments.columns) != expected_columns:
         raise Stage2ValidationError(
             f"Department product schema mismatch: expected {expected_columns}, "
@@ -169,7 +173,7 @@ def validate_region_output(
     expected_regions: set[str],
     year: int,
 ) -> None:
-    expected_columns = (*regional_property_columns(year), "geometry")
+    expected_columns = (*france_regional_property_columns(year), "geometry")
     if tuple(regions.columns) != expected_columns:
         raise Stage2ValidationError(
             f"Region product schema mismatch: expected {expected_columns}, "

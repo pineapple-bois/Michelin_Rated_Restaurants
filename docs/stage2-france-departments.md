@@ -5,8 +5,9 @@ This stage replaces the production-relevant departmental work in
 France partition and creates the departmental and regional GeoJSON consumed by downstream
 application and visualisation work.
 
-Stage 2 currently supports 2025 onward. The 2025 and 2026 products are verified
-byte-for-byte against all three legacy outputs; 2026 is the primary current contract.
+Stage 2 currently supports 2025 onward. Restaurant CSV products continue to
+preserve the Stage 2 restaurant contract, while departmental and regional
+GeoJSON statistics now come from the versioned INSEE/OECD product contract.
 
 ## Inputs and outputs
 
@@ -15,7 +16,8 @@ Accepted inputs:
 ```text
 data/partitions/france/france_<year>.csv
 data/raw/demographics/departments.csv
-data/raw/demographics/departmental_stats_2023.csv
+data/products/insee/<insee-year>/france_departments_<insee-year>.csv
+data/products/insee/<insee-year>/manifest_<insee-year>.json
 data/raw/geodata/departments.geojson
 data/raw/geodata/regions.geojson
 ```
@@ -28,11 +30,16 @@ data/products/france/<year>/geodata/department_restaurants.geojson
 data/products/france/<year>/geodata/region_restaurants.geojson
 ```
 
-`departmental_stats_2023.csv` is the accepted legacy statistics snapshot for
-this migration. It is not reconstructed by Stage 2 and must not be described as
-a current-year INSEE extract. A future reference-data ETL will preserve upstream
-provenance/releases and replace this temporary input through a separately
-validated contract.
+The INSEE product is selected from `data/products/insee/`. By default, Stage 2
+inspects immediate child directories whose names are numeric years and selects
+the highest numeric year. The highest numeric year must contain both the CSV and
+matching manifest; malformed or incomplete highest-year products fail
+validation rather than silently falling back to an older year. Non-numeric
+directories are ignored.
+
+Use `--insee-year` to request an explicit product year. Explicit years fail
+immediately if the corresponding product is missing or invalid. Use
+`--insee-product-root` to point at a candidate product root.
 
 ## Commands
 
@@ -40,6 +47,14 @@ Build canonical products:
 
 ```bash
 PYTHONPATH=src python -m data_pipeline departments --year 2026
+```
+
+Build with an explicit INSEE product year:
+
+```bash
+PYTHONPATH=src python -m data_pipeline departments \
+  --year 2026 \
+  --insee-year 2023
 ```
 
 Build a disposable candidate:
@@ -71,10 +86,12 @@ Existing targets are never silently replaced.
 | Strip non-breaking spaces | `_strip_nbsp()` is applied to all Stage 1 partition values before parsing/joining. |
 | Repair Corsica after an unmatched `20` join | `_department_code()` maps `200xx`/`201xx` to `2A` and `202xx` to `2B` before the reference join. |
 | Create Michelin dummy columns and department totals | `aggregate_departments()` creates category counts, `total_stars`, `starred_restaurants`, and `green_stars`. |
-| Merge accepted demographics | `aggregate_departments()` performs a one-to-one left join from all accepted departmental statistics to restaurant counts. |
+| Select INSEE product | `resolve_insee_product()` selects the latest numeric INSEE product year, unless `--insee-year` is explicit. |
+| Validate INSEE product | `load_insee_product()` checks the CSV, manifest, schema, row count, hash, year, unique department codes, and required values. |
+| Merge accepted demographics | `aggregate_departments()` performs a one-to-one left join from all accepted departmental INSEE product rows to restaurant counts. |
 | Group coordinates by category | `aggregate_departments()` preserves restaurant order and builds the historical `locations` dictionary string. |
 | Join `departements.geojson` | `aggregate_departments()` performs a one-to-one geometry/statistics join and validates all features. |
-| Aggregate regional products | `aggregate_regions()` groups Michelin categories, computes population-weighted statistics, groups coordinates, translates legacy region names, and joins `regions.geojson`. |
+| Aggregate regional products | `aggregate_regions()` groups Michelin categories, sums GDP/population/area, recomputes GDP per capita and density, population-weights departmental poverty, unemployment, wage, and median-living-standard values, groups coordinates, translates legacy region names, and joins `regions.geojson`. |
 | Export CSV and GeoJSON | `_write_staged_products()` serializes and reload-validates all three products before `_publish_products()` changes final paths. |
 
 Notebook cells that plot, display, rank, print set differences, or create unused
@@ -129,17 +146,33 @@ url,award,stars,greenstar,longitude,latitude
 
 ```text
 code,department,capital,region,selected,bib_gourmand,1_star,2_star,3_star,
-total_stars,starred_restaurants,green_stars,GDP_millions(€),
-GDP_per_capita(€),poverty_rate(%),average_annual_unemployment_rate(%),
-average_net_hourly_wage(€),municipal_population,
-population_density(inhabitants/sq_km),area(sq_km),locations
+total_stars,starred_restaurants,green_stars,gdp_current_prices_million_eur,
+gdp_per_capita_eur,poverty_rate_percent,
+census_unemployment_rate_15_64_percent,average_net_monthly_wage_fte_eur,
+median_living_standard_eur,municipal_population,
+population_density_per_sq_km,area_sq_km,locations
 ```
 
 `region_restaurants.geojson` has the same aggregate/statistics properties,
 without `code`, `department`, or `capital`, and begins with `region`. Regional
-GDP and population/area are sums; GDP per capita and population density are
-recomputed from those sums; poverty, unemployment, and wage values are
-population-weighted departmental averages.
+GDP, municipal population, and area are sums. GDP per capita and population
+density are recomputed from those sums. Poverty, census unemployment, monthly
+net full-time-equivalent wage, and median living standard are
+population-weighted departmental values; the median field remains named for the
+source metric and should not be interpreted as a directly published regional
+median.
+
+Metric definitions follow the INSEE/OECD product names:
+
+- `gdp_current_prices_million_eur`: OECD TL3 GDP at current prices in million euros.
+- `gdp_per_capita_eur`: GDP per capita derived from GDP and municipal population.
+- `poverty_rate_percent`: INSEE Filosofi poverty rate.
+- `census_unemployment_rate_15_64_percent`: census-derived unemployment rate for ages 15-64.
+- `average_net_monthly_wage_fte_eur`: INSEE net monthly full-time-equivalent wage.
+- `median_living_standard_eur`: INSEE Filosofi median living standard.
+- `municipal_population`: INSEE municipal population.
+- `population_density_per_sq_km`: municipal population divided by geometry-derived area.
+- `area_sq_km`: department area derived from geometry in the INSEE product.
 
 Geometry is EPSG:4326. To match the legacy application product, `Brittany`,
 `Corsica`, and `Normandy` are translated to `Bretagne`, `Corse`, and
@@ -151,12 +184,17 @@ reference's legacy region text.
 Stage 2 fails before publication when:
 
 - an input or required column is missing;
-- department/statistics/geometry keys are null, duplicated, or different;
+- the selected INSEE product CSV or manifest is missing;
+- the highest numeric INSEE product year is malformed or incomplete;
+- the INSEE product directory year, manifest year, or CSV `reference_year` disagree;
+- the INSEE product manifest schema, row count, or output hash does not match the CSV;
+- INSEE product department codes are null, duplicated, incomplete, or not exactly 96 rows;
+- department/product/geometry keys are null, duplicated, or different;
 - department, capital, or region values disagree across accepted references;
 - address parsing is ambiguous or an assignment is unmatched;
 - restaurant count/order/schema changes or required fields become null;
 - category totals or coordinate groups cannot be represented;
-- a department/statistics/geometry or regional geometry row is lost or duplicated;
+- a department/product/geometry or regional geometry row is lost or duplicated;
 - geometry is missing, empty, invalid, or not EPSG:4326.
 
 All three files are written to a private staging tree, reloaded, and compared with
@@ -167,9 +205,12 @@ target already exists.
 
 ## Fidelity and intentional differences
 
-Automated integration tests rebuild 2025 and 2026 and compare all three outputs
-with the corresponding files under `Years/<year>/data/France/`. All six
-products are currently byte-identical.
+Automated integration tests rebuild 2025 and 2026, preserve the restaurant CSV
+contract where legacy baselines are available, and assert the departmental and
+regional GeoJSON products use the INSEE/OECD metric schema. Departmental and
+regional GeoJSON files are no longer byte-identical to the legacy products
+because their statistics columns now use the versioned INSEE/OECD product
+definitions.
 
 The implementation is intentionally stricter than the notebook:
 
@@ -177,22 +218,24 @@ The implementation is intentionally stricter than the notebook:
 - Corsica is resolved before joining instead of creating temporary unmatched
   rows;
 - the two Lacave corrections use stable record evidence rather than row index;
-- all 96 department codes must agree across both references and geometry;
+- all 96 department codes must agree across the department reference, INSEE
+  product, and geometry;
 - serialized products are reloaded and validated before publication.
 
 The 2023-2024 departmental products are not currently supported. Their legacy
 GeoJSON files used earlier demographic values, and the 2024 restaurant data
 also contains historical missing coordinates. They require a distinct accepted
-reference snapshot/validation contract rather than silently using
-`departmental_stats_2023.csv` from this migration.
+reference snapshot/validation contract rather than silently using the current
+INSEE product.
 
 ## Relationship to other stages
 
 Stage 1 owns Michelin cleaning and country partitioning. Stage 2 consumes its
-accepted France output without duplicating those transformations. A future
-demographics ETL will own retrieval, provenance, release-year selection, and
-normalization of department reference data; once accepted into `data/raw/`, it
-can invoke this stage through the same explicit file boundary.
+accepted France output without duplicating those transformations. The
+independent `insee_pipeline` owns retrieval, provenance, release-year
+selection, and normalization of departmental INSEE/OECD product data. Stage 2
+consumes only the validated product CSV and manifest under
+`data/products/insee/<year>/`.
 
 ## Monaco branch
 

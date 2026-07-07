@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import hashlib
+import json
 import os
 from pathlib import Path
 import re
@@ -15,11 +17,12 @@ import pandas as pd
 from pandas.testing import assert_frame_equal
 
 from .schema import (
+    FRANCE_INSEE_METRIC_COLUMNS,
+    FRANCE_INSEE_PRODUCT_COLUMNS,
     LACAVE_ADDRESS_OVERRIDES,
     REGION_TRANSLATIONS,
-    STATS_COLUMNS,
-    departmental_property_columns,
-    regional_property_columns,
+    france_departmental_property_columns,
+    france_regional_property_columns,
     restaurant_input_columns,
     restaurant_output_columns,
     star_categories,
@@ -37,10 +40,18 @@ from .validation import (
 
 
 POSTAL_CODE_PATTERN = re.compile(r"\b\d{5}\b")
+EXPECTED_DEPARTMENT_COUNT = 96
 
 
 class Stage2PublicationError(RuntimeError):
     """Raised when validated Stage 2 products cannot be published safely."""
+
+
+@dataclass(frozen=True)
+class InseeProductSelection:
+    year: int
+    csv_path: Path
+    manifest_path: Path
 
 
 @dataclass(frozen=True)
@@ -60,6 +71,112 @@ def product_paths(year: int, output_root: Path) -> dict[str, Path]:
         "departments": year_root / "geodata" / "department_restaurants.geojson",
         "regions": year_root / "geodata" / "region_restaurants.geojson",
     }
+
+
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as file:
+        for chunk in iter(lambda: file.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _insee_product_paths(root: Path, year: int) -> InseeProductSelection:
+    year_root = root / str(year)
+    return InseeProductSelection(
+        year=year,
+        csv_path=year_root / f"france_departments_{year}.csv",
+        manifest_path=year_root / f"manifest_{year}.json",
+    )
+
+
+def resolve_insee_product(
+    *,
+    product_root: Path = Path("data/products/insee"),
+    insee_year: int | None = None,
+) -> InseeProductSelection:
+    """Resolve the requested or latest INSEE departmental product."""
+
+    if insee_year is not None:
+        selection = _insee_product_paths(product_root, insee_year)
+        _require_insee_product_files(selection)
+        return selection
+    if not product_root.is_dir():
+        raise FileNotFoundError(f"INSEE product root does not exist: {product_root}")
+    years = sorted(
+        int(child.name)
+        for child in product_root.iterdir()
+        if child.is_dir() and child.name.isdigit()
+    )
+    if not years:
+        raise FileNotFoundError(f"No numeric INSEE product years found under {product_root}")
+    selection = _insee_product_paths(product_root, years[-1])
+    _require_insee_product_files(selection)
+    return selection
+
+
+def _require_insee_product_files(selection: InseeProductSelection) -> None:
+    missing = [
+        str(path)
+        for path in (selection.csv_path, selection.manifest_path)
+        if not path.is_file()
+    ]
+    if missing:
+        raise FileNotFoundError(
+            f"INSEE product year {selection.year} is incomplete: " + ", ".join(missing)
+        )
+
+
+def load_insee_product(selection: InseeProductSelection) -> pd.DataFrame:
+    """Load and validate a departmental INSEE product and its manifest."""
+
+    _require_insee_product_files(selection)
+    try:
+        manifest = json.loads(selection.manifest_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as error:
+        raise Stage2ValidationError(
+            f"INSEE product manifest is not valid JSON: {selection.manifest_path}"
+        ) from error
+
+    if int(manifest.get("reference_year", -1)) != selection.year:
+        raise Stage2ValidationError(
+            f"INSEE product manifest reference_year does not match directory year {selection.year}"
+        )
+
+    product = pd.read_csv(selection.csv_path, dtype={"department_code": "string"})
+    if tuple(product.columns) != tuple(manifest.get("schema", ())):
+        raise Stage2ValidationError("INSEE product manifest schema does not match CSV columns")
+    if int(manifest.get("rows", -1)) != len(product):
+        raise Stage2ValidationError(
+            f"INSEE product manifest row count {manifest.get('rows')} does not match CSV rows {len(product)}"
+        )
+    expected_hash = manifest.get("output_hash")
+    if expected_hash and expected_hash != _sha256_file(selection.csv_path):
+        raise Stage2ValidationError("INSEE product CSV hash does not match manifest output_hash")
+
+    require_columns(product, FRANCE_INSEE_PRODUCT_COLUMNS, "INSEE departmental product")
+    year_values = set(product["reference_year"].dropna().astype(int))
+    if year_values != {selection.year}:
+        raise Stage2ValidationError(
+            f"INSEE product CSV reference_year values do not match {selection.year}: {sorted(year_values)}"
+        )
+    if (
+        len(product) != EXPECTED_DEPARTMENT_COUNT
+        or product["department_code"].nunique() != EXPECTED_DEPARTMENT_COUNT
+        or product["department_code"].isna().any()
+        or product["department_code"].duplicated().any()
+    ):
+        raise Stage2ValidationError("INSEE product must contain exactly 96 unique department_code values")
+    required = (*FRANCE_INSEE_PRODUCT_COLUMNS,)
+    if product.loc[:, required].isna().any().any():
+        nulls = product.loc[:, required].isna().sum()
+        raise Stage2ValidationError(
+            f"INSEE product contains required nulls: {nulls[nulls > 0].to_dict()}"
+        )
+    for column in FRANCE_INSEE_METRIC_COLUMNS:
+        product[column] = pd.to_numeric(product[column], errors="raise")
+    product["reference_year"] = pd.to_numeric(product["reference_year"], errors="raise").astype(int)
+    return product.loc[:, FRANCE_INSEE_PRODUCT_COLUMNS]
 
 
 def _strip_nbsp(value: object) -> object:
@@ -179,14 +296,16 @@ def aggregate_departments(
     )
 
     accepted = statistics.copy()
-    accepted["department_num"] = accepted["department_num"].astype("string")
+    accepted["department_code"] = accepted["department_code"].astype("string")
     departmental = accepted.merge(
         grouped,
-        on="department_num",
+        left_on="department_code",
+        right_on="department_num",
         how="left",
         validate="one_to_one",
         sort=False,
     )
+    departmental["department"] = departmental["department_name"]
     departmental[count_columns] = departmental[count_columns].fillna(0).astype(int)
     departmental["total_stars"] = (
         departmental["1_star"]
@@ -210,15 +329,15 @@ def aggregate_departments(
         }
         return str(payload)
 
-    departmental["locations"] = departmental["department_num"].map(location_payload)
+    departmental["locations"] = departmental["department_code"].map(location_payload)
 
     category_columns = [category[2] for category in star_categories(year)]
-    ordered = ["department_num", "department", "capital", "region"]
+    ordered = ["department_code", "department", "capital", "region"]
     ordered.extend(category_columns)
     ordered.extend(("total_stars", "starred_restaurants"))
     if year >= 2025:
         ordered.append("green_stars")
-    ordered.extend(STATS_COLUMNS)
+    ordered.extend(FRANCE_INSEE_METRIC_COLUMNS)
     ordered.append("locations")
     departmental = departmental.loc[:, ordered]
 
@@ -227,14 +346,14 @@ def aggregate_departments(
     product = base.merge(
         departmental,
         left_on="code",
-        right_on="department_num",
+        right_on="department_code",
         how="left",
         validate="one_to_one",
         sort=False,
     )
-    product.drop(columns=["nom", "department_num"], inplace=True)
+    product.drop(columns=["nom", "department_code"], inplace=True)
     product["region"] = product["region"].replace(REGION_TRANSLATIONS)
-    property_order = list(departmental_property_columns(year))
+    property_order = list(france_departmental_property_columns(year))
     product = gpd.GeoDataFrame(
         product.loc[:, [*property_order, "geometry"]],
         geometry="geometry",
@@ -269,24 +388,25 @@ def aggregate_regions(
     stats = statistics.copy()
     population = "municipal_population"
     weighted = (
-        "poverty_rate(%)",
-        "average_annual_unemployment_rate(%)",
-        "average_net_hourly_wage(€)",
+        "poverty_rate_percent",
+        "census_unemployment_rate_15_64_percent",
+        "average_net_monthly_wage_fte_eur",
+        "median_living_standard_eur",
     )
     for column in weighted:
         stats[f"_{column}"] = stats[column] * stats[population]
     aggregations = {
-        "GDP_millions(€)": "sum",
+        "gdp_current_prices_million_eur": "sum",
         population: "sum",
-        "area(sq_km)": "sum",
+        "area_sq_km": "sum",
         **{f"_{column}": "sum" for column in weighted},
     }
     regional_stats = stats.groupby("region", sort=True).agg(aggregations).reset_index()
-    regional_stats["GDP_per_capita(€)"] = (
-        regional_stats["GDP_millions(€)"] * 1_000_000 / regional_stats[population]
+    regional_stats["gdp_per_capita_eur"] = (
+        regional_stats["gdp_current_prices_million_eur"] * 1_000_000 / regional_stats[population]
     )
-    regional_stats["population_density(inhabitants/sq_km)"] = (
-        regional_stats[population] / regional_stats["area(sq_km)"]
+    regional_stats["population_density_per_sq_km"] = (
+        regional_stats[population] / regional_stats["area_sq_km"]
     ).round(2)
     for column in weighted:
         regional_stats[column] = regional_stats.pop(f"_{column}") / regional_stats[population]
@@ -316,7 +436,7 @@ def aggregate_regions(
     )
     product.drop(columns=["code", "nom"], inplace=True)
     product = gpd.GeoDataFrame(
-        product.loc[:, [*regional_property_columns(year), "geometry"]],
+        product.loc[:, [*france_regional_property_columns(year), "geometry"]],
         geometry="geometry",
         crs=geometry.crs,
     )
@@ -329,14 +449,15 @@ def _load_inputs(
     year: int,
     partition_root: Path,
     departments_path: Path,
-    statistics_path: Path,
+    insee_product_root: Path,
+    insee_year: int | None,
     geometry_path: Path,
     region_geometry_path: Path,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, gpd.GeoDataFrame, gpd.GeoDataFrame]:
+    insee_product = resolve_insee_product(product_root=insee_product_root, insee_year=insee_year)
     paths = {
         "France partition": partition_root / "france" / f"france_{year}.csv",
         "department reference": departments_path,
-        "departmental statistics": statistics_path,
         "department geometry": geometry_path,
         "region geometry": region_geometry_path,
     }
@@ -346,7 +467,7 @@ def _load_inputs(
 
     partition = pd.read_csv(paths["France partition"])
     departments = pd.read_csv(departments_path, dtype={"department_num": "string"})
-    statistics = pd.read_csv(statistics_path, dtype={"department_num": "string"})
+    statistics = load_insee_product(insee_product)
     geometry = gpd.read_file(geometry_path)
     region_geometry = gpd.read_file(region_geometry_path)
     geometry["code"] = geometry["code"].astype("string")
@@ -360,7 +481,8 @@ def validate_stage2(
     year: int,
     partition_root: Path = Path("data/partitions"),
     departments_path: Path = Path("data/raw/demographics/departments.csv"),
-    statistics_path: Path = Path("data/raw/demographics/departmental_stats_2023.csv"),
+    insee_product_root: Path = Path("data/products/insee"),
+    insee_year: int | None = None,
     geometry_path: Path = Path("data/raw/geodata/departments.geojson"),
     region_geometry_path: Path = Path("data/raw/geodata/regions.geojson"),
 ) -> Stage2Result:
@@ -373,7 +495,8 @@ def validate_stage2(
         year=year,
         partition_root=partition_root,
         departments_path=departments_path,
-        statistics_path=statistics_path,
+        insee_product_root=insee_product_root,
+        insee_year=insee_year,
         geometry_path=geometry_path,
         region_geometry_path=region_geometry_path,
     )
@@ -503,7 +626,8 @@ def run_stage2(
     year: int,
     partition_root: Path = Path("data/partitions"),
     departments_path: Path = Path("data/raw/demographics/departments.csv"),
-    statistics_path: Path = Path("data/raw/demographics/departmental_stats_2023.csv"),
+    insee_product_root: Path = Path("data/products/insee"),
+    insee_year: int | None = None,
     geometry_path: Path = Path("data/raw/geodata/departments.geojson"),
     region_geometry_path: Path = Path("data/raw/geodata/regions.geojson"),
     output_root: Path = Path("data/products"),
@@ -513,7 +637,8 @@ def run_stage2(
         year=year,
         partition_root=partition_root,
         departments_path=departments_path,
-        statistics_path=statistics_path,
+        insee_product_root=insee_product_root,
+        insee_year=insee_year,
         geometry_path=geometry_path,
         region_geometry_path=region_geometry_path,
     )
