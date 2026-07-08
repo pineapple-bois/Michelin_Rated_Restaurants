@@ -220,7 +220,8 @@ The maintained Python packages use the `src/` layout and are packaged through
 
 The reproducible wine geospatial candidate pipeline lives in
 `src/wine_pipeline/`. It currently implements the source-to-enriched-candidate
-stage and a single-region simplification runner.
+stage, a single-region simplification runner, and tmp-only all-region
+simplification batch orchestration.
 
 ```text
 INAO AOC parcel download
@@ -280,6 +281,47 @@ Editable installation also provides:
 wine_pipeline simplify-region --region "Jura" --input tmp/wine/<run-id>/candidates/aoc_regions.gpkg
 ```
 
+To process every non-empty region found in one Stage 1 candidate, run:
+
+```bash
+python -m wine_pipeline simplify \
+  --input tmp/wine/<run-id>/candidates/aoc_regions.gpkg
+```
+
+Editable installation also provides:
+
+```bash
+wine_pipeline simplify --input tmp/wine/<run-id>/candidates/aoc_regions.gpkg
+```
+
+`simplify` calls the same packaged transform as `simplify-region`, using one
+consistent parameter object for every region and processing region names in
+deterministic sorted order. It writes inspectable regional outputs and batch
+reports only under:
+
+```text
+tmp/wine/simplification/<run-id>/
+├── run.json
+├── batch_summary.json
+├── validation.json
+├── region_review.csv
+└── regions/
+    └── <region-slug>/
+        ├── candidate.geojson
+        ├── metrics.json
+        ├── params.json
+        ├── preview.png
+        ├── comparison.png
+        └── overlap_comparison.png
+```
+
+Normal batch mode refuses to reuse an existing run directory. `--resume`
+validates existing regional artifact sets and skips only complete, coherent
+regions; incomplete, stale, or mismatched regions are regenerated
+transactionally. `--overwrite` replaces the complete batch run
+transactionally, so a failed overwrite leaves the previous completed batch in
+place. `--resume` and `--overwrite` are mutually exclusive.
+
 The default simplification parameter set is the reviewed
 `close500_simplify150` regime:
 
@@ -321,9 +363,14 @@ geometry
 The Stage 1-only fields `id_app`, `dt`, `region_method`, and `overlap_ratio`
 are not present in the simplified output.
 
-All-region orchestration, human approval, merged candidate creation,
-promotion into `data/candidates/wine/`, product verification, and publication
-under `data/products/wine/` remain later gated stages.
+`region_review.csv` contains refreshed machine-owned columns and blank or
+pending human-owned columns. Later tooling may refresh the machine metrics, but
+human-owned review fields such as reviewer, reviewed timestamp, assessments,
+and notes must not be overwritten.
+
+Human approval enforcement, merged candidate creation, promotion into
+`data/candidates/wine/`, product verification, and publication under
+`data/products/wine/` remain later gated stages.
 
 ## Documentation Index
 

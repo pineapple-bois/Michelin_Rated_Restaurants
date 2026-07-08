@@ -18,6 +18,7 @@ from .aoc_enrichment.mappings import FALLBACK_REGIONS_BY_DT, REGION_OVERRIDE_MET
 from .aoc_enrichment.transform import write_enriched_candidate
 from .aoc_package.extract import extract_inao_source, source_urls
 from .aoc_package.transform import write_packaged_candidate
+from .aoc_simplification.batch import run_batch
 from .aoc_simplification.runner import run_single_region
 from .aoc_simplification.transform import CANONICAL_RUN_ID, SimplificationParameters
 from .config import DURABLE_REPORT_ROOT, OUTPUT_LAYER, RUN_ROOT
@@ -220,7 +221,19 @@ def _parser() -> argparse.ArgumentParser:
     simplify_parser.add_argument("--simplify", type=float, default=150.0, help="topology-preserving simplification tolerance in metres")
     simplify_parser.add_argument("--overlap-strategy", choices=("none", "smallest-wins"), default="smallest-wins")
     simplify_parser.add_argument("--overwrite", action="store_true", help="replace an existing regional run directory")
+    simplify_parser.add_argument("--keep-failed-temp", action="store_true", help="retain the temporary regional run directory when processing fails")
     simplify_parser.add_argument("--quiet", action="store_true", help="suppress stage progress messages")
+    batch_parser = subparsers.add_parser("simplify", help="run Stage 2 simplification for every region in one Stage 1 candidate")
+    batch_parser.add_argument("--input", type=Path, help="Stage 1 aoc_regions.gpkg; defaults to latest tmp/wine run")
+    batch_parser.add_argument("--run-id", default=CANONICAL_RUN_ID, help="batch simplification run id")
+    batch_parser.add_argument("--output-root", type=Path, help="default: tmp/wine/simplification")
+    batch_parser.add_argument("--buffer", type=float, default=500.0, help="morphological closing distance in metres")
+    batch_parser.add_argument("--simplify", type=float, default=150.0, help="topology-preserving simplification tolerance in metres")
+    batch_parser.add_argument("--overlap-strategy", choices=("none", "smallest-wins"), default="smallest-wins")
+    mode = batch_parser.add_mutually_exclusive_group()
+    mode.add_argument("--resume", action="store_true", help="reuse complete matching regional artifacts and rebuild stale regions")
+    mode.add_argument("--overwrite", action="store_true", help="replace the complete batch run transactionally")
+    batch_parser.add_argument("--quiet", action="store_true", help="suppress stage progress messages")
     return parser
 
 
@@ -250,6 +263,7 @@ def main(argv: list[str] | None = None) -> int:
                 output_root=args.output_root,
                 parameters=parameters,
                 overwrite=args.overwrite,
+                keep_failed_temp=args.keep_failed_temp,
                 progress=_console_progress(not args.quiet),
                 command=["wine_pipeline", *sys.argv[1:]],
             )
@@ -263,6 +277,29 @@ def main(argv: list[str] | None = None) -> int:
             print(f"  overlap comparison: {result.overlap_comparison_path}")
             print(f"  rows: {result.rows}")
             return 0
+        if args.command == "simplify":
+            parameters = SimplificationParameters(
+                buffer_m=float(args.buffer),
+                simplify_m=float(args.simplify),
+                overlap_strategy=args.overlap_strategy,
+            )
+            result = run_batch(
+                input_path=args.input,
+                run_id=args.run_id,
+                output_root=args.output_root,
+                parameters=parameters,
+                resume=args.resume,
+                overwrite=args.overwrite,
+                progress=_console_progress(not args.quiet),
+                command=["wine_pipeline", *sys.argv[1:]],
+            )
+            print(f"Built wine simplification batch {result.run_id}")
+            print(f"  run dir: {result.run_dir}")
+            print(f"  completed regions: {len(result.completed_regions)}")
+            print(f"  skipped regions: {len(result.skipped_regions)}")
+            print(f"  failed regions: {len(result.failed_regions)}")
+            print(f"  validation passed: {result.passed}")
+            return 0 if result.passed else 2
         raise AssertionError(args.command)
     except (WinePipelineError, FileExistsError, FileNotFoundError, requests.RequestException, ValueError) as error:
         print(f"Wine pipeline failed: {error}", file=sys.stderr)

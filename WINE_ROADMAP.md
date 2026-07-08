@@ -53,7 +53,7 @@ data/wine/provenance/wine_pipeline_<source-date>_<hash>.validation.json
 Stage 1 does not simplify final app geometry and does not write to
 `data/products/`.
 
-### Stage 2: single-region simplification
+### Stage 2: simplification runners
 
 Current development home:
 
@@ -73,7 +73,7 @@ The package runner now reads the Stage 1 enriched candidate:
 tmp/wine/<run-id>/candidates/aoc_regions.gpkg
 ```
 
-Current package command:
+Current single-region package command:
 
 ```bash
 wine_pipeline simplify-region \
@@ -120,8 +120,88 @@ region_method
 overlap_ratio
 ```
 
-All-region orchestration and merged candidate promotion are still future
-stages.
+Current all-region batch command:
+
+```bash
+wine_pipeline simplify \
+  --input tmp/wine/<run-id>/candidates/aoc_regions.gpkg
+```
+
+The batch command discovers non-empty region names from the Stage 1 candidate,
+sorts them deterministically, and calls the same packaged Python
+simplification runner used by `simplify-region`. It uses one consistent
+parameter object across all regions.
+
+Batch outputs are tmp-only inspection artifacts:
+
+```text
+tmp/wine/simplification/<run-id>/
+├── run.json
+├── batch_summary.json
+├── validation.json
+├── region_review.csv
+└── regions/
+    └── <region-slug>/
+        ├── candidate.geojson
+        ├── metrics.json
+        ├── params.json
+        ├── preview.png
+        ├── comparison.png
+        └── overlap_comparison.png
+```
+
+`run.json` records the Stage 1 source path and hash, effective parameters,
+canonical status, dependency versions, package version, Git state, timestamps,
+and command invocation. `batch_summary.json` records completed, skipped, and
+failed regions, row totals, fully covered appellations, near-total reductions,
+and whether the batch passed. `validation.json` checks region coverage,
+artifact completeness, schema, CRS, geometry validity, source-hash consistency,
+parameter consistency, and residual-overlap status.
+
+`region_review.csv` is the current review handoff table. Machine-owned columns
+may be refreshed by later tooling:
+
+```text
+region
+region_slug
+status
+input_row_count
+final_row_count
+source_area_m2
+final_area_m2
+final_to_source_area_ratio
+fully_covered_app_count
+fully_covered_apps
+near_total_reduction_count
+invalid_geometry_count
+empty_geometry_count
+candidate_file_size_mb
+parameter_set
+source_sha256
+error
+```
+
+Human-owned columns must not be overwritten by automated refreshes:
+
+```text
+review_status
+reviewer
+reviewed_at
+geometry_assessment
+overlap_assessment
+fully_covered_assessment
+notes
+```
+
+Normal batch mode refuses an existing run directory. `--resume` verifies
+existing regional artifacts and skips only complete, coherent regions;
+incomplete, stale, or mismatched regions are regenerated transactionally.
+`--overwrite` replaces the complete batch run transactionally and leaves the
+previous completed batch untouched if replacement fails. `--resume` and
+`--overwrite` are mutually exclusive.
+
+Human approval enforcement, merged candidate assembly, and promotion into
+durable candidate/product locations are still future stages.
 
 ## Existing Simplification Logic
 
@@ -175,8 +255,9 @@ Parameter meanings:
 
 The current development process is:
 
-1. Run one region with `wine_pipeline simplify-region`, or in the development
-   area with `run_experiment.py`.
+1. Run one region with `wine_pipeline simplify-region`, an all-region tmp batch
+   with `wine_pipeline simplify`, or in the development area with
+   `run_experiment.py`.
 2. Refresh the policy table from saved metrics:
 
    ```bash
@@ -221,7 +302,7 @@ contract.
 
 ## Future Durable Candidate Layer
 
-After all regional runs pass review, Stage 2 should promote a merged
+After all regional runs pass review, a later gated stage should promote a merged
 simplification candidate to:
 
 ```text

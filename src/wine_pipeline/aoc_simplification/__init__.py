@@ -11,6 +11,7 @@ from .transform import (
     simplify_region,
     slugify_region,
 )
+from .batch import run_batch
 
 __all__ = [
     "CANONICAL_BUFFER_M",
@@ -22,4 +23,5 @@ __all__ = [
     "SimplificationParameters",
     "simplify_region",
     "slugify_region",
+    "run_batch",
 ]
