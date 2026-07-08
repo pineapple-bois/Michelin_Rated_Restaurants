@@ -10,17 +10,30 @@ import unittest
 from unittest import mock
 
 import geopandas as gpd
-from shapely.geometry import GeometryCollection, LineString, Polygon
+from shapely.geometry import GeometryCollection, LineString, MultiPolygon, Polygon
 
 from wine_pipeline.aoc_simplification.runner import _validate_candidate_round_trip, run_single_region
-from wine_pipeline.aoc_simplification.serialization import cleanup_final_geometries
+from wine_pipeline.aoc_simplification.serialization import (
+    POST_REPROJECTION_ABSOLUTE_TOLERANCE_M2,
+    POST_REPROJECTION_NEGLIGIBLE_ABSOLUTE_M2,
+    POST_REPROJECTION_NEGLIGIBLE_RELATIVE,
+    POST_REPROJECTION_RELATIVE_TOLERANCE,
+    SERIALIZATION_CLEANUP_ABSOLUTE_TOLERANCE_M2,
+    SERIALIZATION_CLEANUP_RELATIVE_TOLERANCE,
+    SerializationCleanupError,
+    cleanup_final_geometries,
+    repair_post_reprojection_geometry,
+)
 from wine_pipeline.aoc_simplification.transform import (
     CANONICAL_BUFFER_M,
     CANONICAL_OVERLAP_STRATEGY,
     CANONICAL_RUN_ID,
     CANONICAL_SIMPLIFY_M,
     OUTPUT_COLUMNS,
+    OverlapMetrics,
     SimplificationParameters,
+    classify_residual_overlap,
+    overlap_tolerance_m2,
     select_region,
     simplify_region,
     validate_stage1_schema,
@@ -136,22 +149,47 @@ class WineSimplificationTests(unittest.TestCase):
         self.assertTrue(cleaned.geometry.iloc[0].is_valid)
         self.assertEqual(diagnostics[0]["removed_component_count"], 1)
         self.assertEqual(diagnostics[0]["cleanup_action"], "removed_negligible_invalid_or_degenerate_components")
+        self.assertEqual(
+            diagnostics[0]["absolute_tolerance_m2"],
+            SERIALIZATION_CLEANUP_ABSOLUTE_TOLERANCE_M2,
+        )
+        self.assertEqual(
+            diagnostics[0]["relative_tolerance"],
+            SERIALIZATION_CLEANUP_RELATIVE_TOLERANCE,
+        )
 
     def test_serialization_cleanup_fails_when_entire_geometry_becomes_empty(self) -> None:
         geometry = GeometryCollection([LineString([(0, 0), (1, 1)])])
-        with self.assertRaisesRegex(ValueError, "would leave app='Cleanup' empty"):
+        with self.assertRaises(SerializationCleanupError) as raised:
             cleanup_final_geometries(self.serialization_frame(geometry))
+        diagnostic = raised.exception.diagnostic
+        self.assertEqual(diagnostic["region"], "Fixture")
+        self.assertEqual(diagnostic["app"], "Cleanup")
+        self.assertEqual(diagnostic["original_geometry_type"], "GeometryCollection")
+        self.assertEqual(diagnostic["repaired_geometry_type"], "GeometryCollection")
+        self.assertEqual(diagnostic["original_polygon_component_count"], 0)
+        self.assertEqual(diagnostic["retained_component_count"], 0)
+        self.assertEqual(diagnostic["rejected_component_count"], 1)
+        self.assertTrue(diagnostic["whole_appellation_empty"])
+        self.assertIn("validity_reason", diagnostic)
+        self.assertEqual(diagnostic["absolute_tolerance_m2"], 1.0)
+        self.assertEqual(diagnostic["relative_tolerance"], 1e-9)
 
     def test_serialization_cleanup_fails_when_removal_exceeds_tolerance(self) -> None:
         geometry = GeometryCollection([
             square(700000, 6600000, 1000),
             LineString([(701500, 6600000), (701500, 6600000)]),
         ])
-        with self.assertRaisesRegex(ValueError, "exceeding tolerances"):
+        with self.assertRaises(SerializationCleanupError) as raised:
             cleanup_final_geometries(
                 self.serialization_frame(geometry),
                 absolute_tolerance_m2=-1.0,
             )
+        diagnostic = raised.exception.diagnostic
+        self.assertEqual(diagnostic["retained_component_count"], 1)
+        self.assertEqual(diagnostic["rejected_component_count"], 1)
+        self.assertFalse(diagnostic["whole_appellation_empty"])
+        self.assertEqual(diagnostic["absolute_tolerance_m2"], -1.0)
 
     def test_serialization_cleanup_leaves_valid_geometry_unmodified(self) -> None:
         geometry = square(700000, 6600000, 1000)
@@ -174,6 +212,297 @@ class WineSimplificationTests(unittest.TestCase):
         _validate_candidate_round_trip(reloaded, context="Fixture candidate")
         self.assertTrue(reloaded.geometry.is_valid.all())
         self.assertFalse(reloaded.geometry.is_empty.any())
+
+    def test_post_reprojection_self_intersection_is_repaired_with_negligible_area_change(self) -> None:
+        frame = self.serialization_frame(square(700000, 6600000, 1000))
+        original_to_crs = gpd.GeoDataFrame.to_crs
+        tiny_bowtie = Polygon([
+            (4.6000000, 47.9000000),
+            (4.6000001, 47.9000001),
+            (4.6000000, 47.9000001),
+            (4.6000001, 47.9000000),
+            (4.6000000, 47.9000000),
+        ])
+
+        def invalidating_to_crs(subject, *args, **kwargs):
+            result = original_to_crs(subject, *args, **kwargs)
+            target = args[0] if args else kwargs.get("crs")
+            if str(target) == "EPSG:4326":
+                result.at[result.index[0], "geometry"] = tiny_bowtie
+            return result
+
+        with mock.patch.object(gpd.GeoDataFrame, "to_crs", autospec=True, side_effect=invalidating_to_crs):
+            cleaned, diagnostics = cleanup_final_geometries(
+                self.serialization_frame(
+                    square(700000, 6600000, 1000),
+                    source_area_m2=1_000_000_000.0,
+                )
+            )
+        diagnostic = diagnostics[0]
+        self.assertTrue(cleaned.geometry.iloc[0].is_valid)
+        self.assertEqual(
+            diagnostic["post_reprojection_cleanup_action"],
+            "post_reprojection_topology_repair",
+        )
+        self.assertIn(
+            "Self-intersection",
+            diagnostic["post_reprojection_validity_reason_before_repair"],
+        )
+        self.assertLessEqual(
+            diagnostic["post_reprojection_absolute_area_change_m2"],
+            1.0,
+        )
+        self.assertLessEqual(
+            diagnostic["post_reprojection_relative_area_change"],
+            POST_REPROJECTION_RELATIVE_TOLERANCE,
+        )
+
+    def test_post_reprojection_2_98_m2_and_5_42e_9_repair_is_accepted(self) -> None:
+        bowtie = Polygon([
+            (4.600, 47.900),
+            (4.601, 47.901),
+            (4.600, 47.901),
+            (4.601, 47.900),
+            (4.600, 47.900),
+        ])
+        source_area = 2.98 / 5.42e-9
+        with mock.patch(
+            "wine_pipeline.aoc_simplification.serialization._geometry_area_m2",
+            side_effect=[1000.0, 1002.98],
+        ):
+            repaired, diagnostic = repair_post_reprojection_geometry(
+                bowtie,
+                region="Fixture",
+                app="Accepted",
+                source_area_m2=source_area,
+            )
+        self.assertTrue(repaired.is_valid)
+        self.assertAlmostEqual(
+            diagnostic["post_reprojection_absolute_area_change_m2"],
+            2.98,
+        )
+        self.assertAlmostEqual(
+            diagnostic["post_reprojection_relative_area_change"],
+            5.42e-9,
+        )
+        self.assertEqual(
+            diagnostic["post_reprojection_review_classification"],
+            "negligible",
+        )
+        self.assertEqual(
+            diagnostic["post_reprojection_absolute_tolerance_m2"],
+            POST_REPROJECTION_ABSOLUTE_TOLERANCE_M2,
+        )
+        self.assertEqual(
+            diagnostic["post_reprojection_relative_tolerance"],
+            POST_REPROJECTION_RELATIVE_TOLERANCE,
+        )
+        self.assertEqual(
+            diagnostic["post_reprojection_negligible_absolute_threshold_m2"],
+            POST_REPROJECTION_NEGLIGIBLE_ABSOLUTE_M2,
+        )
+        self.assertEqual(
+            diagnostic["post_reprojection_negligible_relative_threshold"],
+            POST_REPROJECTION_NEGLIGIBLE_RELATIVE,
+        )
+
+    def test_post_reprojection_32_m2_repair_is_accepted_for_review(self) -> None:
+        bowtie = Polygon([
+            (4.600, 47.900),
+            (4.601, 47.901),
+            (4.600, 47.901),
+            (4.601, 47.900),
+            (4.600, 47.900),
+        ])
+        with mock.patch(
+            "wine_pipeline.aoc_simplification.serialization._geometry_area_m2",
+            side_effect=[1000.0, 1032.0],
+        ):
+            repaired, diagnostic = repair_post_reprojection_geometry(
+                bowtie,
+                region="Fixture",
+                app="Review",
+                source_area_m2=1_000_000_000.0,
+            )
+        self.assertTrue(repaired.is_valid)
+        self.assertEqual(
+            diagnostic["post_reprojection_absolute_area_change_m2"],
+            32.0,
+        )
+        self.assertEqual(
+            diagnostic["post_reprojection_review_classification"],
+            "review",
+        )
+
+    def test_post_reprojection_exceeding_only_one_hard_threshold_is_accepted(self) -> None:
+        bowtie = Polygon([
+            (4.600, 47.900),
+            (4.601, 47.901),
+            (4.600, 47.901),
+            (4.601, 47.900),
+            (4.600, 47.900),
+        ])
+        with mock.patch(
+            "wine_pipeline.aoc_simplification.serialization._geometry_area_m2",
+            side_effect=[1000.0, 1101.0],
+        ):
+            repaired, diagnostic = repair_post_reprojection_geometry(
+                bowtie,
+                region="Fixture",
+                app="Absolute Only",
+                source_area_m2=1_000_000_000.0,
+            )
+        self.assertTrue(repaired.is_valid)
+        self.assertGreater(
+            diagnostic["post_reprojection_absolute_area_change_m2"],
+            POST_REPROJECTION_ABSOLUTE_TOLERANCE_M2,
+        )
+        self.assertLess(
+            diagnostic["post_reprojection_relative_area_change"],
+            POST_REPROJECTION_RELATIVE_TOLERANCE,
+        )
+        self.assertEqual(
+            diagnostic["post_reprojection_review_classification"],
+            "review",
+        )
+
+    def test_post_reprojection_repair_exceeding_both_hard_thresholds_fails(self) -> None:
+        bowtie = Polygon([
+            (4.600, 47.900),
+            (4.601, 47.901),
+            (4.600, 47.901),
+            (4.601, 47.900),
+            (4.600, 47.900),
+        ])
+        with mock.patch(
+            "wine_pipeline.aoc_simplification.serialization._geometry_area_m2",
+            side_effect=[1000.0, 1101.0],
+        ):
+            with self.assertRaises(SerializationCleanupError) as raised:
+                repair_post_reprojection_geometry(
+                    bowtie,
+                    region="Fixture",
+                    app="Fatal",
+                    source_area_m2=50_000_000.0,
+                )
+        self.assertIn("exceeds serialization cleanup tolerances", str(raised.exception))
+        self.assertGreater(
+            raised.exception.diagnostic["post_reprojection_absolute_area_change_m2"],
+            POST_REPROJECTION_ABSOLUTE_TOLERANCE_M2,
+        )
+        self.assertGreater(
+            raised.exception.diagnostic["post_reprojection_relative_area_change"],
+            POST_REPROJECTION_RELATIVE_TOLERANCE,
+        )
+        self.assertEqual(
+            raised.exception.diagnostic["post_reprojection_review_classification"],
+            "fatal",
+        )
+
+    def test_post_reprojection_non_polygonal_repair_fails(self) -> None:
+        bowtie = Polygon([(0, 0), (2, 2), (0, 2), (2, 0), (0, 0)])
+        with mock.patch(
+            "wine_pipeline.aoc_simplification.serialization.make_valid",
+            return_value=LineString([(0, 0), (1, 1)]),
+        ):
+            with self.assertRaises(SerializationCleanupError) as raised:
+                repair_post_reprojection_geometry(
+                    bowtie,
+                    region="Fixture",
+                    app="Non Polygon",
+                    source_area_m2=1_000_000.0,
+                )
+        self.assertIn("non-polygonal", str(raised.exception))
+        self.assertEqual(
+            raised.exception.diagnostic["post_reprojection_component_count_after_repair"],
+            0,
+        )
+        self.assertEqual(
+            raised.exception.diagnostic["post_reprojection_review_classification"],
+            "fatal",
+        )
+
+    def test_post_reprojection_empty_and_invalid_repairs_are_fatal(self) -> None:
+        bowtie = Polygon([(0, 0), (2, 2), (0, 2), (2, 0), (0, 0)])
+        replacements = {
+            "empty": Polygon(),
+            "invalid": bowtie,
+        }
+        for label, replacement in replacements.items():
+            with self.subTest(label=label), mock.patch(
+                "wine_pipeline.aoc_simplification.serialization.make_valid",
+                return_value=replacement,
+            ):
+                with self.assertRaises(SerializationCleanupError) as raised:
+                    repair_post_reprojection_geometry(
+                        bowtie,
+                        region="Fixture",
+                        app=label,
+                        source_area_m2=1_000_000.0,
+                    )
+                self.assertEqual(
+                    raised.exception.diagnostic[
+                        "post_reprojection_review_classification"
+                    ],
+                    "fatal",
+                )
+
+    def test_post_reprojection_valid_geometry_is_unchanged(self) -> None:
+        geometry = Polygon([
+            (4.60, 47.90),
+            (4.61, 47.90),
+            (4.61, 47.91),
+            (4.60, 47.91),
+            (4.60, 47.90),
+        ])
+        repaired, diagnostic = repair_post_reprojection_geometry(
+            geometry,
+            region="Fixture",
+            app="Valid",
+            source_area_m2=1_000_000.0,
+        )
+        self.assertTrue(repaired.equals(geometry))
+        self.assertEqual(
+            diagnostic["post_reprojection_cleanup_action"],
+            "post_reprojection_unchanged",
+        )
+        self.assertEqual(
+            diagnostic["post_reprojection_review_classification"],
+            "none",
+        )
+        self.assertEqual(
+            diagnostic["post_reprojection_absolute_area_change_m2"],
+            0.0,
+        )
+
+    def test_post_reprojection_area_compares_topological_footprints(self) -> None:
+        first = Polygon([
+            (4.6000, 47.9000),
+            (4.6100, 47.9000),
+            (4.6100, 47.9100),
+            (4.6000, 47.9100),
+            (4.6000, 47.9000),
+        ])
+        second = Polygon([
+            (4.6099, 47.9000),
+            (4.6200, 47.9000),
+            (4.6200, 47.9100),
+            (4.6099, 47.9100),
+            (4.6099, 47.9000),
+        ])
+        overlapping = MultiPolygon([first, second])
+        self.assertFalse(overlapping.is_valid)
+        repaired, diagnostic = repair_post_reprojection_geometry(
+            overlapping,
+            region="Fixture",
+            app="Overlapping Parts",
+            source_area_m2=10_000_000.0,
+        )
+        self.assertTrue(repaired.is_valid)
+        self.assertLessEqual(
+            diagnostic["post_reprojection_absolute_area_change_m2"],
+            1.0,
+        )
 
     def test_stage1_schema_validation_and_region_selection(self) -> None:
         data = fixture_stage1()
@@ -241,6 +570,71 @@ class WineSimplificationTests(unittest.TestCase):
         assert covered.partition_report is not None
         self.assertEqual(covered.partition_report.fully_covered_app_names, ["Beta"])
         self.assertEqual(covered.partition_report.fully_covered_app_count, 1)
+
+    def test_residual_overlap_inside_numerical_tolerance_is_none(self) -> None:
+        metrics = OverlapMetrics(
+            summed_app_area_m2=1_000_000.0,
+            union_area_m2=1_000_000.0,
+            overlap_area_m2=overlap_tolerance_m2(1_000_000.0),
+        )
+        result = classify_residual_overlap(metrics)
+        self.assertEqual(result.classification, "none")
+        self.assertFalse(result.fatal)
+
+    def test_loire_scale_residual_overlap_is_negligible(self) -> None:
+        metrics = OverlapMetrics(
+            summed_app_area_m2=2_687_000_036.02,
+            union_area_m2=2_687_000_000.0,
+            overlap_area_m2=36.02,
+        )
+        result = classify_residual_overlap(metrics)
+        self.assertEqual(result.classification, "negligible")
+        self.assertAlmostEqual(result.residual_overlap_ratio, 1.34052847e-8, places=15)
+        self.assertFalse(result.fatal)
+
+    def test_residual_overlap_exceeding_only_one_fatal_threshold_is_review(self) -> None:
+        by_area_only = classify_residual_overlap(
+            OverlapMetrics(
+                summed_app_area_m2=1_000_001_500.0,
+                union_area_m2=1_000_000_000.0,
+                overlap_area_m2=1_500.0,
+            )
+        )
+        self.assertEqual(by_area_only.classification, "review")
+        self.assertFalse(by_area_only.fatal)
+
+        by_ratio_only = classify_residual_overlap(
+            OverlapMetrics(
+                summed_app_area_m2=5_000_200.0,
+                union_area_m2=5_000_000.0,
+                overlap_area_m2=200.0,
+            )
+        )
+        self.assertEqual(by_ratio_only.classification, "review")
+        self.assertFalse(by_ratio_only.fatal)
+
+    def test_residual_overlap_exceeding_both_fatal_thresholds_is_fatal(self) -> None:
+        result = classify_residual_overlap(
+            OverlapMetrics(
+                summed_app_area_m2=10_002_000.0,
+                union_area_m2=10_000_000.0,
+                overlap_area_m2=2_000.0,
+            )
+        )
+        self.assertEqual(result.classification, "fatal")
+        self.assertTrue(result.fatal)
+
+    def test_residual_overlap_classification_does_not_change_metrics(self) -> None:
+        metrics = OverlapMetrics(
+            summed_app_area_m2=1_000_036.02,
+            union_area_m2=1_000_000.0,
+            overlap_area_m2=36.02,
+        )
+        before = metrics.as_dict()
+        result = classify_residual_overlap(metrics)
+        self.assertEqual(metrics.as_dict(), before)
+        self.assertEqual(result.residual_overlap_area_m2, before["overlap_area_m2"])
+        self.assertEqual(result.union_area_m2, before["union_area_m2"])
 
     def test_source_area_is_dissolved_area_before_later_geometry_changes(self) -> None:
         result = simplify_region(fixture_stage1())

@@ -237,6 +237,30 @@ both 1 square metre and `1e-9` of `source_area_m2`. Empty rows or larger
 removals fail. Per-app diagnostics are written to regional `metrics.json` and
 surfaced in the batch summary and review table.
 
+Invalid geometry exposed only after EPSG:4326 reprojection receives a separate
+post-reprojection topology repair. Pre-repair and post-repair geometry areas
+are measured in EPSG:2154. Repairs are `negligible` within either 10 square
+metres or `1e-8`, and become review items above that level. They are `fatal`
+only when both 100 square metres and `1e-6` of `source_area_m2` are exceeded,
+or when output is invalid, empty, or non-polygonal. Component removal keeps the
+separate, stricter 1-square-metre and `1e-9` tolerances. Regional metrics, batch
+summaries, and the review table expose the classification.
+
+The packaged lightweight diagnostic pass is:
+
+```bash
+wine_pipeline diagnose-simplification \
+  --input tmp/wine/<run-id>/candidates/aoc_regions.gpkg
+```
+
+It discovers regions deterministically, runs the existing transform and final
+serialization checks, continues after failures, and creates no plots or normal
+regional artifact directories. Compact `report.json` and `report.csv` outputs
+are retained beneath
+`tmp/wine/simplification/diagnostics/<diagnostic-run-id>/`. An optional exact
+`--region` filter supports focused reproduction. This is diagnostic reporting
+only; it does not approve, assemble, promote, or publish candidates.
+
 The canonical package defaults are:
 
 ```text

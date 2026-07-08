@@ -39,6 +39,10 @@ CANONICAL_SIMPLIFY_M = 150.0
 CANONICAL_OVERLAP_STRATEGY = "smallest-wins"
 OVERLAP_ABSOLUTE_TOLERANCE_M2 = 1e-6
 OVERLAP_RELATIVE_TOLERANCE = 1e-9
+RESIDUAL_OVERLAP_NEGLIGIBLE_ABSOLUTE_M2 = 100.0
+RESIDUAL_OVERLAP_NEGLIGIBLE_RELATIVE = 1e-7
+RESIDUAL_OVERLAP_FATAL_ABSOLUTE_M2 = 1000.0
+RESIDUAL_OVERLAP_FATAL_RELATIVE = 1e-5
 
 
 @dataclass(frozen=True)
@@ -91,6 +95,37 @@ class OverlapMetrics:
             "summed_app_area_m2": self.summed_app_area_m2,
             "union_area_m2": self.union_area_m2,
             "overlap_area_m2": self.overlap_area_m2,
+        }
+
+
+@dataclass(frozen=True)
+class ResidualOverlapClassification:
+    residual_overlap_area_m2: float
+    union_area_m2: float
+    residual_overlap_ratio: float
+    numerical_tolerance_m2: float
+    classification: str
+    negligible_absolute_threshold_m2: float = RESIDUAL_OVERLAP_NEGLIGIBLE_ABSOLUTE_M2
+    negligible_relative_threshold: float = RESIDUAL_OVERLAP_NEGLIGIBLE_RELATIVE
+    fatal_absolute_threshold_m2: float = RESIDUAL_OVERLAP_FATAL_ABSOLUTE_M2
+    fatal_relative_threshold: float = RESIDUAL_OVERLAP_FATAL_RELATIVE
+
+    @property
+    def fatal(self) -> bool:
+        return self.classification == "fatal"
+
+    def as_dict(self) -> dict[str, float | str | bool]:
+        return {
+            "residual_overlap_area_m2": self.residual_overlap_area_m2,
+            "union_area_m2": self.union_area_m2,
+            "residual_overlap_ratio": self.residual_overlap_ratio,
+            "numerical_tolerance_m2": self.numerical_tolerance_m2,
+            "classification": self.classification,
+            "fatal": self.fatal,
+            "negligible_absolute_threshold_m2": self.negligible_absolute_threshold_m2,
+            "negligible_relative_threshold": self.negligible_relative_threshold,
+            "fatal_absolute_threshold_m2": self.fatal_absolute_threshold_m2,
+            "fatal_relative_threshold": self.fatal_relative_threshold,
         }
 
 
@@ -324,6 +359,40 @@ def overlap_tolerance_m2(union_area_m2: float) -> float:
     return max(OVERLAP_ABSOLUTE_TOLERANCE_M2, union_area_m2 * OVERLAP_RELATIVE_TOLERANCE)
 
 
+def classify_residual_overlap(
+    metrics: OverlapMetrics,
+    *,
+    numerical_tolerance_m2: float | None = None,
+) -> ResidualOverlapClassification:
+    tolerance_m2 = overlap_tolerance_m2(metrics.union_area_m2) if numerical_tolerance_m2 is None else numerical_tolerance_m2
+    if not isfinite(tolerance_m2) or tolerance_m2 < 0:
+        raise ValueError("Overlap tolerance must be a finite non-negative value.")
+    overlap_area = float(metrics.overlap_area_m2)
+    union_area = float(metrics.union_area_m2)
+    ratio = 0.0 if union_area == 0 else overlap_area / union_area
+    if overlap_area <= tolerance_m2:
+        classification = "none"
+    elif (
+        overlap_area > RESIDUAL_OVERLAP_FATAL_ABSOLUTE_M2
+        and ratio > RESIDUAL_OVERLAP_FATAL_RELATIVE
+    ):
+        classification = "fatal"
+    elif (
+        overlap_area <= RESIDUAL_OVERLAP_NEGLIGIBLE_ABSOLUTE_M2
+        or ratio <= RESIDUAL_OVERLAP_NEGLIGIBLE_RELATIVE
+    ):
+        classification = "negligible"
+    else:
+        classification = "review"
+    return ResidualOverlapClassification(
+        residual_overlap_area_m2=overlap_area,
+        union_area_m2=union_area,
+        residual_overlap_ratio=ratio,
+        numerical_tolerance_m2=float(tolerance_m2),
+        classification=classification,
+    )
+
+
 def _app_names(gdf: gpd.GeoDataFrame) -> list[str]:
     return sorted(gdf["app"].dropna().astype(str).unique().tolist()) if "app" in gdf.columns else []
 
@@ -413,9 +482,12 @@ def partition_appellations_smallest_first(
     partitioned = gpd.GeoDataFrame(accepted_rows, columns=OUTPUT_COLUMNS, geometry="geometry", crs=gdf.crs)
     partitioned = partitioned.sort_values(OUTPUT_IDENTITY_COLUMNS, kind="mergesort").reset_index(drop=True)
     overlap_after = calculate_overlap_metrics(partitioned)
-    if overlap_after.overlap_area_m2 > tolerance_m2:
+    overlap_classification = classify_residual_overlap(overlap_after, numerical_tolerance_m2=tolerance_m2)
+    if overlap_classification.fatal:
         raise ValueError(
-            f"Residual overlap exceeds tolerance: {overlap_after.overlap_area_m2:.12g} m2 > {tolerance_m2:.12g} m2."
+            "Residual overlap is fatal: "
+            f"{overlap_after.overlap_area_m2:.12g} m2, "
+            f"ratio {overlap_classification.residual_overlap_ratio:.12g}."
         )
 
     fully_covered = sorted(item.app for item in diagnostics if item.became_empty)
@@ -582,8 +654,13 @@ def simplify_region(
         raise ValueError("Final candidate contains non-polygon geometry.")
     validate_source_area(final_working, context="Final candidate")
     final_overlap = calculate_overlap_metrics(final_working)
-    if parameters.overlap_strategy == "smallest-wins" and final_overlap.overlap_area_m2 > tolerance_m2:
-        raise ValueError("Final candidate residual overlap exceeds tolerance.")
+    final_overlap_classification = classify_residual_overlap(final_overlap, numerical_tolerance_m2=tolerance_m2)
+    if parameters.overlap_strategy == "smallest-wins" and final_overlap_classification.fatal:
+        raise ValueError(
+            "Final candidate residual overlap is fatal: "
+            f"{final_overlap.overlap_area_m2:.12g} m2, "
+            f"ratio {final_overlap_classification.residual_overlap_ratio:.12g}."
+        )
 
     final = reproject_for_output(final_working)[OUTPUT_COLUMNS]
     validate_source_area(final, context="Reprojected final candidate")
@@ -602,4 +679,3 @@ def simplify_region(
         partition_report=partition_report,
         parameters=parameters,
     )
-

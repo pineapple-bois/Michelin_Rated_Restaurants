@@ -371,6 +371,33 @@ geometry; otherwise the run fails. Regional `metrics.json` records per-app
 cleanup diagnostics, which are also exposed in batch summaries and review
 tables.
 
+After reprojection to EPSG:4326, invalid geometries alone receive a second
+topology repair. The pipeline keeps polygonal components and compares the
+pre-repair and post-repair areas after projecting both back to EPSG:2154. This
+repairs are classified as `negligible` at 10 square metres or `1e-8`, and as
+`review` above that level. They fail as `fatal` only when both 100 square metres
+and `1e-6` of `source_area_m2` are exceeded, or when output is invalid, empty,
+or non-polygonal. Component deletion retains its stricter 1-square-metre and
+`1e-9` limits. Regional metrics, batch summaries, and `region_review.csv`
+surface review-classified repairs separately from component cleanup.
+
+Use the lightweight diagnostic command to exercise the existing transform,
+cleanup, and GeoJSON round-trip checks without plots or normal regional
+artifact directories:
+
+```bash
+wine_pipeline diagnose-simplification \
+  --input tmp/wine/<run-id>/candidates/aoc_regions.gpkg
+```
+
+It processes regions in sorted order, continues after failures, and writes only
+`report.json` and `report.csv` beneath
+`tmp/wine/simplification/diagnostics/<diagnostic-run-id>/`. Use
+`--region "Bourgogne"` for one exact region. Cleanup failures report region,
+appellation, geometry types before and after repair, validity reason, component
+counts, rejected area, both fixed cleanup tolerances, and whether the complete
+appellation became empty.
+
 `region_review.csv` contains refreshed machine-owned columns and blank or
 pending human-owned columns. Later tooling may refresh the machine metrics, but
 human-owned review fields such as reviewer, reviewed timestamp, assessments,

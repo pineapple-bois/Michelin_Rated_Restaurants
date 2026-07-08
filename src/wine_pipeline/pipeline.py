@@ -19,6 +19,7 @@ from .aoc_enrichment.transform import write_enriched_candidate
 from .aoc_package.extract import extract_inao_source, source_urls
 from .aoc_package.transform import write_packaged_candidate
 from .aoc_simplification.batch import run_batch
+from .aoc_simplification.diagnostics import run_diagnostics
 from .aoc_simplification.runner import run_single_region
 from .aoc_simplification.transform import CANONICAL_RUN_ID, SimplificationParameters
 from .config import DURABLE_REPORT_ROOT, OUTPUT_LAYER, RUN_ROOT
@@ -234,6 +235,18 @@ def _parser() -> argparse.ArgumentParser:
     mode.add_argument("--resume", action="store_true", help="reuse complete matching regional artifacts and rebuild stale regions")
     mode.add_argument("--overwrite", action="store_true", help="replace the complete batch run transactionally")
     batch_parser.add_argument("--quiet", action="store_true", help="suppress stage progress messages")
+    diagnostic_parser = subparsers.add_parser(
+        "diagnose-simplification",
+        help="run transform and serialization diagnostics without regional artifacts",
+    )
+    diagnostic_parser.add_argument("--input", type=Path, help="Stage 1 aoc_regions.gpkg; defaults to latest tmp/wine run")
+    diagnostic_parser.add_argument("--diagnostic-run-id", help="diagnostic report directory name")
+    diagnostic_parser.add_argument("--output-root", type=Path, help="default: tmp/wine/simplification/diagnostics")
+    diagnostic_parser.add_argument("--region", help="optional exact region; defaults to every discovered region")
+    diagnostic_parser.add_argument("--buffer", type=float, default=500.0, help="morphological closing distance in metres")
+    diagnostic_parser.add_argument("--simplify", type=float, default=150.0, help="topology-preserving simplification tolerance in metres")
+    diagnostic_parser.add_argument("--overlap-strategy", choices=("none", "smallest-wins"), default="smallest-wins")
+    diagnostic_parser.add_argument("--quiet", action="store_true", help="suppress region progress messages")
     return parser
 
 
@@ -299,6 +312,27 @@ def main(argv: list[str] | None = None) -> int:
             print(f"  skipped regions: {len(result.skipped_regions)}")
             print(f"  failed regions: {len(result.failed_regions)}")
             print(f"  validation passed: {result.passed}")
+            return 0 if result.passed else 2
+        if args.command == "diagnose-simplification":
+            parameters = SimplificationParameters(
+                buffer_m=float(args.buffer),
+                simplify_m=float(args.simplify),
+                overlap_strategy=args.overlap_strategy,
+            )
+            result = run_diagnostics(
+                input_path=args.input,
+                diagnostic_run_id=args.diagnostic_run_id,
+                output_root=args.output_root,
+                region=args.region,
+                parameters=parameters,
+                progress=_console_progress(not args.quiet),
+            )
+            print(f"Completed wine simplification diagnostics {result.run_id}")
+            print(f"  run dir: {result.run_dir}")
+            print(f"  JSON report: {result.json_path}")
+            print(f"  CSV report: {result.csv_path}")
+            print(f"  passed regions: {len(result.passed_regions)}")
+            print(f"  failed regions: {len(result.failed_regions)}")
             return 0 if result.passed else 2
         raise AssertionError(args.command)
     except (WinePipelineError, FileExistsError, FileNotFoundError, requests.RequestException, ValueError) as error:

@@ -26,12 +26,17 @@ from .transform import (
     OUTPUT_COLUMNS,
     OUTPUT_CRS,
     SimplificationParameters,
+    classify_residual_overlap,
     metrics_for_frame,
     select_region,
     simplify_region,
     slugify_region,
 )
 from .serialization import (
+    POST_REPROJECTION_ABSOLUTE_TOLERANCE_M2,
+    POST_REPROJECTION_NEGLIGIBLE_ABSOLUTE_M2,
+    POST_REPROJECTION_NEGLIGIBLE_RELATIVE,
+    POST_REPROJECTION_RELATIVE_TOLERANCE,
     SERIALIZATION_CLEANUP_ABSOLUTE_TOLERANCE_M2,
     SERIALIZATION_CLEANUP_RELATIVE_TOLERANCE,
     cleanup_final_geometries,
@@ -378,8 +383,23 @@ def run_single_region(
         partition = stages.partition_report.as_dict() if stages.partition_report else None
         final_metrics = metrics_for_frame(serialization_candidate)
         cleanup_events = [
-            item for item in cleanup_diagnostics if item["cleanup_action"] != "unchanged"
+            item
+            for item in cleanup_diagnostics
+            if item["cleanup_action"] != "unchanged"
+            or item["post_reprojection_cleanup_action"] != "post_reprojection_unchanged"
         ]
+        review_repairs = [
+            item
+            for item in cleanup_diagnostics
+            if item["post_reprojection_review_classification"] == "review"
+        ]
+        classification_counts = {
+            classification: sum(
+                item["post_reprojection_review_classification"] == classification
+                for item in cleanup_diagnostics
+            )
+            for classification in ("none", "negligible", "review", "fatal")
+        }
         metrics = {
             "region": region,
             "region_slug": region_slug,
@@ -400,6 +420,10 @@ def run_single_region(
                 "before_partition": stages.overlap_before.as_dict(),
                 "after_partition": stages.overlap_after.as_dict(),
                 "overlap_tolerance_m2": stages.overlap_tolerance_m2,
+                "residual_overlap": classify_residual_overlap(
+                    stages.overlap_after,
+                    numerical_tolerance_m2=stages.overlap_tolerance_m2,
+                ).as_dict(),
                 "residual_overlap_within_tolerance": stages.overlap_after.overlap_area_m2 <= stages.overlap_tolerance_m2,
             },
             "partition": partition,
@@ -407,6 +431,10 @@ def run_single_region(
             "serialization_cleanup": {
                 "absolute_area_tolerance_m2": SERIALIZATION_CLEANUP_ABSOLUTE_TOLERANCE_M2,
                 "relative_area_tolerance": SERIALIZATION_CLEANUP_RELATIVE_TOLERANCE,
+                "post_reprojection_absolute_area_tolerance_m2": POST_REPROJECTION_ABSOLUTE_TOLERANCE_M2,
+                "post_reprojection_relative_area_tolerance": POST_REPROJECTION_RELATIVE_TOLERANCE,
+                "post_reprojection_negligible_absolute_threshold_m2": POST_REPROJECTION_NEGLIGIBLE_ABSOLUTE_M2,
+                "post_reprojection_negligible_relative_threshold": POST_REPROJECTION_NEGLIGIBLE_RELATIVE,
                 "rows_examined": len(cleanup_diagnostics),
                 "rows_modified": len(cleanup_events),
                 "removed_component_count": sum(
@@ -415,6 +443,17 @@ def run_single_region(
                 "removed_area_m2": sum(
                     float(item["removed_area_m2"]) for item in cleanup_diagnostics
                 ),
+                "post_reprojection_rows_repaired": sum(
+                    item["post_reprojection_cleanup_action"]
+                    == "post_reprojection_topology_repair"
+                    for item in cleanup_diagnostics
+                ),
+                "post_reprojection_absolute_area_change_m2": sum(
+                    float(item["post_reprojection_absolute_area_change_m2"])
+                    for item in cleanup_diagnostics
+                ),
+                "post_reprojection_review_classification_counts": classification_counts,
+                "post_reprojection_repairs_for_review": review_repairs,
                 "diagnostics": cleanup_diagnostics,
             },
             "candidate_file_size_mb": round(candidate_path.stat().st_size / (1024 * 1024), 6),

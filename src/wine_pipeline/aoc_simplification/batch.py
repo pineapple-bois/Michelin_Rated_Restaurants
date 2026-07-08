@@ -57,6 +57,11 @@ MACHINE_REVIEW_COLUMNS = [
     "serialization_cleanup_count",
     "serialization_cleanup_apps",
     "serialization_cleanup_removed_area_m2",
+    "post_reprojection_review_count",
+    "post_reprojection_review_apps",
+    "residual_overlap_area_m2",
+    "residual_overlap_ratio",
+    "residual_overlap_classification",
     "parameter_set",
     "source_sha256",
     "error",
@@ -138,6 +143,21 @@ def _validate_candidate(path: Path) -> tuple[int, int, int]:
     return len(frame), invalid, empty
 
 
+def _residual_overlap_payload(metrics: dict[str, object] | None) -> dict[str, object]:
+    overlap = (metrics or {}).get("overlap") or {}
+    residual = overlap.get("residual_overlap") or {}
+    if isinstance(residual, dict) and residual:
+        return residual
+    after = overlap.get("after_partition") or {}
+    return {
+        "residual_overlap_area_m2": after.get("overlap_area_m2", ""),
+        "union_area_m2": after.get("union_area_m2", ""),
+        "residual_overlap_ratio": "",
+        "classification": "none" if overlap.get("residual_overlap_within_tolerance") else "fatal",
+        "fatal": not bool(overlap.get("residual_overlap_within_tolerance", False)),
+    }
+
+
 def validate_region_artifacts(
     region_dir: Path,
     *,
@@ -163,9 +183,9 @@ def validate_region_artifacts(
         if not _effective_parameters_equal(dict(metrics.get("parameters") or {}), parameters):
             return False, "metrics parameters mismatch"
         _validate_candidate(region_dir / "candidate.geojson")
-        overlap = metrics.get("overlap") or {}
-        if not bool(overlap.get("residual_overlap_within_tolerance", False)):
-            return False, "residual overlap exceeds tolerance"
+        residual = _residual_overlap_payload(metrics)
+        if residual.get("classification") == "fatal" or residual.get("fatal") is True:
+            return False, "residual overlap is fatal"
     except Exception as error:
         return False, str(error)
     return True, ""
@@ -221,8 +241,20 @@ def _review_row(
     cleanup_apps = sorted(
         str(item.get("app"))
         for item in cleanup_diagnostics
-        if isinstance(item, dict) and item.get("cleanup_action") != "unchanged"
+        if isinstance(item, dict)
+        and (
+            item.get("cleanup_action") != "unchanged"
+            or item.get("post_reprojection_cleanup_action")
+            != "post_reprojection_unchanged"
+        )
     )
+    review_repairs = [
+        item
+        for item in cleanup_diagnostics
+        if isinstance(item, dict)
+        and item.get("post_reprojection_review_classification") == "review"
+    ]
+    residual_overlap = _residual_overlap_payload(metrics)
     return {
         "region": region,
         "region_slug": slugify_region(region),
@@ -241,6 +273,13 @@ def _review_row(
         "serialization_cleanup_count": str(cleanup.get("removed_component_count", "")),
         "serialization_cleanup_apps": ";".join(cleanup_apps),
         "serialization_cleanup_removed_area_m2": str(cleanup.get("removed_area_m2", "")),
+        "post_reprojection_review_count": str(len(review_repairs)),
+        "post_reprojection_review_apps": ";".join(
+            sorted(str(item.get("app")) for item in review_repairs)
+        ),
+        "residual_overlap_area_m2": str(residual_overlap.get("residual_overlap_area_m2", "")),
+        "residual_overlap_ratio": str(residual_overlap.get("residual_overlap_ratio", "")),
+        "residual_overlap_classification": str(residual_overlap.get("classification", "")),
         "parameter_set": str((metrics or {}).get("parameters", {}).get("canonical_parameter_set_name") or "experimental"),
         "source_sha256": source_sha256,
         "error": error,
@@ -279,6 +318,8 @@ def _summarise(
     fully_covered: dict[str, list[str]] = {}
     near_total: dict[str, list[str]] = {}
     serialization_cleanup: dict[str, list[dict[str, object]]] = {}
+    post_reprojection_review: dict[str, list[dict[str, object]]] = {}
+    residual_overlap_by_region: dict[str, dict[str, object]] = {}
     total_final_rows = 0
     for region in expected_regions:
         metrics = _region_metrics(run_dir / "regions" / slugify_region(region))
@@ -296,10 +337,26 @@ def _summarise(
         cleanup_diagnostics = (metrics.get("serialization_cleanup") or {}).get("diagnostics") or []
         modified = [
             item for item in cleanup_diagnostics
-            if isinstance(item, dict) and item.get("cleanup_action") != "unchanged"
+            if isinstance(item, dict)
+            and (
+                item.get("cleanup_action") != "unchanged"
+                or item.get("post_reprojection_cleanup_action")
+                != "post_reprojection_unchanged"
+            )
         ]
         if modified:
             serialization_cleanup[region] = modified
+        review_repairs = [
+            item
+            for item in cleanup_diagnostics
+            if isinstance(item, dict)
+            and item.get("post_reprojection_review_classification") == "review"
+        ]
+        if review_repairs:
+            post_reprojection_review[region] = review_repairs
+        residual_overlap = _residual_overlap_payload(metrics)
+        if residual_overlap:
+            residual_overlap_by_region[region] = residual_overlap
     return {
         "expected_region_count": len(expected_regions),
         "completed_region_count": len(completed),
@@ -313,6 +370,10 @@ def _summarise(
         "fully_covered_appellations_by_region": dict(sorted(fully_covered.items())),
         "near_total_area_reductions_by_region": dict(sorted(near_total.items())),
         "serialization_cleanup_by_region": dict(sorted(serialization_cleanup.items())),
+        "post_reprojection_review_repairs_by_region": dict(
+            sorted(post_reprojection_review.items())
+        ),
+        "residual_overlap_by_region": dict(sorted(residual_overlap_by_region.items())),
         "passed": not failed and len(completed) + len(skipped) == len(expected_regions),
     }
 
@@ -338,6 +399,8 @@ def validate_batch(
     empty_counts = []
     complete_artifacts = []
     residual_matches = []
+    residual_classifications = []
+    residual_overlap_by_region = {}
     review_regions = []
     for region in expected_regions:
         region_dir = region_root / slugify_region(region)
@@ -352,7 +415,10 @@ def validate_batch(
             crs_matches.append(candidate.crs is not None and candidate.crs.to_epsg() == 4326)
             invalid_counts.append(int((~candidate.geometry.is_valid).sum()))
             empty_counts.append(int(candidate.geometry.is_empty.sum() + candidate.geometry.isna().sum()))
-            residual_matches.append(bool((metrics.get("overlap") or {}).get("residual_overlap_within_tolerance", False)))
+            residual = _residual_overlap_payload(metrics)
+            residual_classifications.append(residual.get("classification"))
+            residual_matches.append(residual.get("classification") != "fatal" and residual.get("fatal") is not True)
+            residual_overlap_by_region[region] = residual
             review_regions.append(region)
         except Exception:
             source_hashes.append(None)
@@ -372,7 +438,12 @@ def validate_batch(
             {"name": "no_invalid_geometry", "passed": sum(invalid_counts) == 0, "observed": sum(invalid_counts), "expected": 0},
             {"name": "no_empty_geometry", "passed": sum(empty_counts) == 0, "observed": sum(empty_counts), "expected": 0},
             {"name": "complete_artifact_sets", "passed": all(complete_artifacts), "observed": complete_artifacts, "expected": True},
-            {"name": "residual_overlap_within_tolerance", "passed": all(residual_matches), "observed": residual_matches, "expected": True},
+            {
+                "name": "residual_overlap_not_fatal",
+                "passed": all(residual_matches),
+                "observed": residual_classifications,
+                "expected": ["none", "negligible", "review"],
+            },
             {"name": "deterministic_region_ordering", "passed": expected_regions == sorted(expected_regions), "observed": expected_regions, "expected": sorted(expected_regions)},
         ]
     )
@@ -399,6 +470,7 @@ def validate_batch(
         "passed": all(check["passed"] for check in checks),
         "fully_covered_appellations_by_region": dict(sorted(fully_covered.items())),
         "near_total_area_reductions_by_region": dict(sorted(near_total.items())),
+        "residual_overlap_by_region": dict(sorted(residual_overlap_by_region.items())),
     }
 
 
