@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass
+from datetime import datetime
 import csv
 import json
 from pathlib import Path
@@ -85,8 +86,53 @@ def _check(checks: list[dict[str, object]], name: str, passed: bool, observed: o
 
 
 def _default_candidate_id(simplification_run_id: str) -> str:
-    stamp = utc_now().replace(":", "").replace("+00:00", "Z")
+    stamp = datetime.fromisoformat(utc_now()).strftime("%Y%m%dt%H%M%Sz").lower()
     return f"{slugify_region(simplification_run_id) or 'simplification'}_{stamp}"
+
+
+def resolve_simplification_run_id(
+    simplification_run_id: str | None,
+    *,
+    project_root: Path,
+    simplification_root: Path | None = None,
+) -> str:
+    root = (simplification_root or project_root / "tmp" / "wine" / "simplification").resolve()
+    if simplification_run_id is not None:
+        _resolve_run_dir(project_root, simplification_run_id, root)
+        return simplification_run_id
+
+    eligible: list[str] = []
+    if root.is_dir():
+        for run_dir in sorted(root.iterdir(), key=lambda path: path.name):
+            if not run_dir.is_dir() or run_dir.name.startswith(".") or run_dir.name == "diagnostics":
+                continue
+            required = (
+                run_dir / "run.json",
+                run_dir / "batch_summary.json",
+                run_dir / "validation.json",
+                run_dir / "regions",
+            )
+            if not all(path.is_file() for path in required[:3]) or not required[3].is_dir():
+                continue
+            try:
+                validation = _read_json(run_dir / "validation.json")
+            except (OSError, ValueError, json.JSONDecodeError):
+                continue
+            if validation.get("passed") is True:
+                eligible.append(run_dir.name)
+
+    if not eligible:
+        raise FileNotFoundError(
+            "No completed, validated simplification batch was found. Run "
+            "'python -m wine_pipeline simplify' or provide --simplification-run-id <run-id>."
+        )
+    if len(eligible) > 1:
+        choices = "\n".join(f"  - {run_id}" for run_id in eligible)
+        raise WinePipelineError(
+            "Multiple validated simplification batches were found:\n"
+            f"{choices}\nProvide --simplification-run-id <run-id> to select one."
+        )
+    return eligible[0]
 
 
 def _resolve_run_dir(project_root: Path, simplification_run_id: str, simplification_root: Path | None) -> Path:

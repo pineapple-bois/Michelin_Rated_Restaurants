@@ -18,10 +18,10 @@ from .aoc_enrichment.mappings import FALLBACK_REGIONS_BY_DT, REGION_OVERRIDE_MET
 from .aoc_enrichment.transform import write_enriched_candidate
 from .aoc_package.extract import extract_inao_source, source_urls
 from .aoc_package.transform import write_packaged_candidate
-from .aoc_simplification.assembly import assemble_candidate
+from .aoc_simplification.assembly import assemble_candidate, resolve_simplification_run_id
 from .aoc_simplification.batch import run_batch
 from .aoc_simplification.diagnostics import run_diagnostics
-from .aoc_simplification.runner import run_single_region
+from .aoc_simplification.runner import find_project_root, resolve_stage1_input, run_single_region
 from .aoc_simplification.transform import CANONICAL_RUN_ID, SimplificationParameters
 from .config import DURABLE_REPORT_ROOT, OUTPUT_LAYER, RUN_ROOT
 from .provenance import ReportCollector, sha256_file, source_date_from_headers, utc_now, write_json
@@ -216,7 +216,7 @@ def _parser() -> argparse.ArgumentParser:
     build_parser.add_argument("--quiet", action="store_true", help="suppress stage progress messages")
     simplify_parser = subparsers.add_parser("simplify-region", help="run Stage 2 simplification for one exact region")
     simplify_parser.add_argument("--region", required=True, help="exact region display name to simplify")
-    simplify_parser.add_argument("--input", type=Path, help="Stage 1 aoc_regions.gpkg; defaults to latest tmp/wine run")
+    simplify_parser.add_argument("--input", type=Path, help="Stage 1 aoc_regions.gpkg; defaults to the sole available Stage 1 candidate")
     simplify_parser.add_argument("--run-id", default=CANONICAL_RUN_ID, help="simplification run id")
     simplify_parser.add_argument("--output-root", type=Path, help="default: tmp/wine/simplification")
     simplify_parser.add_argument("--buffer", type=float, default=500.0, help="morphological closing distance in metres")
@@ -226,7 +226,7 @@ def _parser() -> argparse.ArgumentParser:
     simplify_parser.add_argument("--keep-failed-temp", action="store_true", help="retain the temporary regional run directory when processing fails")
     simplify_parser.add_argument("--quiet", action="store_true", help="suppress stage progress messages")
     batch_parser = subparsers.add_parser("simplify", help="run Stage 2 simplification for every region in one Stage 1 candidate")
-    batch_parser.add_argument("--input", type=Path, help="Stage 1 aoc_regions.gpkg; defaults to latest tmp/wine run")
+    batch_parser.add_argument("--input", type=Path, help="Stage 1 aoc_regions.gpkg; defaults to the sole available Stage 1 candidate")
     batch_parser.add_argument("--run-id", default=CANONICAL_RUN_ID, help="batch simplification run id")
     batch_parser.add_argument("--output-root", type=Path, help="default: tmp/wine/simplification")
     batch_parser.add_argument("--buffer", type=float, default=500.0, help="morphological closing distance in metres")
@@ -240,7 +240,7 @@ def _parser() -> argparse.ArgumentParser:
         "diagnose-simplification",
         help="run transform and serialization diagnostics without regional artifacts",
     )
-    diagnostic_parser.add_argument("--input", type=Path, help="Stage 1 aoc_regions.gpkg; defaults to latest tmp/wine run")
+    diagnostic_parser.add_argument("--input", type=Path, help="Stage 1 aoc_regions.gpkg; defaults to the sole available Stage 1 candidate")
     diagnostic_parser.add_argument("--diagnostic-run-id", help="diagnostic report directory name")
     diagnostic_parser.add_argument("--output-root", type=Path, help="default: tmp/wine/simplification/diagnostics")
     diagnostic_parser.add_argument("--region", help="optional exact region; defaults to every discovered region")
@@ -249,7 +249,7 @@ def _parser() -> argparse.ArgumentParser:
     diagnostic_parser.add_argument("--overlap-strategy", choices=("none", "smallest-wins"), default="smallest-wins")
     diagnostic_parser.add_argument("--quiet", action="store_true", help="suppress region progress messages")
     assemble_parser = subparsers.add_parser("assemble-candidate", help="assemble a validated Stage 2 simplification batch into a durable wine candidate")
-    assemble_parser.add_argument("--simplification-run-id", default=CANONICAL_RUN_ID, help="simplification batch run id")
+    assemble_parser.add_argument("--simplification-run-id", help="simplification batch run id; defaults to the sole validated batch")
     assemble_parser.add_argument("--simplification-root", type=Path, help="default: tmp/wine/simplification")
     assemble_parser.add_argument("--candidate-id", help="candidate directory id; defaults to run-id plus UTC timestamp")
     assemble_parser.add_argument("--candidate-root", type=Path, help="default: data/candidates/wine")
@@ -276,6 +276,9 @@ def main(argv: list[str] | None = None) -> int:
             print(f"  validation checks: {result.checks}")
             return 0
         if args.command == "simplify-region":
+            input_path = resolve_stage1_input(args.input, project_root=find_project_root())
+            if args.input is None:
+                print(f"Resolved sole Stage 1 wine candidate:\n{input_path}")
             parameters = SimplificationParameters(
                 buffer_m=float(args.buffer),
                 simplify_m=float(args.simplify),
@@ -283,7 +286,7 @@ def main(argv: list[str] | None = None) -> int:
             )
             result = run_single_region(
                 region=args.region,
-                input_path=args.input,
+                input_path=input_path,
                 run_id=args.run_id,
                 output_root=args.output_root,
                 parameters=parameters,
@@ -303,13 +306,16 @@ def main(argv: list[str] | None = None) -> int:
             print(f"  rows: {result.rows}")
             return 0
         if args.command == "simplify":
+            input_path = resolve_stage1_input(args.input, project_root=find_project_root())
+            if args.input is None:
+                print(f"Resolved sole Stage 1 wine candidate:\n{input_path}")
             parameters = SimplificationParameters(
                 buffer_m=float(args.buffer),
                 simplify_m=float(args.simplify),
                 overlap_strategy=args.overlap_strategy,
             )
             result = run_batch(
-                input_path=args.input,
+                input_path=input_path,
                 run_id=args.run_id,
                 output_root=args.output_root,
                 parameters=parameters,
@@ -326,13 +332,16 @@ def main(argv: list[str] | None = None) -> int:
             print(f"  validation passed: {result.passed}")
             return 0 if result.passed else 2
         if args.command == "diagnose-simplification":
+            input_path = resolve_stage1_input(args.input, project_root=find_project_root())
+            if args.input is None:
+                print(f"Resolved sole Stage 1 wine candidate:\n{input_path}")
             parameters = SimplificationParameters(
                 buffer_m=float(args.buffer),
                 simplify_m=float(args.simplify),
                 overlap_strategy=args.overlap_strategy,
             )
             result = run_diagnostics(
-                input_path=args.input,
+                input_path=input_path,
                 diagnostic_run_id=args.diagnostic_run_id,
                 output_root=args.output_root,
                 region=args.region,
@@ -347,8 +356,15 @@ def main(argv: list[str] | None = None) -> int:
             print(f"  failed regions: {len(result.failed_regions)}")
             return 0 if result.passed else 2
         if args.command == "assemble-candidate":
+            simplification_run_id = resolve_simplification_run_id(
+                args.simplification_run_id,
+                project_root=find_project_root(),
+                simplification_root=args.simplification_root,
+            )
+            if args.simplification_run_id is None:
+                print(f"Resolved sole validated simplification run:\n{simplification_run_id}")
             result = assemble_candidate(
-                simplification_run_id=args.simplification_run_id,
+                simplification_run_id=simplification_run_id,
                 simplification_root=args.simplification_root,
                 candidate_id=args.candidate_id,
                 candidate_root=args.candidate_root,

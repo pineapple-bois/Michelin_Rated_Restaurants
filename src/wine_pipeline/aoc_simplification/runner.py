@@ -77,11 +77,31 @@ def resolve_stage1_input(path: Path | None, *, project_root: Path) -> Path:
         resolved = path if path.is_absolute() else project_root / path
         if not resolved.is_file():
             raise FileNotFoundError(f"Stage 1 input does not exist: {resolved}")
-        return resolved
-    candidates = sorted((project_root / "tmp" / "wine").glob("*/candidates/aoc_regions.gpkg"))
+        return resolved.resolve()
+
+    run_root = project_root / "tmp" / "wine"
+    ignored_names = {"simplification", "diagnostics", "fixture", "fixtures", "smoke", "smoke-test", "smoke_test"}
+    candidates = sorted(
+        candidate.resolve()
+        for run_dir in run_root.iterdir()
+        if run_dir.is_dir()
+        and not run_dir.name.startswith(".")
+        and run_dir.name.lower() not in ignored_names
+        and not run_dir.name.lower().startswith(("fixture", "smoke"))
+        if (candidate := run_dir / "candidates" / "aoc_regions.gpkg").is_file()
+    ) if run_root.is_dir() else []
     if not candidates:
-        raise FileNotFoundError("No Stage 1 aoc_regions.gpkg found under tmp/wine/*/candidates/.")
-    return candidates[-1]
+        raise FileNotFoundError(
+            "No Stage 1 wine candidate was found. Run 'python -m wine_pipeline build' "
+            "or provide --input <path-to-aoc_regions.gpkg>."
+        )
+    if len(candidates) > 1:
+        choices = "\n".join(f"  - {candidate}" for candidate in candidates)
+        raise WinePipelineError(
+            "Multiple Stage 1 wine candidates were found:\n"
+            f"{choices}\nProvide --input <path-to-aoc_regions.gpkg> to select one."
+        )
+    return candidates[0]
 
 
 def infer_stage1_run_id(path: Path, *, project_root: Path) -> str | None:
