@@ -24,6 +24,7 @@ htmlcov/
 
 # Temporary files and local scratch work
 /tmp/
+/tmp/wine/
 /test_insee.ipynb
 
 # Legacy project content
@@ -50,3 +51,4 @@ htmlcov/
 
 # Wine work in progress
 /Development/
+/data/wine/candidates/

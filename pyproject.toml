@@ -17,20 +17,21 @@ dependencies = [
   "geopandas>=1.0,<2",
   "numpy>=2.0,<3",
   "requests>=2.32,<3",
+  "shapely>=2.0,<3",
 ]
 
 [project.optional-dependencies]
 dev = [
-  "shapely>=2.0,<3",
 ]
 
 [project.scripts]
 data_pipeline = "data_pipeline.cli:main"
 insee_pipeline = "insee_pipeline.pipeline:main"
+wine_pipeline = "wine_pipeline.pipeline:main"
 
 [tool.setuptools.package-dir]
 "" = "src"
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["data_pipeline*", "insee_pipeline*"]
+include = ["data_pipeline*", "insee_pipeline*", "wine_pipeline*"]

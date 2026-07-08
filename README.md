@@ -216,6 +216,58 @@ tmp/                    disposable local build/download workspace
 The maintained Python packages use the `src/` layout and are packaged through
 `pyproject.toml`.
 
+## Wine AOC Candidate Pipeline
+
+The reproducible wine geospatial candidate pipeline lives in
+`src/wine_pipeline/`. It implements the direct source-to-candidate path for
+French wine AOC geometry:
+
+```text
+INAO AOC parcel download
+  -> packaged AOC GeoPackage
+  -> UC Davis broad-region enrichment
+  -> AOC-region candidate GeoPackage
+  -> durable provenance and validation reports
+```
+
+The pipeline sources are:
+
+- [data.gouv.fr INAO dataset page](https://www.data.gouv.fr/datasets/delimitation-parcellaire-des-aoc-viticoles-de-linao)
+- [configured INAO resource endpoint](https://www.data.gouv.fr/api/1/datasets/r/e79a7c68-2fe4-4225-a802-8379a8d6426c)
+- [UC Davis wine ontology France examples](https://github.com/UCDavisLibrary/wine-ontology/tree/master/examples/france)
+- [UC Davis regional GeoJSON](https://raw.githubusercontent.com/UCDavisLibrary/wine-ontology/master/examples/france/regions.geojson)
+
+Run it with:
+
+```bash
+python -m wine_pipeline build
+```
+
+Editable installation also provides:
+
+```bash
+wine_pipeline build
+```
+
+Each run writes downloaded files, extracted shapefile members, and candidate
+GeoPackages only beneath a unique `tmp/wine/<run-id>/` directory. The main
+candidate paths are:
+
+```text
+tmp/wine/<run-id>/candidates/aoc_packaged.gpkg
+tmp/wine/<run-id>/candidates/aoc_regions.gpkg
+```
+
+Durable machine-readable provenance and validation reports are written beneath:
+
+```text
+data/wine/provenance/
+```
+
+The wine-region simplification stage and any publication under
+`data/products/` remain future work; this command does not write final product
+assets.
+
 ## Documentation Index
 
 - [`docs/stage1.md`](docs/stage1.md) - Stage 1 country partitions.
