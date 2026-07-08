@@ -34,6 +34,9 @@ htmlcov/
 /data/raw/insee/
 /data/raw/oecd/
 
+# Raw wine data
+/data/raw/wine/delim-parcellaire-aoc-shp/
+
 # Local/generated wine geodata
 /data/wine/aoc.gpkg
 /data/wine/regions.geojson
@@ -44,3 +47,6 @@ htmlcov/
 /legacy/ExtraData/Wine/vineyards.geojson
 /legacy/Years/2025/Notebooks/France/WineRegions/
 /legacy/Years/2026/Notebooks/France/WineRegions/
+
+# Wine work in progress
+/Development/
