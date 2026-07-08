@@ -7,11 +7,10 @@ INSEE/OECD reference data and local French geographic boundaries, and publishes
 validated CSV, GeoJSON, and guide-change report assets.
 
 The project began as an analysis of Michelin restaurants and French
-socioeconomic geography. The maintained focus is now the reproducible annual
-data pipeline; historical notebooks and helper code are retained separately as
-legacy material.
+socioeconomic geography. The data produced serves a live dash application; 
 
-This data serves a dash application: [Michelin Guide to France](https://restaurant-guide-france.net)
+- [Michelin Guide to France](https://restaurant-guide-france.net) 
+- [Github Repo](https://github.com/pineapple-bois/Michelin_App_Development)
 
 ## What This Repository Produces
 
@@ -29,13 +28,14 @@ Canonical outputs are stored under `data/partitions/`, `data/products/`, and
 
 ## Source Data And Provenance
 
-| Source family | Source | Repository role |
-|---|---|---|
-| Michelin restaurant data | [ngshiheng/michelin-my-maps](https://github.com/ngshiheng/michelin-my-maps) | Upstream Michelin restaurant dataset used to create accepted annual snapshots. |
-| INSEE data | [INSEE Melodi API catalog](https://portail-api.insee.fr/catalog/api/a890b735-159c-4c91-90b7-35159c7c9126?aq=ALL) | Machine-readable departmental demographic and socioeconomic source products. |
-| INSEE exploration | [Statistiques locales](https://statistiques-locales.insee.fr/#c=home) | Graphical exploration site, not the machine-readable pipeline source. |
-| OECD data | [OECD Data Explorer](https://data-explorer.oecd.org/) | Regional/TL3 GDP source used by the INSEE pipeline. |
-| French geographic data | [gregoiredavid/france-geojson](https://github.com/gregoiredavid/france-geojson/tree/master) | Boundary GeoJSON files retained locally so normal transformations run offline. |
+| Source family            | Source                                                                                                                     | Repository role                                                                |
+|--------------------------|----------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------|
+| Michelin restaurant data | [ngshiheng/michelin-my-maps](https://github.com/ngshiheng/michelin-my-maps)                                                | Upstream Michelin restaurant dataset used to create accepted annual snapshots. |
+| INSEE data               | [INSEE Melodi API catalog](https://portail-api.insee.fr/catalog/api/a890b735-159c-4c91-90b7-35159c7c9126?aq=ALL)           | Machine-readable departmental demographic and socioeconomic source products.   |
+| INSEE exploration        | [Statistiques locales](https://statistiques-locales.insee.fr/#c=home)                                                      | Graphical exploration site, not the machine-readable pipeline source.          |
+| OECD data                | [OECD Data Explorer](https://data-explorer.oecd.org/)                                                                      | Regional/TL3 GDP source used by the INSEE pipeline.                            |
+| French geographic data   | [gregoiredavid/france-geojson](https://github.com/gregoiredavid/france-geojson/tree/master)                                | Boundary GeoJSON files retained locally so normal transformations run offline. |
+| French wine AOC data     | [datagouv: AOC Viticoles de l'INAO](https://www.data.gouv.fr/datasets/delimitation-parcellaire-des-aoc-viticoles-de-linao) | Raw shape files representing French wine appellations.                         |
 
 ### Michelin Annual Snapshots
 
@@ -205,13 +205,11 @@ data/products/insee/<year>/france_departments_<year>.csv
 ## Repository Map
 
 ```text
-src/data_pipeline/      Michelin Stage 1, Stage 2, Stage 3, Monaco, and guide-change code
-src/insee_pipeline/     INSEE/OECD source acquisition, candidate build, and product build
+data/                   raw inputs, candidates, partitions, products, reports, and retained reference data
 docs/                   durable stage and reference-data documentation
 tests/                  unittest coverage for implemented pipeline behavior
-data/                   raw inputs, candidates, partitions, products, reports, and retained reference data
-notebooks/              parameterized posterity copies of legacy notebook workflows
-legacy/                 archived notebook-era material, not maintained pipeline code
+src/data_pipeline/      Michelin Stage 1, Stage 2, Stage 3, Monaco, and guide-change code
+src/insee_pipeline/     INSEE/OECD source acquisition, candidate build, and product build
 tmp/                    disposable local build/download workspace
 ```
 
