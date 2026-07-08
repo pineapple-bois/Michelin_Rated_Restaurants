@@ -54,6 +54,9 @@ MACHINE_REVIEW_COLUMNS = [
     "invalid_geometry_count",
     "empty_geometry_count",
     "candidate_file_size_mb",
+    "serialization_cleanup_count",
+    "serialization_cleanup_apps",
+    "serialization_cleanup_removed_area_m2",
     "parameter_set",
     "source_sha256",
     "error",
@@ -213,6 +216,13 @@ def _review_row(
         ratio = ""
     fully_covered = partition.get("fully_covered_app_names") or []
     near_total = _near_total_reductions(metrics)
+    cleanup = (metrics or {}).get("serialization_cleanup") or {}
+    cleanup_diagnostics = cleanup.get("diagnostics") or []
+    cleanup_apps = sorted(
+        str(item.get("app"))
+        for item in cleanup_diagnostics
+        if isinstance(item, dict) and item.get("cleanup_action") != "unchanged"
+    )
     return {
         "region": region,
         "region_slug": slugify_region(region),
@@ -228,6 +238,9 @@ def _review_row(
         "invalid_geometry_count": str(final.get("invalid_geometry_count", "")),
         "empty_geometry_count": str(final.get("empty_geometry_count", "")),
         "candidate_file_size_mb": str((metrics or {}).get("candidate_file_size_mb", "")),
+        "serialization_cleanup_count": str(cleanup.get("removed_component_count", "")),
+        "serialization_cleanup_apps": ";".join(cleanup_apps),
+        "serialization_cleanup_removed_area_m2": str(cleanup.get("removed_area_m2", "")),
         "parameter_set": str((metrics or {}).get("parameters", {}).get("canonical_parameter_set_name") or "experimental"),
         "source_sha256": source_sha256,
         "error": error,
@@ -265,6 +278,7 @@ def _summarise(
     failed = {item.region: item.error for item in outcomes if item.status == "failed"}
     fully_covered: dict[str, list[str]] = {}
     near_total: dict[str, list[str]] = {}
+    serialization_cleanup: dict[str, list[dict[str, object]]] = {}
     total_final_rows = 0
     for region in expected_regions:
         metrics = _region_metrics(run_dir / "regions" / slugify_region(region))
@@ -279,6 +293,13 @@ def _summarise(
         reduced = _near_total_reductions(metrics)
         if reduced:
             near_total[region] = reduced
+        cleanup_diagnostics = (metrics.get("serialization_cleanup") or {}).get("diagnostics") or []
+        modified = [
+            item for item in cleanup_diagnostics
+            if isinstance(item, dict) and item.get("cleanup_action") != "unchanged"
+        ]
+        if modified:
+            serialization_cleanup[region] = modified
     return {
         "expected_region_count": len(expected_regions),
         "completed_region_count": len(completed),
@@ -291,6 +312,7 @@ def _summarise(
         "total_final_candidate_rows": total_final_rows,
         "fully_covered_appellations_by_region": dict(sorted(fully_covered.items())),
         "near_total_area_reductions_by_region": dict(sorted(near_total.items())),
+        "serialization_cleanup_by_region": dict(sorted(serialization_cleanup.items())),
         "passed": not failed and len(completed) + len(skipped) == len(expected_regions),
     }
 

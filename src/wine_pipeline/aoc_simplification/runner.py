@@ -31,6 +31,11 @@ from .transform import (
     simplify_region,
     slugify_region,
 )
+from .serialization import (
+    SERIALIZATION_CLEANUP_ABSOLUTE_TOLERANCE_M2,
+    SERIALIZATION_CLEANUP_RELATIVE_TOLERANCE,
+    cleanup_final_geometries,
+)
 
 
 @dataclass(frozen=True)
@@ -345,8 +350,10 @@ def run_single_region(
         comparison_path = temp_dir / "comparison.png"
         overlap_comparison_path = temp_dir / "overlap_comparison.png"
 
+        progress("cleaning final geometry for GeoJSON serialization")
+        serialization_candidate, cleanup_diagnostics = cleanup_final_geometries(stages.final)
         progress(f"writing regional candidate: {candidate_path}")
-        stages.final[OUTPUT_COLUMNS].to_file(candidate_path, driver="GeoJSON", engine="pyogrio", index=False)
+        serialization_candidate.to_file(candidate_path, driver="GeoJSON", engine="pyogrio", index=False)
         reloaded = gpd.read_file(candidate_path, engine="pyogrio")
         if list(reloaded.columns) != OUTPUT_COLUMNS:
             raise ValueError(f"Candidate schema changed after write: {list(reloaded.columns)}")
@@ -362,14 +369,17 @@ def run_single_region(
             simplified=stages.simplified,
             partitioned=stages.partitioned,
             removed_overlap=stages.removed_overlap,
-            final=stages.final,
+            final=serialization_candidate,
             preview_path=preview_path,
             comparison_path=comparison_path,
             overlap_comparison_path=overlap_comparison_path,
         )
 
         partition = stages.partition_report.as_dict() if stages.partition_report else None
-        final_metrics = metrics_for_frame(stages.final)
+        final_metrics = metrics_for_frame(serialization_candidate)
+        cleanup_events = [
+            item for item in cleanup_diagnostics if item["cleanup_action"] != "unchanged"
+        ]
         metrics = {
             "region": region,
             "region_slug": region_slug,
@@ -394,6 +404,19 @@ def run_single_region(
             },
             "partition": partition,
             "fully_covered_app_warnings": stages.partition_report.fully_covered_app_names if stages.partition_report else [],
+            "serialization_cleanup": {
+                "absolute_area_tolerance_m2": SERIALIZATION_CLEANUP_ABSOLUTE_TOLERANCE_M2,
+                "relative_area_tolerance": SERIALIZATION_CLEANUP_RELATIVE_TOLERANCE,
+                "rows_examined": len(cleanup_diagnostics),
+                "rows_modified": len(cleanup_events),
+                "removed_component_count": sum(
+                    int(item["removed_component_count"]) for item in cleanup_diagnostics
+                ),
+                "removed_area_m2": sum(
+                    float(item["removed_area_m2"]) for item in cleanup_diagnostics
+                ),
+                "diagnostics": cleanup_diagnostics,
+            },
             "candidate_file_size_mb": round(candidate_path.stat().st_size / (1024 * 1024), 6),
             "final_validation": {
                 "schema": list(reloaded.columns),

@@ -12,6 +12,11 @@ from .transform import (
     slugify_region,
 )
 from .batch import run_batch
+from .serialization import (
+    SERIALIZATION_CLEANUP_ABSOLUTE_TOLERANCE_M2,
+    SERIALIZATION_CLEANUP_RELATIVE_TOLERANCE,
+    cleanup_final_geometries,
+)
 
 __all__ = [
     "CANONICAL_BUFFER_M",
@@ -24,4 +29,7 @@ __all__ = [
     "simplify_region",
     "slugify_region",
     "run_batch",
+    "SERIALIZATION_CLEANUP_ABSOLUTE_TOLERANCE_M2",
+    "SERIALIZATION_CLEANUP_RELATIVE_TOLERANCE",
+    "cleanup_final_geometries",
 ]

@@ -363,6 +363,14 @@ geometry
 The Stage 1-only fields `id_app`, `dt`, `region_method`, and `overlap_ratio`
 are not present in the simplified output.
 
+Immediately before GeoJSON serialization, Stage 2 repairs final geometry and
+removes only invalid, empty, zero-area, degenerate, or non-polygonal component
+debris when removal is no more than both 1 square metre and `1e-9` of the
+appellation's preserved `source_area_m2`. The row must retain valid polygonal
+geometry; otherwise the run fails. Regional `metrics.json` records per-app
+cleanup diagnostics, which are also exposed in batch summaries and review
+tables.
+
 `region_review.csv` contains refreshed machine-owned columns and blank or
 pending human-owned columns. Later tooling may refresh the machine metrics, but
 human-owned review fields such as reviewer, reviewed timestamp, assessments,

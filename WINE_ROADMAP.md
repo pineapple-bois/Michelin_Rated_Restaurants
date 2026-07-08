@@ -229,6 +229,14 @@ Output columns: region, app, display_name, colour, categorie, source_area_m2, ge
 Residual overlap tolerance: max(1e-6 m2, union_area_m2 * 1e-9)
 ```
 
+Final serialization cleanup is deliberately narrower than the geometry
+transform. Immediately before GeoJSON output, final geometry is repaired and
+polygonal components are retained. Invalid, empty, zero-area, degenerate, or
+non-polygonal debris may be removed only when the removed area is no more than
+both 1 square metre and `1e-9` of `source_area_m2`. Empty rows or larger
+removals fail. Per-app diagnostics are written to regional `metrics.json` and
+surfaced in the batch summary and review table.
+
 The canonical package defaults are:
 
 ```text

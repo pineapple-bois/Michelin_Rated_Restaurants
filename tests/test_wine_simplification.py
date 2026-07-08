@@ -10,9 +10,10 @@ import unittest
 from unittest import mock
 
 import geopandas as gpd
-from shapely.geometry import Polygon
+from shapely.geometry import GeometryCollection, LineString, Polygon
 
 from wine_pipeline.aoc_simplification.runner import _validate_candidate_round_trip, run_single_region
+from wine_pipeline.aoc_simplification.serialization import cleanup_final_geometries
 from wine_pipeline.aoc_simplification.transform import (
     CANONICAL_BUFFER_M,
     CANONICAL_OVERLAP_STRATEGY,
@@ -109,6 +110,71 @@ def load_development_simplification():
 
 
 class WineSimplificationTests(unittest.TestCase):
+    def serialization_frame(self, geometry, *, source_area_m2: float = 1_000_000.0) -> gpd.GeoDataFrame:
+        return gpd.GeoDataFrame(
+            [{
+                "region": "Fixture",
+                "app": "Cleanup",
+                "display_name": "Cleanup",
+                "colour": "#123456",
+                "categorie": "AOP",
+                "source_area_m2": source_area_m2,
+                "geometry": geometry,
+            }],
+            geometry="geometry",
+            crs="EPSG:2154",
+        )
+
+    def test_serialization_cleanup_removes_degenerate_component_and_keeps_main_polygon(self) -> None:
+        geometry = GeometryCollection([
+            square(700000, 6600000, 1000),
+            LineString([(701500, 6600000), (701500, 6600000)]),
+        ])
+        cleaned, diagnostics = cleanup_final_geometries(self.serialization_frame(geometry))
+        self.assertEqual(len(cleaned), 1)
+        self.assertFalse(cleaned.geometry.iloc[0].is_empty)
+        self.assertTrue(cleaned.geometry.iloc[0].is_valid)
+        self.assertEqual(diagnostics[0]["removed_component_count"], 1)
+        self.assertEqual(diagnostics[0]["cleanup_action"], "removed_negligible_invalid_or_degenerate_components")
+
+    def test_serialization_cleanup_fails_when_entire_geometry_becomes_empty(self) -> None:
+        geometry = GeometryCollection([LineString([(0, 0), (1, 1)])])
+        with self.assertRaisesRegex(ValueError, "would leave app='Cleanup' empty"):
+            cleanup_final_geometries(self.serialization_frame(geometry))
+
+    def test_serialization_cleanup_fails_when_removal_exceeds_tolerance(self) -> None:
+        geometry = GeometryCollection([
+            square(700000, 6600000, 1000),
+            LineString([(701500, 6600000), (701500, 6600000)]),
+        ])
+        with self.assertRaisesRegex(ValueError, "exceeding tolerances"):
+            cleanup_final_geometries(
+                self.serialization_frame(geometry),
+                absolute_tolerance_m2=-1.0,
+            )
+
+    def test_serialization_cleanup_leaves_valid_geometry_unmodified(self) -> None:
+        geometry = square(700000, 6600000, 1000)
+        cleaned, diagnostics = cleanup_final_geometries(self.serialization_frame(geometry))
+        self.assertEqual(diagnostics[0]["cleanup_action"], "unchanged")
+        self.assertEqual(diagnostics[0]["removed_component_count"], 0)
+        round_tripped = cleaned.to_crs("EPSG:2154").geometry.iloc[0]
+        self.assertAlmostEqual(round_tripped.area, geometry.area, places=4)
+
+    def test_serialization_cleanup_survives_geojson_round_trip(self) -> None:
+        geometry = GeometryCollection([
+            square(700000, 6600000, 1000),
+            LineString([(701500, 6600000), (701500, 6600000)]),
+        ])
+        cleaned, _ = cleanup_final_geometries(self.serialization_frame(geometry))
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "candidate.geojson"
+            cleaned.to_file(path, driver="GeoJSON", engine="pyogrio", index=False)
+            reloaded = gpd.read_file(path, engine="pyogrio")
+        _validate_candidate_round_trip(reloaded, context="Fixture candidate")
+        self.assertTrue(reloaded.geometry.is_valid.all())
+        self.assertFalse(reloaded.geometry.is_empty.any())
+
     def test_stage1_schema_validation_and_region_selection(self) -> None:
         data = fixture_stage1()
         validate_stage1_schema(data)
@@ -259,6 +325,12 @@ class WineSimplificationTests(unittest.TestCase):
             written = gpd.read_file(result.candidate_path)
             self.assertEqual(written.columns.tolist(), OUTPUT_COLUMNS)
             self.assertEqual(result.run_dir, (output_root / "test_run" / "regions" / "fixture").resolve())
+            metrics = json.loads(result.metrics_path.read_text())
+            self.assertIn("serialization_cleanup", metrics)
+            self.assertEqual(
+                len(metrics["serialization_cleanup"]["diagnostics"]),
+                len(written),
+            )
 
     def test_failed_overwrite_preserves_previous_completed_artifact_set(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
