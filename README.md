@@ -219,8 +219,8 @@ The maintained Python packages use the `src/` layout and are packaged through
 ## Wine AOC Candidate Pipeline
 
 The reproducible wine geospatial candidate pipeline lives in
-`src/wine_pipeline/`. It implements the direct source-to-candidate path for
-French wine AOC geometry:
+`src/wine_pipeline/`. It currently implements the source-to-enriched-candidate
+stage and a single-region simplification runner.
 
 ```text
 INAO AOC parcel download
@@ -264,9 +264,66 @@ Durable machine-readable provenance and validation reports are written beneath:
 data/wine/provenance/
 ```
 
-The wine-region simplification stage and any publication under
-`data/products/` remain future work; this command does not write final product
-assets.
+Stage 2 simplification is intentionally separate because runtime is long and
+regional outputs require inspection before any merged candidate is accepted.
+Run one exact region from a Stage 1 `aoc_regions.gpkg` with:
+
+```bash
+python -m wine_pipeline simplify-region \
+  --region "Jura" \
+  --input tmp/wine/<run-id>/candidates/aoc_regions.gpkg
+```
+
+Editable installation also provides:
+
+```bash
+wine_pipeline simplify-region --region "Jura" --input tmp/wine/<run-id>/candidates/aoc_regions.gpkg
+```
+
+The default simplification parameter set is the reviewed
+`close500_simplify150` regime:
+
+- `--buffer 500`: an outward-then-inward morphological closing distance in
+  metres. This is not a permanent 500-metre expansion.
+- `--simplify 150`: a topology-preserving simplification tolerance in metres.
+  It reduces boundary detail and payload complexity.
+- `--overlap-strategy smallest-wins`: smaller processed appellations keep
+  overlapping area before broader appellations. This can substantially reduce
+  or fully cover coextensive broader appellations.
+
+CLI overrides are accepted for experiments, but the metadata records whether
+the effective parameters are canonical.
+
+Single-region outputs are written only beneath:
+
+```text
+tmp/wine/simplification/<run-id>/regions/<region-slug>/
+├── candidate.geojson
+├── metrics.json
+├── params.json
+├── preview.png
+├── comparison.png
+└── overlap_comparison.png
+```
+
+The simplified regional candidate carries:
+
+```text
+region
+app
+display_name
+colour
+categorie
+source_area_m2
+geometry
+```
+
+The Stage 1-only fields `id_app`, `dt`, `region_method`, and `overlap_ratio`
+are not present in the simplified output.
+
+All-region orchestration, human approval, merged candidate creation,
+promotion into `data/candidates/wine/`, product verification, and publication
+under `data/products/wine/` remain later gated stages.
 
 ## Documentation Index
 

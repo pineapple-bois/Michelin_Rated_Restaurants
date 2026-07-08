@@ -18,6 +18,8 @@ from .aoc_enrichment.mappings import FALLBACK_REGIONS_BY_DT, REGION_OVERRIDE_MET
 from .aoc_enrichment.transform import write_enriched_candidate
 from .aoc_package.extract import extract_inao_source, source_urls
 from .aoc_package.transform import write_packaged_candidate
+from .aoc_simplification.runner import run_single_region
+from .aoc_simplification.transform import CANONICAL_RUN_ID, SimplificationParameters
 from .config import DURABLE_REPORT_ROOT, OUTPUT_LAYER, RUN_ROOT
 from .provenance import ReportCollector, sha256_file, source_date_from_headers, utc_now, write_json
 from .validation import WinePipelineError
@@ -209,6 +211,16 @@ def _parser() -> argparse.ArgumentParser:
     build_parser.add_argument("--run-root", type=Path, default=RUN_ROOT)
     build_parser.add_argument("--report-root", type=Path, default=DURABLE_REPORT_ROOT)
     build_parser.add_argument("--quiet", action="store_true", help="suppress stage progress messages")
+    simplify_parser = subparsers.add_parser("simplify-region", help="run Stage 2 simplification for one exact region")
+    simplify_parser.add_argument("--region", required=True, help="exact region display name to simplify")
+    simplify_parser.add_argument("--input", type=Path, help="Stage 1 aoc_regions.gpkg; defaults to latest tmp/wine run")
+    simplify_parser.add_argument("--run-id", default=CANONICAL_RUN_ID, help="simplification run id")
+    simplify_parser.add_argument("--output-root", type=Path, help="default: tmp/wine/simplification")
+    simplify_parser.add_argument("--buffer", type=float, default=500.0, help="morphological closing distance in metres")
+    simplify_parser.add_argument("--simplify", type=float, default=150.0, help="topology-preserving simplification tolerance in metres")
+    simplify_parser.add_argument("--overlap-strategy", choices=("none", "smallest-wins"), default="smallest-wins")
+    simplify_parser.add_argument("--overwrite", action="store_true", help="replace an existing regional run directory")
+    simplify_parser.add_argument("--quiet", action="store_true", help="suppress stage progress messages")
     return parser
 
 
@@ -224,6 +236,32 @@ def main(argv: list[str] | None = None) -> int:
             print(f"  provenance report: {result.provenance_report}")
             print(f"  validation report: {result.validation_report}")
             print(f"  validation checks: {result.checks}")
+            return 0
+        if args.command == "simplify-region":
+            parameters = SimplificationParameters(
+                buffer_m=float(args.buffer),
+                simplify_m=float(args.simplify),
+                overlap_strategy=args.overlap_strategy,
+            )
+            result = run_single_region(
+                region=args.region,
+                input_path=args.input,
+                run_id=args.run_id,
+                output_root=args.output_root,
+                parameters=parameters,
+                overwrite=args.overwrite,
+                progress=_console_progress(not args.quiet),
+                command=["wine_pipeline", *sys.argv[1:]],
+            )
+            print(f"Built wine simplification candidate for {result.region}")
+            print(f"  run dir: {result.run_dir}")
+            print(f"  candidate: {result.candidate_path}")
+            print(f"  metrics: {result.metrics_path}")
+            print(f"  params: {result.params_path}")
+            print(f"  preview: {result.preview_path}")
+            print(f"  comparison: {result.comparison_path}")
+            print(f"  overlap comparison: {result.overlap_comparison_path}")
+            print(f"  rows: {result.rows}")
             return 0
         raise AssertionError(args.command)
     except (WinePipelineError, FileExistsError, FileNotFoundError, requests.RequestException, ValueError) as error:
