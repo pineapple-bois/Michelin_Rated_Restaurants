@@ -16,9 +16,11 @@ import sys
 import uuid
 
 import geopandas as gpd
+from shapely.validation import explain_validity
 
 from .. import __version__
 from ..provenance import sha256_file
+from ..validation import WinePipelineError
 from .transform import (
     CANONICAL_RUN_ID,
     OUTPUT_COLUMNS,
@@ -120,6 +122,45 @@ def _expected_artifacts(run_dir: Path) -> list[Path]:
     ]
 
 
+def _candidate_geometry_diagnostics(frame: gpd.GeoDataFrame) -> list[dict[str, object]]:
+    diagnostics = []
+    for index, row in frame.iterrows():
+        geometry = row.geometry
+        is_null = geometry is None
+        is_empty = False if is_null else bool(geometry.is_empty)
+        is_valid = False if is_null else bool(geometry.is_valid)
+        if not is_null and not is_empty and is_valid:
+            continue
+        diagnostics.append(
+            {
+                "row_index": int(index) if isinstance(index, int) else str(index),
+                "app": row.get("app"),
+                "geometry_type": None if is_null else geometry.geom_type,
+                "geometry_is_null": is_null,
+                "geometry_is_empty": is_empty,
+                "validity_reason": "Null geometry" if is_null else explain_validity(geometry),
+            }
+        )
+    return diagnostics
+
+
+def _format_candidate_geometry_diagnostics(diagnostics: list[dict[str, object]]) -> str:
+    parts = []
+    for item in diagnostics:
+        parts.append(
+            "row {row_index}: app={app!r}, geometry_type={geometry_type!r}, "
+            "geometry_is_null={geometry_is_null}, geometry_is_empty={geometry_is_empty}, "
+            "validity_reason={validity_reason!r}".format(**item)
+        )
+    return "; ".join(parts)
+
+
+def _validate_candidate_round_trip(frame: gpd.GeoDataFrame, *, context: str) -> None:
+    diagnostics = _candidate_geometry_diagnostics(frame)
+    if diagnostics:
+        raise ValueError(f"{context} failed geometry round-trip validation: {_format_candidate_geometry_diagnostics(diagnostics)}")
+
+
 def _validate_artifact_set(run_dir: Path) -> None:
     missing = [path.name for path in _expected_artifacts(run_dir) if not path.is_file()]
     if missing:
@@ -129,8 +170,7 @@ def _validate_artifact_set(run_dir: Path) -> None:
         raise ValueError(f"Candidate schema changed after write: {list(candidate.columns)}")
     if candidate.crs is None or candidate.crs.to_epsg() != 4326:
         raise ValueError(f"Candidate CRS changed after write: {candidate.crs}")
-    if candidate.geometry.isna().any() or candidate.geometry.is_empty.any() or not candidate.geometry.is_valid.all():
-        raise ValueError("Candidate GeoJSON failed geometry round-trip validation.")
+    _validate_candidate_round_trip(candidate, context="Candidate GeoJSON")
     for json_name in ("metrics.json", "params.json"):
         json.loads((run_dir / json_name).read_text(encoding="utf-8"))
 
@@ -262,6 +302,7 @@ def run_single_region(
     output_root: Path | None = None,
     parameters: SimplificationParameters | None = None,
     overwrite: bool = False,
+    keep_failed_temp: bool = False,
     progress: Callable[[str], None] | None = None,
     command: list[str] | None = None,
 ) -> SimplificationRunResult:
@@ -311,8 +352,7 @@ def run_single_region(
             raise ValueError(f"Candidate schema changed after write: {list(reloaded.columns)}")
         if reloaded.crs is None or reloaded.crs.to_epsg() != 4326:
             raise ValueError(f"Candidate CRS changed after write: {reloaded.crs}")
-        if reloaded.geometry.isna().any() or reloaded.geometry.is_empty.any() or not reloaded.geometry.is_valid.all():
-            raise ValueError("Candidate GeoJSON failed geometry round-trip validation.")
+        _validate_candidate_round_trip(reloaded, context="Candidate GeoJSON")
 
         progress("writing visual inspection outputs")
         write_plots(
@@ -382,8 +422,12 @@ def run_single_region(
         _write_json(params_path, params)
         _validate_artifact_set(temp_dir)
         _install_run_directory(temp_dir, run_dir, overwrite=overwrite)
-    except Exception:
+    except Exception as error:
         if temp_dir.exists():
+            if keep_failed_temp:
+                message = f"retained failed temporary regional run directory: {temp_dir}"
+                progress(message)
+                raise WinePipelineError(f"{error}; retained failed temporary directory: {temp_dir}") from error
             shutil.rmtree(temp_dir)
         raise
     candidate_path = run_dir / "candidate.geojson"

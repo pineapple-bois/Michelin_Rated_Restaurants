@@ -12,7 +12,7 @@ from unittest import mock
 import geopandas as gpd
 from shapely.geometry import Polygon
 
-from wine_pipeline.aoc_simplification.runner import run_single_region
+from wine_pipeline.aoc_simplification.runner import _validate_candidate_round_trip, run_single_region
 from wine_pipeline.aoc_simplification.transform import (
     CANONICAL_BUFFER_M,
     CANONICAL_OVERLAP_STRATEGY,
@@ -24,6 +24,7 @@ from wine_pipeline.aoc_simplification.transform import (
     simplify_region,
     validate_stage1_schema,
 )
+from wine_pipeline.validation import WinePipelineError
 
 
 def square(x0: float, y0: float, size: float) -> Polygon:
@@ -284,6 +285,56 @@ class WineSimplificationTests(unittest.TestCase):
             self.assertEqual(artifact_snapshot(first.run_dir), before)
             temp_dirs = list((output_root / "stable" / "regions").glob(".fixture.tmp-*"))
             self.assertEqual(temp_dirs, [])
+
+    def test_failed_run_retains_temp_directory_only_when_requested(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            input_path = write_stage1_fixture(root / "stage1" / "aoc_regions.gpkg")
+            output_root = root / "simplification"
+
+            def failing_plots(**kwargs):
+                fake_write_plots(**kwargs)
+                raise RuntimeError("plot failure")
+
+            with mock.patch("wine_pipeline.aoc_simplification.runner.write_plots", side_effect=failing_plots):
+                with self.assertRaisesRegex(RuntimeError, "plot failure"):
+                    run_single_region(region="Fixture", input_path=input_path, run_id="cleaned", output_root=output_root)
+            self.assertEqual(list((output_root / "cleaned" / "regions").glob(".fixture.tmp-*")), [])
+
+            with mock.patch("wine_pipeline.aoc_simplification.runner.write_plots", side_effect=failing_plots):
+                with self.assertRaisesRegex(WinePipelineError, "retained failed temporary directory") as raised:
+                    run_single_region(
+                        region="Fixture",
+                        input_path=input_path,
+                        run_id="retained",
+                        output_root=output_root,
+                        keep_failed_temp=True,
+                    )
+            retained = list((output_root / "retained" / "regions").glob(".fixture.tmp-*"))
+            self.assertEqual(len(retained), 1)
+            self.assertIn(str(retained[0]), str(raised.exception))
+            self.assertTrue((retained[0] / "candidate.geojson").is_file())
+            self.assertTrue((retained[0] / "preview.png").is_file())
+
+    def test_candidate_round_trip_validation_reports_affected_rows(self) -> None:
+        frame = gpd.GeoDataFrame(
+            [
+                {"app": "Broken", "geometry": Polygon([(0, 0), (2, 2), (0, 2), (2, 0), (0, 0)])},
+                {"app": "Missing", "geometry": None},
+                {"app": "Empty", "geometry": Polygon()},
+            ],
+            geometry="geometry",
+            crs="EPSG:4326",
+        )
+        with self.assertRaisesRegex(ValueError, "Broken") as raised:
+            _validate_candidate_round_trip(frame, context="Candidate GeoJSON")
+        message = str(raised.exception)
+        self.assertIn("geometry_type='Polygon'", message)
+        self.assertIn("geometry_is_null=True", message)
+        self.assertIn("geometry_is_empty=True", message)
+        self.assertIn("validity_reason=", message)
+        self.assertIn("Missing", message)
+        self.assertIn("Empty", message)
 
     def test_successful_overwrite_replaces_complete_artifact_set(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
