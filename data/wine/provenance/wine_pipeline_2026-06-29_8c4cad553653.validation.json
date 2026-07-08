@@ -1,0 +1,433 @@
+{
+  "run_id": "2026-07-08T141025.917363+0000_3da655fa",
+  "started_at_utc": "2026-07-08T14:10:25.917537+00:00",
+  "completed_at_utc": "2026-07-08T14:15:58.064476+00:00",
+  "checks": [
+    {
+      "name": "aoc_source_required_columns",
+      "passed": true,
+      "observed": [],
+      "expected": [
+        "app",
+        "categorie",
+        "dt",
+        "geometry",
+        "id_app"
+      ],
+      "message": ""
+    },
+    {
+      "name": "aoc_source_not_empty",
+      "passed": true,
+      "observed": 11773,
+      "expected": "> 0",
+      "message": ""
+    },
+    {
+      "name": "aoc_source_crs_epsg_2154",
+      "passed": true,
+      "observed": 2154,
+      "expected": 2154,
+      "message": ""
+    },
+    {
+      "name": "aoc_source_identity_non_null",
+      "passed": true,
+      "observed": {
+        "app": 0,
+        "id_app": 0
+      },
+      "expected": 0,
+      "message": ""
+    },
+    {
+      "name": "aoc_source_geometry_non_null",
+      "passed": true,
+      "observed": 0,
+      "expected": 0,
+      "message": ""
+    },
+    {
+      "name": "aoc_source_geometry_non_empty",
+      "passed": true,
+      "observed": 0,
+      "expected": 0,
+      "message": ""
+    },
+    {
+      "name": "aoc_source_invalid_geometry_reported",
+      "passed": true,
+      "observed": 0,
+      "expected": "reported",
+      "message": ""
+    },
+    {
+      "name": "aoc_package_geometry_processing_non_null",
+      "passed": true,
+      "observed": 0,
+      "expected": 0,
+      "message": ""
+    },
+    {
+      "name": "aoc_package_geometry_processing_non_empty",
+      "passed": true,
+      "observed": 0,
+      "expected": 0,
+      "message": ""
+    },
+    {
+      "name": "aoc_package_geometry_processing_valid",
+      "passed": true,
+      "observed": 0,
+      "expected": 0,
+      "message": ""
+    },
+    {
+      "name": "aoc_package_group_dt_cardinality",
+      "passed": true,
+      "observed": {},
+      "expected": "one distinct non-null dt per group",
+      "message": ""
+    },
+    {
+      "name": "aoc_package_group_categorie_mixed_values_reported",
+      "passed": true,
+      "observed": {
+        "Alsace ou Vin d'Alsace|1": [
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille",
+          "Vin tranquille"
+        ],
+        "Bugey|674": [
+          "Vin mousseux \"Méthode ancestrale\"",
+          "Vin mousseux, Vin pétillant, Vin tranquille",
+          "Vin tranquille"
+        ],
+        "Coteaux du Layon|88": [
+          "Vin de sélection de grains nobles, Vin de triees successives",
+          "Vin de triees successives"
+        ],
+        "Côtes de Bordeaux|685": [
+          "Vin de triees successives, Vin tranquille",
+          "Vin tranquille"
+        ],
+        "Languedoc|257": [
+          "Vin primeur, Vin tranquille",
+          "Vin tranquille"
+        ],
+        "Muscadet Sèvre et Maine|100": [
+          "Vin sur lie, Vin tranquille",
+          "Vin tranquille"
+        ],
+        "Mâcon|583": [
+          "Vin primeur, Vin tranquille",
+          "Vin tranquille"
+        ],
+        "Rasteau|313": [
+          "Vin doux naturel",
+          "Vin tranquille"
+        ],
+        "Touraine|113": [
+          "Vin mousseux, Vin primeur, Vin tranquille",
+          "Vin tranquille"
+        ],
+        "Vin de Savoie ou Savoie|235": [
+          "Vin mousseux, Vin tranquille",
+          "Vin tranquille"
+        ]
+      },
+      "expected": "reported; representative value retained from first source row",
+      "message": ""
+    },
+    {
+      "name": "aoc_package_group_count",
+      "passed": true,
+      "observed": 357,
+      "expected": 357,
+      "message": ""
+    },
+    {
+      "name": "aoc_package_no_duplicate_keys",
+      "passed": true,
+      "observed": 0,
+      "expected": 0,
+      "message": ""
+    },
+    {
+      "name": "aoc_package_bounds_stable",
+      "passed": true,
+      "observed": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "expected": "max <= 1.0",
+      "message": ""
+    },
+    {
+      "name": "aoc_package_round_trip_row_count",
+      "passed": true,
+      "observed": 357,
+      "expected": 357,
+      "message": ""
+    },
+    {
+      "name": "aoc_package_schema",
+      "passed": true,
+      "observed": [
+        "app",
+        "id_app",
+        "dt",
+        "categorie",
+        "geometry"
+      ],
+      "expected": [
+        "app",
+        "id_app",
+        "dt",
+        "categorie",
+        "geometry"
+      ],
+      "message": ""
+    },
+    {
+      "name": "aoc_package_crs_epsg_2154",
+      "passed": true,
+      "observed": "EPSG:2154",
+      "expected": "EPSG:2154",
+      "message": ""
+    },
+    {
+      "name": "aoc_package_unique_app_id_app",
+      "passed": true,
+      "observed": 0,
+      "expected": 0,
+      "message": ""
+    },
+    {
+      "name": "aoc_package_geometry_non_null",
+      "passed": true,
+      "observed": 0,
+      "expected": 0,
+      "message": ""
+    },
+    {
+      "name": "aoc_package_geometry_non_empty",
+      "passed": true,
+      "observed": 0,
+      "expected": 0,
+      "message": ""
+    },
+    {
+      "name": "aoc_package_geometry_valid",
+      "passed": true,
+      "observed": 0,
+      "expected": 0,
+      "message": ""
+    },
+    {
+      "name": "aoc_enrichment_input_columns",
+      "passed": true,
+      "observed": [],
+      "expected": [
+        "app",
+        "categorie",
+        "dt",
+        "geometry",
+        "id_app"
+      ],
+      "message": ""
+    },
+    {
+      "name": "aoc_enrichment_unique_id_app",
+      "passed": true,
+      "observed": 0,
+      "expected": 0,
+      "message": ""
+    },
+    {
+      "name": "regional_source_not_empty",
+      "passed": true,
+      "observed": 136,
+      "expected": "> 0",
+      "message": ""
+    },
+    {
+      "name": "regional_source_has_crs",
+      "passed": true,
+      "observed": "EPSG:4326",
+      "expected": "present",
+      "message": ""
+    },
+    {
+      "name": "regional_source_has_region_column",
+      "passed": true,
+      "observed": [
+        "region",
+        "url2",
+        "url1",
+        "name",
+        "grapes",
+        "geometry"
+      ],
+      "expected": "region column",
+      "message": ""
+    },
+    {
+      "name": "regional_source_polygonal",
+      "passed": true,
+      "observed": [],
+      "expected": [
+        "Polygon",
+        "MultiPolygon"
+      ],
+      "message": ""
+    },
+    {
+      "name": "regional_source_region_names_non_null",
+      "passed": true,
+      "observed": 0,
+      "expected": 0,
+      "message": ""
+    },
+    {
+      "name": "regional_source_repaired_polygonal",
+      "passed": true,
+      "observed": [],
+      "expected": [
+        "Polygon",
+        "MultiPolygon"
+      ],
+      "message": ""
+    },
+    {
+      "name": "aoc_enrichment_colour_mapping_complete",
+      "passed": true,
+      "observed": [],
+      "expected": "all final regions configured",
+      "message": ""
+    },
+    {
+      "name": "aoc_enrichment_row_count_unchanged",
+      "passed": true,
+      "observed": 357,
+      "expected": 357,
+      "message": ""
+    },
+    {
+      "name": "aoc_enrichment_all_regions_assigned",
+      "passed": "True",
+      "observed": 0,
+      "expected": 0,
+      "message": ""
+    },
+    {
+      "name": "aoc_enrichment_all_colours_assigned",
+      "passed": "True",
+      "observed": 0,
+      "expected": 0,
+      "message": ""
+    },
+    {
+      "name": "aoc_regions_row_count",
+      "passed": true,
+      "observed": 357,
+      "expected": 357,
+      "message": ""
+    },
+    {
+      "name": "aoc_regions_schema",
+      "passed": true,
+      "observed": [
+        "id_app",
+        "app",
+        "display_name",
+        "dt",
+        "region",
+        "region_method",
+        "overlap_ratio",
+        "colour",
+        "categorie",
+        "geometry"
+      ],
+      "expected": [
+        "id_app",
+        "app",
+        "display_name",
+        "dt",
+        "region",
+        "region_method",
+        "overlap_ratio",
+        "colour",
+        "categorie",
+        "geometry"
+      ],
+      "message": ""
+    },
+    {
+      "name": "aoc_regions_unique_id_app",
+      "passed": true,
+      "observed": 0,
+      "expected": 0,
+      "message": ""
+    },
+    {
+      "name": "aoc_regions_crs_epsg_2154",
+      "passed": true,
+      "observed": "EPSG:2154",
+      "expected": "EPSG:2154",
+      "message": ""
+    },
+    {
+      "name": "aoc_regions_geometry_non_null",
+      "passed": true,
+      "observed": 0,
+      "expected": 0,
+      "message": ""
+    },
+    {
+      "name": "aoc_regions_geometry_non_empty",
+      "passed": true,
+      "observed": 0,
+      "expected": 0,
+      "message": ""
+    },
+    {
+      "name": "aoc_regions_geometry_valid",
+      "passed": true,
+      "observed": 0,
+      "expected": 0,
+      "message": ""
+    },
+    {
+      "name": "aoc_regions_region_present",
+      "passed": "True",
+      "observed": 0,
+      "expected": 0,
+      "message": ""
+    },
+    {
+      "name": "aoc_regions_colour_present",
+      "passed": "True",
+      "observed": 0,
+      "expected": 0,
+      "message": ""
+    },
+    {
+      "name": "aoc_regions_method_values",
+      "passed": true,
+      "observed": [
+        "delegation_fallback",
+        "explicit_override",
+        "spatial_majority"
+      ],
+      "expected": [
+        "delegation_fallback",
+        "explicit_override",
+        "spatial_majority"
+      ],
+      "message": ""
+    }
+  ],
+  "passed": true
+}

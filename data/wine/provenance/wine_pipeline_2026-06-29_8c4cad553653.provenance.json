@@ -1,0 +1,623 @@
+{
+  "run_id": "2026-07-08T141025.917363+0000_3da655fa",
+  "started_at_utc": "2026-07-08T14:10:25.917537+00:00",
+  "completed_at_utc": "2026-07-08T14:15:58.064476+00:00",
+  "pipeline_version": "0.1.0",
+  "configured_source_urls": {
+    "inao": {
+      "dataset_page": "https://www.data.gouv.fr/datasets/delimitation-parcellaire-des-aoc-viticoles-de-linao",
+      "resource_endpoint": "https://www.data.gouv.fr/api/1/datasets/r/e79a7c68-2fe4-4225-a802-8379a8d6426c"
+    },
+    "uc_davis": {
+      "branch_url": "https://github.com/UCDavisLibrary/wine-ontology/tree/master/examples/france",
+      "raw_url": "https://raw.githubusercontent.com/UCDavisLibrary/wine-ontology/master/examples/france/regions.geojson"
+    }
+  },
+  "final_resolved_source_urls": {
+    "inao": "https://static.data.gouv.fr/resources/delimitation-parcellaire-des-aoc-viticoles-de-linao/20260629-213846/2026-06-29-delim-parcellaire-aoc-shp.zip",
+    "uc_davis": "https://raw.githubusercontent.com/UCDavisLibrary/wine-ontology/cf3028da4a88ce0eb3e77173dde0a68932d2f612/examples/france/regions.geojson"
+  },
+  "retrieval_headers": {
+    "inao": {
+      "ETag": "\"6a42e5f4-ff230a1\"",
+      "Last-Modified": "Mon, 29 Jun 2026 21:39:00 GMT",
+      "Content-Type": "application/zip"
+    },
+    "uc_davis": {
+      "ETag": "W/\"957dea6684fc521ebf7b3dff98c025063a0a8b9b28405d4b905ab8ede73418dc\"",
+      "Content-Type": "text/plain; charset=utf-8"
+    }
+  },
+  "source_files": {
+    "inao_archive": {
+      "configured_url": "https://www.data.gouv.fr/api/1/datasets/r/e79a7c68-2fe4-4225-a802-8379a8d6426c",
+      "final_url": "https://static.data.gouv.fr/resources/delimitation-parcellaire-des-aoc-viticoles-de-linao/20260629-213846/2026-06-29-delim-parcellaire-aoc-shp.zip",
+      "retrieval_time_utc": "2026-07-08T14:10:34.428084+00:00",
+      "headers": {
+        "ETag": "\"6a42e5f4-ff230a1\"",
+        "Last-Modified": "Mon, 29 Jun 2026 21:39:00 GMT",
+        "Content-Type": "application/zip"
+      },
+      "filename": "2026-06-29-delim-parcellaire-aoc-shp.zip",
+      "path": "tmp/wine/2026-07-08T141025.917363+0000_3da655fa/downloads/inao/2026-06-29-delim-parcellaire-aoc-shp.zip",
+      "size_bytes": 267530401,
+      "sha256": "8c4cad553653fecbc973c3b4e1ece445dfe761ac1e70e094653615c5d65dfdac",
+      "archive_type": "zip"
+    },
+    "uc_davis_regions": {
+      "configured_branch_url": "https://github.com/UCDavisLibrary/wine-ontology/tree/master/examples/france",
+      "configured_raw_url": "https://raw.githubusercontent.com/UCDavisLibrary/wine-ontology/master/examples/france/regions.geojson",
+      "resolved_commit_sha": "cf3028da4a88ce0eb3e77173dde0a68932d2f612",
+      "download_url": "https://raw.githubusercontent.com/UCDavisLibrary/wine-ontology/cf3028da4a88ce0eb3e77173dde0a68932d2f612/examples/france/regions.geojson",
+      "final_url": "https://raw.githubusercontent.com/UCDavisLibrary/wine-ontology/cf3028da4a88ce0eb3e77173dde0a68932d2f612/examples/france/regions.geojson",
+      "retrieval_time_utc": "2026-07-08T14:10:37.092256+00:00",
+      "headers": {
+        "ETag": "W/\"957dea6684fc521ebf7b3dff98c025063a0a8b9b28405d4b905ab8ede73418dc\"",
+        "Content-Type": "text/plain; charset=utf-8"
+      },
+      "filename": "regions.geojson",
+      "path": "tmp/wine/2026-07-08T141025.917363+0000_3da655fa/downloads/uc_davis/regions.geojson",
+      "size_bytes": 483003,
+      "sha256": "b3f499c85aab28830f80e5d264dbbaaf0353461cafb68fc33151f0d93ddb3a4d",
+      "authority_warning": "Non-authoritative, hand-drawn application-level wine-region boundaries derived from an ESRI map and used as the best available broad regional classification source."
+    }
+  },
+  "uc_davis_commit_sha": "cf3028da4a88ce0eb3e77173dde0a68932d2f612",
+  "extracted_shapefile": {
+    "shapefile_path": "tmp/wine/2026-07-08T141025.917363+0000_3da655fa/extracted/inao/2026-06-29_delim-parcellaire-aoc-shp.shp",
+    "members": [
+      {
+        "name": "2026-06-29_delim-parcellaire-aoc-shp.cpg",
+        "size_bytes": 5,
+        "sha256": "3ad3031f5503a4404af825262ee8232cc04d4ea6683d42c5dd0a2f2a27ac9824"
+      },
+      {
+        "name": "2026-06-29_delim-parcellaire-aoc-shp.dbf",
+        "size_bytes": 39863988,
+        "sha256": "0c4851023a7c8b968330d7bbff7a35941b6124269531113d66649a4eeb7fd348"
+      },
+      {
+        "name": "2026-06-29_delim-parcellaire-aoc-shp.prj",
+        "size_bytes": 449,
+        "sha256": "487b77472e9a777944236cd237bc070c90ccc81c58d8138ee70146e3f8128853"
+      },
+      {
+        "name": "2026-06-29_delim-parcellaire-aoc-shp.shp",
+        "size_bytes": 601107344,
+        "sha256": "d0f11aec3620cbcb29d9f1341256de8ca26c4a8dc9dae4ef5ce24b449ba86695"
+      },
+      {
+        "name": "2026-06-29_delim-parcellaire-aoc-shp.shx",
+        "size_bytes": 94284,
+        "sha256": "b51c4424eb8af1d5a6d9b5cceac9f911ceb47bcda8ff4b05e06348120d252016"
+      }
+    ]
+  },
+  "source_row_counts": {
+    "inao_parcels": 11773,
+    "uc_davis_regions": 136
+  },
+  "source_schemas": {
+    "inao": [
+      "dt",
+      "type_prod",
+      "categorie",
+      "type_denom",
+      "signe",
+      "id_app",
+      "app",
+      "id_denom",
+      "denom",
+      "insee",
+      "cvi",
+      "nomcom",
+      "insee2011",
+      "nomcom2011",
+      "id_aire",
+      "crinao",
+      "grp_name1",
+      "grp_name2",
+      "geometry"
+    ],
+    "uc_davis": [
+      "region",
+      "url2",
+      "url1",
+      "name",
+      "grapes",
+      "geometry"
+    ]
+  },
+  "source_crs": {
+    "inao": "IGNF:LAMB93",
+    "uc_davis": "EPSG:4326"
+  },
+  "source_geometry_types": {
+    "inao": {
+      "MultiPolygon": 10774,
+      "Polygon": 999
+    },
+    "uc_davis": {
+      "Polygon": 136
+    }
+  },
+  "source_bounds": {
+    "inao": [
+      319095.9,
+      6058750.94,
+      1242196.12,
+      6934819.18
+    ],
+    "uc_davis": [
+      -2.133725175235461,
+      42.412428847219225,
+      7.558004389028683,
+      49.25820331262972
+    ]
+  },
+  "packaging": {
+    "source_profile": {
+      "rows": 11773,
+      "crs": "IGNF:LAMB93",
+      "columns": [
+        "dt",
+        "type_prod",
+        "categorie",
+        "type_denom",
+        "signe",
+        "id_app",
+        "app",
+        "id_denom",
+        "denom",
+        "insee",
+        "cvi",
+        "nomcom",
+        "insee2011",
+        "nomcom2011",
+        "id_aire",
+        "crinao",
+        "grp_name1",
+        "grp_name2",
+        "geometry"
+      ],
+      "geometry_types": {
+        "MultiPolygon": 10774,
+        "Polygon": 999
+      },
+      "bounds": [
+        319095.9,
+        6058750.94,
+        1242196.12,
+        6934819.18
+      ]
+    },
+    "output_profile": {
+      "rows": 357,
+      "crs": "IGNF:LAMB93",
+      "columns": [
+        "app",
+        "id_app",
+        "dt",
+        "categorie",
+        "geometry"
+      ],
+      "geometry_types": {
+        "MultiPolygon": 319,
+        "Polygon": 38
+      },
+      "bounds": [
+        319095.9,
+        6058750.94,
+        1242196.12,
+        6934819.18
+      ]
+    },
+    "transformation_parameters": {
+      "selected_columns": [
+        "app",
+        "id_app",
+        "dt",
+        "categorie",
+        "geometry"
+      ],
+      "simplification_tolerance": 0.1,
+      "simplification_preserve_topology": true,
+      "geometry_repair": "buffer(0)",
+      "grouping_fields": [
+        "app",
+        "id_app"
+      ],
+      "geometry_aggregation": "shapely.ops.unary_union",
+      "dt_aggregation_validation": "one distinct non-null value per app/id_app group",
+      "categorie_aggregation_validation": "parcel-level mixed categorie values are reported; packaged value is retained deterministically from the first source row in the INAO shapefile",
+      "mixed_categorie_groups": {
+        "Alsace ou Vin d'Alsace|1": [
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille",
+          "Vin tranquille"
+        ],
+        "Bugey|674": [
+          "Vin mousseux \"Méthode ancestrale\"",
+          "Vin mousseux, Vin pétillant, Vin tranquille",
+          "Vin tranquille"
+        ],
+        "Coteaux du Layon|88": [
+          "Vin de sélection de grains nobles, Vin de triees successives",
+          "Vin de triees successives"
+        ],
+        "Côtes de Bordeaux|685": [
+          "Vin de triees successives, Vin tranquille",
+          "Vin tranquille"
+        ],
+        "Languedoc|257": [
+          "Vin primeur, Vin tranquille",
+          "Vin tranquille"
+        ],
+        "Muscadet Sèvre et Maine|100": [
+          "Vin sur lie, Vin tranquille",
+          "Vin tranquille"
+        ],
+        "Mâcon|583": [
+          "Vin primeur, Vin tranquille",
+          "Vin tranquille"
+        ],
+        "Rasteau|313": [
+          "Vin doux naturel",
+          "Vin tranquille"
+        ],
+        "Touraine|113": [
+          "Vin mousseux, Vin primeur, Vin tranquille",
+          "Vin tranquille"
+        ],
+        "Vin de Savoie ou Savoie|235": [
+          "Vin mousseux, Vin tranquille",
+          "Vin tranquille"
+        ]
+      }
+    },
+    "serialized_profile": {
+      "rows": 357,
+      "crs": "EPSG:2154",
+      "columns": [
+        "app",
+        "id_app",
+        "dt",
+        "categorie",
+        "geometry"
+      ],
+      "geometry_types": {
+        "MultiPolygon": 357
+      },
+      "bounds": [
+        319095.9,
+        6058750.94,
+        1242196.12,
+        6934819.18
+      ]
+    }
+  },
+  "regional_source_authority_warning": "Non-authoritative, hand-drawn application-level wine-region boundaries derived from an ESRI map and used as the best available broad regional classification source.",
+  "regional_enrichment": {
+    "regional_geometry_repair_counts": {
+      "null": 0,
+      "empty_before_repair": 0,
+      "invalid_before_repair": 8,
+      "empty_after_repair": 0,
+      "invalid_after_repair": 0
+    },
+    "regional_profile": {
+      "rows": 136,
+      "crs": "EPSG:2154",
+      "columns": [
+        "region",
+        "geometry"
+      ],
+      "geometry_types": {
+        "Polygon": 128,
+        "MultiPolygon": 8
+      },
+      "bounds": [
+        311206.33443741564,
+        6145857.874065398,
+        1036105.4509679928,
+        6906849.395439931
+      ]
+    },
+    "aoc_geometry_repair_counts": {
+      "null": 0,
+      "empty_before_repair": 0,
+      "invalid_before_repair": 0,
+      "empty_after_repair": 0,
+      "invalid_after_repair": 0
+    },
+    "final_geometry_repair_counts": {
+      "null": 0,
+      "empty_before_repair": 0,
+      "invalid_before_repair": 0,
+      "empty_after_repair": 0,
+      "invalid_after_repair": 0
+    },
+    "regional_assignment": {
+      "primary_method": "geopandas.overlay intersection; select largest overlap area per id_app",
+      "zero_area_intersections_removed": true,
+      "explicit_overrides_by_id": {
+        "74": "Dordogne",
+        "127": "Jura",
+        "155": "Jura",
+        "173": "Jura",
+        "176": "Jura",
+        "187": "Jura",
+        "244": "Jura"
+      },
+      "fallback_regions_by_dt": {
+        "Dijon": "Bourgogne",
+        "Gaillac": "Sud-Ouest",
+        "Pau": "Sud-Ouest",
+        "Tours": "Loire",
+        "Valence": "Rhône",
+        "Corse": "Corse",
+        "Colmar": "Alsace",
+        "Angers": "Loire",
+        "Bordeaux": "Bordeaux",
+        "Montpellier": "Languedoc-Roussillon",
+        "Avignon": "Rhône",
+        "Narbonne": "Languedoc-Roussillon",
+        "La Valette du Var": "Provence",
+        "Mâcon": "Savoie"
+      },
+      "method_counts": {
+        "spatial_majority": 306,
+        "delegation_fallback": 44,
+        "explicit_override": 7
+      },
+      "region_counts": {
+        "Bourgogne": 96,
+        "Alsace": 55,
+        "Loire": 53,
+        "Bordeaux": 38,
+        "Languedoc-Roussillon": 33,
+        "Rhône": 32,
+        "Sud-Ouest": 18,
+        "Dordogne": 10,
+        "Provence": 7,
+        "Jura": 6,
+        "Savoie": 5,
+        "Corse": 4
+      },
+      "unmatched_count": 0,
+      "configured_override_ids": [
+        "127",
+        "155",
+        "173",
+        "176",
+        "187",
+        "244",
+        "74"
+      ],
+      "used_override_ids": [
+        "127",
+        "155",
+        "173",
+        "176",
+        "187",
+        "244",
+        "74"
+      ],
+      "fallback_entries_used": [
+        "Angers",
+        "Bordeaux",
+        "Colmar",
+        "Corse",
+        "Dijon",
+        "Gaillac",
+        "Montpellier",
+        "Mâcon",
+        "Pau",
+        "Tours",
+        "Valence"
+      ],
+      "configured_fallback_entries_not_used": [
+        "Avignon",
+        "La Valette du Var",
+        "Narbonne"
+      ],
+      "fallback_assignment_count": 44
+    },
+    "presentation_metadata": {
+      "display_name_rule": "text before first ' ou ', then remove leading Alsace grand cru case-insensitively",
+      "colour_mapping": {
+        "Rhône": "#7B1E3C",
+        "Provence": "#B983A2",
+        "Loire": "#556B2F",
+        "Bordeaux": "#264653",
+        "Languedoc-Roussillon": "#6A4E77",
+        "Dordogne": "#C9B037",
+        "Bourgogne": "#3B3C88",
+        "Alsace": "#3A5F5F",
+        "Corse": "#8B0000",
+        "Sud-Ouest": "#D2691E",
+        "Savoie": "#8FBDBD",
+        "Jura": "#88A378"
+      }
+    },
+    "output_profile": {
+      "rows": 357,
+      "crs": "EPSG:2154",
+      "columns": [
+        "id_app",
+        "app",
+        "display_name",
+        "dt",
+        "region",
+        "region_method",
+        "overlap_ratio",
+        "colour",
+        "categorie",
+        "geometry"
+      ],
+      "geometry_types": {
+        "MultiPolygon": 357
+      },
+      "bounds": [
+        319095.9,
+        6058750.94,
+        1242196.12,
+        6934819.18
+      ]
+    },
+    "serialized_profile": {
+      "rows": 357,
+      "crs": "EPSG:2154",
+      "columns": [
+        "id_app",
+        "app",
+        "display_name",
+        "dt",
+        "region",
+        "region_method",
+        "overlap_ratio",
+        "colour",
+        "categorie",
+        "geometry"
+      ],
+      "geometry_types": {
+        "MultiPolygon": 357
+      },
+      "bounds": [
+        319095.9,
+        6058750.94,
+        1242196.12,
+        6934819.18
+      ]
+    }
+  },
+  "reviewed_mappings": {
+    "explicit_override_mappings": {
+      "74": "Dordogne",
+      "127": "Jura",
+      "155": "Jura",
+      "173": "Jura",
+      "176": "Jura",
+      "187": "Jura",
+      "244": "Jura"
+    },
+    "explicit_override_metadata": {
+      "74": {
+        "appellation": "Saussignac",
+        "reason": "Reviewed Dordogne override from notebook"
+      },
+      "127": {
+        "appellation": "Crémant du Jura",
+        "reason": "Reviewed Jura override from notebook"
+      },
+      "155": {
+        "appellation": "Côtes du Jura",
+        "reason": "Reviewed Jura override from notebook"
+      },
+      "173": {
+        "appellation": "Macvin du Jura",
+        "reason": "Reviewed Jura override from notebook"
+      },
+      "176": {
+        "appellation": "Arbois",
+        "reason": "Reviewed Jura override from notebook"
+      },
+      "187": {
+        "appellation": "Château-Chalon",
+        "reason": "Reviewed Jura override from notebook"
+      },
+      "244": {
+        "appellation": "L'Etoile",
+        "reason": "Reviewed Jura override from notebook"
+      }
+    },
+    "fallback_mappings": {
+      "Dijon": "Bourgogne",
+      "Gaillac": "Sud-Ouest",
+      "Pau": "Sud-Ouest",
+      "Tours": "Loire",
+      "Valence": "Rhône",
+      "Corse": "Corse",
+      "Colmar": "Alsace",
+      "Angers": "Loire",
+      "Bordeaux": "Bordeaux",
+      "Montpellier": "Languedoc-Roussillon",
+      "Avignon": "Rhône",
+      "Narbonne": "Languedoc-Roussillon",
+      "La Valette du Var": "Provence",
+      "Mâcon": "Savoie"
+    },
+    "colour_mapping": {
+      "Rhône": "#7B1E3C",
+      "Provence": "#B983A2",
+      "Loire": "#556B2F",
+      "Bordeaux": "#264653",
+      "Languedoc-Roussillon": "#6A4E77",
+      "Dordogne": "#C9B037",
+      "Bourgogne": "#3B3C88",
+      "Alsace": "#3A5F5F",
+      "Corse": "#8B0000",
+      "Sud-Ouest": "#D2691E",
+      "Savoie": "#8FBDBD",
+      "Jura": "#88A378"
+    }
+  },
+  "output_paths": {
+    "aoc_packaged": "tmp/wine/2026-07-08T141025.917363+0000_3da655fa/candidates/aoc_packaged.gpkg",
+    "aoc_regions": "tmp/wine/2026-07-08T141025.917363+0000_3da655fa/candidates/aoc_regions.gpkg"
+  },
+  "output_layer_names": {
+    "aoc_packaged": "aocs_france",
+    "aoc_regions": "aocs_france"
+  },
+  "output_schemas": {
+    "aoc_packaged": [
+      "app",
+      "id_app",
+      "dt",
+      "categorie",
+      "geometry"
+    ],
+    "aoc_regions": [
+      "id_app",
+      "app",
+      "display_name",
+      "dt",
+      "region",
+      "region_method",
+      "overlap_ratio",
+      "colour",
+      "categorie",
+      "geometry"
+    ]
+  },
+  "output_byte_sizes": {
+    "aoc_packaged": 420446208,
+    "aoc_regions": 420458496
+  },
+  "output_hashes": {
+    "aoc_packaged": "5695173a0326239404a69d9a5fc95299a4bef0b9d7ba75d8cd72724f41b25205",
+    "aoc_regions": "699d8bf3ef69c6f5e6a324abf94e07f30285d5ae9e6d39b16a3576330ebb0aff"
+  },
+  "output_crs": {
+    "aoc_packaged": "EPSG:2154",
+    "aoc_regions": "EPSG:2154"
+  },
+  "output_bounds": {
+    "aoc_packaged": [
+      319095.9,
+      6058750.94,
+      1242196.12,
+      6934819.18
+    ],
+    "aoc_regions": [
+      319095.9,
+      6058750.94,
+      1242196.12,
+      6934819.18
+    ]
+  },
+  "output_geometry_validity_status": {
+    "aoc_packaged": true,
+    "aoc_regions": true
+  }
+}

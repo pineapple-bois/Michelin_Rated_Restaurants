@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from collections.abc import Callable
 
 import geopandas as gpd
 import pandas as pd
@@ -35,18 +36,26 @@ def prepare_regional_polygons(region_data: gpd.GeoDataFrame) -> tuple[gpd.GeoDat
     return repaired, checks, {"regional_geometry_repair_counts": repair_counts, "regional_profile": geometry_profile(repaired)}
 
 
-def _majority_overlap(aoc_data: gpd.GeoDataFrame, regions: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+def _majority_overlap(
+    aoc_data: gpd.GeoDataFrame,
+    regions: gpd.GeoDataFrame,
+    progress: Callable[[str], None] | None = None,
+) -> gpd.GeoDataFrame:
+    progress = progress or (lambda message: None)
+    progress(f"running polygon overlay for {len(aoc_data)} AOCs and {len(regions)} regional polygons")
     overlap_candidates = gpd.overlay(
         aoc_data[["aoc_key", "app", "id_app", "dt", "aoc_area", "categorie", "geometry"]],
         regions[["region", "geometry"]],
         how="intersection",
         keep_geom_type=False,
     )
+    progress(f"overlay produced {len(overlap_candidates)} raw intersection rows")
     if overlap_candidates.empty:
         return gpd.GeoDataFrame(columns=["aoc_key", "region", "overlap_area", "overlap_ratio"], geometry=[])
     overlap_candidates["overlap_area"] = overlap_candidates.geometry.area
     overlap_candidates["overlap_ratio"] = overlap_candidates["overlap_area"] / overlap_candidates["aoc_area"]
     overlap_candidates = overlap_candidates[overlap_candidates["overlap_area"] > 0].copy()
+    progress(f"kept {len(overlap_candidates)} positive-area intersection rows")
     majority_region = (
         overlap_candidates.sort_values(
             ["aoc_key", "overlap_area", "region"],
@@ -56,6 +65,7 @@ def _majority_overlap(aoc_data: gpd.GeoDataFrame, regions: gpd.GeoDataFrame) -> 
         .drop_duplicates(subset="aoc_key", keep="first")
         [["aoc_key", "region", "overlap_area", "overlap_ratio"]]
     )
+    progress(f"selected majority-overlap regions for {len(majority_region)} AOCs")
     return majority_region
 
 
@@ -110,7 +120,9 @@ def enrich_aoc_regions(
     overrides_by_id: dict[str, str] = REGION_OVERRIDES_BY_ID,
     fallbacks_by_dt: dict[str, str] = FALLBACK_REGIONS_BY_DT,
     colors: dict[str, str] = WINE_REGION_COLORS,
+    progress: Callable[[str], None] | None = None,
 ) -> tuple[gpd.GeoDataFrame, list[Check], dict[str, object]]:
+    progress = progress or (lambda message: None)
     checks: list[Check] = []
     required = {"app", "id_app", "dt", "categorie", "geometry"}
     missing = sorted(required - set(aoc_candidate.columns))
@@ -119,24 +131,29 @@ def enrich_aoc_regions(
         raise WinePipelineError(f"Missing AOC columns for enrichment: {missing}")
 
     aoc = aoc_candidate.to_crs(TARGET_CRS).copy()
+    progress("validating and repairing packaged AOC geometry")
     aoc, aoc_repair_counts = validate_and_repair_geometry(aoc, "AOC package")
     duplicate_id = int(aoc["id_app"].astype("string").duplicated().sum())
     checks.append(Check("aoc_enrichment_unique_id_app", duplicate_id == 0, observed=duplicate_id, expected=0))
     if duplicate_id:
         raise WinePipelineError("AOC package contains duplicate id_app values")
 
+    progress("validating and repairing regional polygon geometry")
     regions, region_checks, region_metadata = prepare_regional_polygons(region_data)
     checks.extend(region_checks)
     aoc_data = aoc.to_crs(regions.crs).copy()
     aoc_data["aoc_area"] = aoc_data.geometry.area
     aoc_data["aoc_key"] = aoc_data["id_app"].astype("string").str.strip()
 
-    majority_region = _majority_overlap(aoc_data, regions)
+    majority_region = _majority_overlap(aoc_data, regions, progress=progress)
+    progress("joining majority-overlap regions back to complete AOC geometries")
     aoc_enriched = aoc_data.merge(majority_region, on="aoc_key", how="left", validate="one_to_one")
     aoc_enriched["region_method"] = pd.NA
     aoc_enriched.loc[aoc_enriched["region"].notna(), "region_method"] = "spatial_majority"
 
+    progress("applying reviewed explicit region overrides")
     aoc_enriched, override_metadata = _apply_overrides(aoc_enriched, overrides_by_id)
+    progress("applying delegation fallback mappings for unmatched AOCs")
     aoc_enriched, fallback_metadata = _apply_fallbacks(aoc_enriched, fallbacks_by_dt)
 
     if len(aoc_enriched) != len(aoc_candidate):
@@ -144,6 +161,7 @@ def enrich_aoc_regions(
     if aoc_enriched["aoc_key"].duplicated().any():
         raise WinePipelineError("Regional mapping produced duplicate AOCs")
 
+    progress("deriving display names and colour assignments")
     aoc_enriched["display_name"] = (
         aoc_enriched["app"]
         .astype("string")
@@ -160,6 +178,7 @@ def enrich_aoc_regions(
 
     final = gpd.GeoDataFrame(aoc_enriched[ENRICHED_COLUMNS].copy(), geometry="geometry", crs=aoc_enriched.crs)
     final = final.sort_values(["region", "display_name", "id_app"], kind="stable").reset_index(drop=True)
+    progress("validating final enriched candidate geometry")
     final, final_repair_counts = validate_and_repair_geometry(final, "Final AOC-region package")
     method_counts = final["region_method"].value_counts(dropna=False).to_dict()
     region_counts = final["region"].value_counts(dropna=False).to_dict()
@@ -206,18 +225,23 @@ def write_enriched_candidate(
     overrides_by_id: dict[str, str] = REGION_OVERRIDES_BY_ID,
     fallbacks_by_dt: dict[str, str] = FALLBACK_REGIONS_BY_DT,
     colors: dict[str, str] = WINE_REGION_COLORS,
+    progress: Callable[[str], None] | None = None,
 ) -> tuple[gpd.GeoDataFrame, list[Check], dict[str, object]]:
+    progress = progress or (lambda message: None)
     final, checks, metadata = enrich_aoc_regions(
         aoc_candidate,
         region_data,
         overrides_by_id=overrides_by_id,
         fallbacks_by_dt=fallbacks_by_dt,
         colors=colors,
+        progress=progress,
     )
     output_path.parent.mkdir(parents=True, exist_ok=True)
     if output_path.exists():
         output_path.unlink()
+    progress(f"writing enriched GeoPackage: {output_path}")
     final.to_file(output_path, layer=OUTPUT_LAYER, driver="GPKG", index=False)
+    progress("validating enriched GeoPackage round trip")
     written, artifact_checks = validate_enriched_artifact(output_path, len(aoc_candidate), layer=OUTPUT_LAYER)
     checks.extend(artifact_checks)
     metadata["serialized_profile"] = geometry_profile(written)

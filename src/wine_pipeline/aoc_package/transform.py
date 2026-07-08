@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from collections.abc import Callable
 
 import geopandas as gpd
 from shapely.ops import unary_union
@@ -22,6 +23,7 @@ def _distinct_non_null_counts(frame: gpd.GeoDataFrame, column: str):
 def package_aoc_geometries(raw_aoc: gpd.GeoDataFrame) -> tuple[gpd.GeoDataFrame, list[Check], dict[str, object]]:
     checks = validate_source_aoc(raw_aoc)
     working = raw_aoc[PACKAGE_COLUMNS].copy()
+    working["_source_order"] = range(len(working))
     for column in ("app", "id_app", "dt", "categorie"):
         working[column] = working[column].astype("string").str.strip()
 
@@ -46,22 +48,42 @@ def package_aoc_geometries(raw_aoc: gpd.GeoDataFrame) -> tuple[gpd.GeoDataFrame,
     dt_counts = _distinct_non_null_counts(working, "dt")
     categorie_counts = _distinct_non_null_counts(working, "categorie")
     inconsistent_dt = dt_counts[dt_counts != 1]
-    inconsistent_categorie = categorie_counts[categorie_counts != 1]
     checks.append(Check("aoc_package_group_dt_cardinality", inconsistent_dt.empty, observed=inconsistent_dt.to_dict(), expected="one distinct non-null dt per group"))
-    checks.append(Check("aoc_package_group_categorie_cardinality", inconsistent_categorie.empty, observed=inconsistent_categorie.to_dict(), expected="one distinct non-null categorie per group"))
     if not inconsistent_dt.empty:
         raise WinePipelineError(f"Inconsistent dt values within AOC groups: {inconsistent_dt.to_dict()}")
-    if not inconsistent_categorie.empty:
-        raise WinePipelineError(f"Inconsistent categorie values within AOC groups: {inconsistent_categorie.to_dict()}")
+    mixed_categorie = categorie_counts[categorie_counts > 1]
+    mixed_categorie_details = {
+        f"{app}|{id_app}": sorted(
+            working.loc[(working["app"] == app) & (working["id_app"] == id_app), "categorie"]
+            .dropna()
+            .unique()
+            .tolist()
+        )
+        for app, id_app in mixed_categorie.index
+    }
+    checks.append(
+        Check(
+            "aoc_package_group_categorie_mixed_values_reported",
+            True,
+            observed=mixed_categorie_details,
+            expected="reported; representative value retained from first source row",
+        )
+    )
 
     grouped = working.groupby(GROUP_FIELDS, sort=True, dropna=False)
     merged_geometries = grouped["geometry"].apply(unary_union)
+    representative_rows = (
+        working.sort_values("_source_order", kind="stable")
+        .drop_duplicates(subset=GROUP_FIELDS, keep="first")
+        .set_index(GROUP_FIELDS)
+        .loc[merged_geometries.index]
+    )
     packaged = gpd.GeoDataFrame(
         {
             "app": merged_geometries.index.get_level_values("app"),
             "id_app": merged_geometries.index.get_level_values("id_app"),
-            "dt": grouped["dt"].first().to_numpy(),
-            "categorie": grouped["categorie"].first().to_numpy(),
+            "dt": representative_rows["dt"].to_numpy(),
+            "categorie": representative_rows["categorie"].to_numpy(),
             "geometry": merged_geometries.to_numpy(),
         },
         crs=working.crs,
@@ -94,20 +116,31 @@ def package_aoc_geometries(raw_aoc: gpd.GeoDataFrame) -> tuple[gpd.GeoDataFrame,
             "grouping_fields": GROUP_FIELDS,
             "geometry_aggregation": "shapely.ops.unary_union",
             "dt_aggregation_validation": "one distinct non-null value per app/id_app group",
-            "categorie_aggregation_validation": "one distinct non-null value per app/id_app group",
+            "categorie_aggregation_validation": (
+                "parcel-level mixed categorie values are reported; packaged value is retained "
+                "deterministically from the first source row in the INAO shapefile"
+            ),
+            "mixed_categorie_groups": mixed_categorie_details,
         },
     }
     return packaged, checks, metadata
 
 
-def write_packaged_candidate(raw_aoc: gpd.GeoDataFrame, output_path: Path) -> tuple[gpd.GeoDataFrame, list[Check], dict[str, object]]:
+def write_packaged_candidate(
+    raw_aoc: gpd.GeoDataFrame,
+    output_path: Path,
+    *,
+    progress: Callable[[str], None] | None = None,
+) -> tuple[gpd.GeoDataFrame, list[Check], dict[str, object]]:
+    progress = progress or (lambda message: None)
     packaged, checks, metadata = package_aoc_geometries(raw_aoc)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     if output_path.exists():
         output_path.unlink()
+    progress(f"writing packaged GeoPackage: {output_path}")
     packaged.to_file(output_path, layer=OUTPUT_LAYER, driver="GPKG", index=False)
+    progress("validating packaged GeoPackage round trip")
     written, artifact_checks = validate_packaged_artifact(output_path, packaged, layer=OUTPUT_LAYER)
     checks.extend(artifact_checks)
     metadata["serialized_profile"] = geometry_profile(written)
     return written, checks, metadata
-

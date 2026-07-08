@@ -154,7 +154,7 @@ class WinePipelineTests(unittest.TestCase):
             with self.assertRaisesRegex(WinePipelineError, "exactly one"):
                 locate_shapefile(ambiguous)
 
-    def test_aoc_packaging_rejects_missing_columns_crs_and_inconsistent_attributes(self) -> None:
+    def test_aoc_packaging_rejects_missing_columns_crs_and_inconsistent_dt(self) -> None:
         good = aoc_frame([one_aoc("1"), one_aoc("1", x0=20)])
         with self.assertRaises(WinePipelineError):
             package_aoc_geometries(good.drop(columns=["dt"]))
@@ -165,9 +165,13 @@ class WinePipelineTests(unittest.TestCase):
         with self.assertRaisesRegex(WinePipelineError, "Inconsistent dt"):
             package_aoc_geometries(inconsistent_dt)
 
-        inconsistent_category = aoc_frame([one_aoc("1"), {**one_aoc("1", x0=20), "categorie": "IGP"}])
-        with self.assertRaisesRegex(WinePipelineError, "Inconsistent categorie"):
-            package_aoc_geometries(inconsistent_category)
+    def test_aoc_packaging_reports_mixed_categorie_and_keeps_first_source_value(self) -> None:
+        mixed_category = aoc_frame([one_aoc("1"), {**one_aoc("1", x0=20), "categorie": "IGP"}])
+        packaged, checks, metadata = package_aoc_geometries(mixed_category)
+        self.assertEqual(packaged.loc[0, "categorie"], "AOP")
+        mixed_check = [check for check in checks if check.name == "aoc_package_group_categorie_mixed_values_reported"][0]
+        self.assertIn("AOC One|1", mixed_check.observed)
+        self.assertIn("AOC One|1", metadata["transformation_parameters"]["mixed_categorie_groups"])
 
     def test_invalid_geometry_repair_and_remaining_invalid_failure(self) -> None:
         bowtie = Polygon([(0, 0), (2, 2), (0, 2), (2, 0), (0, 0)])

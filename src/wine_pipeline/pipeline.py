@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 import sys
 import uuid
+from collections.abc import Callable
 
 import geopandas as gpd
 import requests
@@ -37,26 +38,51 @@ def _run_id() -> str:
     return f"{utc_now().replace(':', '').replace('+00:00', 'Z')}_{uuid.uuid4().hex[:8]}"
 
 
-def build(*, run_root: Path = RUN_ROOT, report_root: Path = DURABLE_REPORT_ROOT) -> WineBuildResult:
+def _console_progress(enabled: bool) -> Callable[[str], None]:
+    def progress(message: str) -> None:
+        if enabled:
+            print(f"[wine_pipeline {utc_now()}] {message}", flush=True)
+
+    return progress
+
+
+def build(
+    *,
+    run_root: Path = RUN_ROOT,
+    report_root: Path = DURABLE_REPORT_ROOT,
+    progress: Callable[[str], None] | None = None,
+) -> WineBuildResult:
     run_id = _run_id()
     run_dir = run_root / run_id
     candidates_dir = run_dir / "candidates"
     report = ReportCollector(run_id=run_id)
     durable_paths: dict[str, Path] = {}
+    progress = progress or (lambda message: None)
     try:
+        progress(f"creating run directory: {run_dir}")
         run_dir.mkdir(parents=True, exist_ok=False)
+        progress("downloading INAO AOC parcel archive")
         inao_download, shapefile = extract_inao_source(run_dir)
+        progress(f"INAO archive downloaded and extracted: {shapefile.shapefile_path}")
+        progress("downloading UC Davis regional GeoJSON")
         uc_davis_source = download_uc_davis_regions(run_dir)
+        progress(f"UC Davis regions downloaded: {uc_davis_source.path}")
 
+        progress("reading INAO shapefile")
         raw_aoc = gpd.read_file(shapefile.shapefile_path)
         packaged_path = candidates_dir / "aoc_packaged.gpkg"
-        packaged, package_checks, package_metadata = write_packaged_candidate(raw_aoc, packaged_path)
+        progress("building packaged AOC GeoPackage")
+        packaged, package_checks, package_metadata = write_packaged_candidate(raw_aoc, packaged_path, progress=progress)
         report.extend_checks(package_checks)
+        progress(f"packaged candidate written: {packaged_path} ({len(packaged)} rows)")
 
+        progress("reading UC Davis regional polygons")
         region_data = gpd.read_file(uc_davis_source.path)
         enriched_path = candidates_dir / "aoc_regions.gpkg"
-        enriched, enrichment_checks, enrichment_metadata = write_enriched_candidate(packaged, region_data, enriched_path)
+        progress("building regional enrichment candidate; spatial overlay may take a while")
+        enriched, enrichment_checks, enrichment_metadata = write_enriched_candidate(packaged, region_data, enriched_path, progress=progress)
         report.extend_checks(enrichment_checks)
+        progress(f"enriched candidate written: {enriched_path} ({len(enriched)} rows)")
 
         output_paths = {
             "aoc_packaged": packaged_path,
@@ -136,6 +162,7 @@ def build(*, run_root: Path = RUN_ROOT, report_root: Path = DURABLE_REPORT_ROOT)
             },
         }
         source_date = source_date_from_headers(inao_download.headers, inao_download.retrieval_time_utc)
+        progress("writing durable provenance and validation reports")
         durable_paths = report.write_durable_reports(
             source_date=source_date,
             hash_prefix=inao_download.sha256[:12],
@@ -150,6 +177,7 @@ def build(*, run_root: Path = RUN_ROOT, report_root: Path = DURABLE_REPORT_ROOT)
             "checks": len(report.checks),
         }
         write_json(run_dir / "run-report.json", run_payload)
+        progress(f"run report written: {run_dir / 'run-report.json'}")
         return WineBuildResult(
             run_id=run_id,
             run_dir=run_dir,
@@ -180,6 +208,7 @@ def _parser() -> argparse.ArgumentParser:
     build_parser = subparsers.add_parser("build", help="build the AOC package and regional candidate GeoPackages")
     build_parser.add_argument("--run-root", type=Path, default=RUN_ROOT)
     build_parser.add_argument("--report-root", type=Path, default=DURABLE_REPORT_ROOT)
+    build_parser.add_argument("--quiet", action="store_true", help="suppress stage progress messages")
     return parser
 
 
@@ -187,7 +216,7 @@ def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     try:
         if args.command == "build":
-            result = build(run_root=args.run_root, report_root=args.report_root)
+            result = build(run_root=args.run_root, report_root=args.report_root, progress=_console_progress(not args.quiet))
             print(f"Built wine AOC candidates for run {result.run_id}")
             print(f"  run dir: {result.run_dir}")
             print(f"  packaged candidate: {result.packaged_candidate}")
@@ -204,4 +233,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
