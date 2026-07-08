@@ -1,7 +1,7 @@
 # Wine Data Pipeline
 
-The wine pipeline produces a durable, validated candidate in three operational
-steps. Product verification and publication are a future Stage 3.
+The wine pipeline produces a durable, validated candidate and promotes it
+unchanged through Stage 3 product verification and publication.
 
 ## Normal Workflow
 
@@ -9,6 +9,7 @@ steps. Product verification and publication are a future Stage 3.
 python -m wine_pipeline build
 python -m wine_pipeline simplify
 python -m wine_pipeline assemble-candidate
+python -m wine_pipeline publish-product
 ```
 
 `build` downloads the INAO parcel source and UC Davis regional source, packages
@@ -25,13 +26,17 @@ validates and concatenates its regional files without mutating geometry, and
 writes a durable candidate beneath `data/candidates/wine/<candidate-id>/`.
 Candidate assembly completes Stage 2.
 
+`publish-product` resolves the sole validated durable candidate, verifies the
+frontend-facing contract, and copies its GeoJSON byte-for-byte into a dated
+product release. Stage 3 does not alter geometry, attributes, or feature order.
+
 The lifecycle is:
 
 ```text
 Stage 1 build
   -> Stage 2 regional simplification
   -> Stage 2 durable candidate assembly
-  -> future Stage 3 product verification and publication
+  -> Stage 3 product verification and publication
 ```
 
 ## Storage Model
@@ -40,9 +45,21 @@ Stage 1 build
   metrics, and visual inspectables.
 - `data/candidates/wine/` contains durable assembled candidates.
 - `data/wine/` contains durable reports, validation, and provenance.
-- `data/products/wine/` is reserved for verified, published products.
+- `data/products/wine/<release-date>/` contains verified, published products.
 
 Candidate assembly does not delete its source simplification run.
+The canonical Stage 3 product layout is:
+
+```text
+data/products/wine/<YYYY-MM-DD>/
+├── wine_regions_aoc_area.geojson
+├── manifest.json
+├── validation.json
+└── provenance.json
+```
+
+Repository product publication does not deploy frontend/static application
+assets. That remains a separate integration concern.
 
 ## Canonical Simplification
 
@@ -76,6 +93,46 @@ directories.
 complete batches whose validation report passed. It never silently chooses the
 newest of multiple valid runs.
 
+`publish-product` searches `data/candidates/wine/` and considers only complete
+candidates whose durable candidate-validation report passed. It also refuses
+to choose when multiple eligible candidates exist.
+
+## Product Promotion
+
+The normal command uses the current local date:
+
+```bash
+python -m wine_pipeline publish-product
+```
+
+Recovery and historical releases can select both inputs explicitly:
+
+```bash
+python -m wine_pipeline publish-product \
+  --candidate-id <candidate-id> \
+  --release-date 2026-07-08
+```
+
+Release dates must use `YYYY-MM-DD`. Existing release folders are protected;
+`--overwrite` performs a transactional replacement.
+
+The canonical product schema is:
+
+```text
+region
+app
+display_name
+colour
+categorie
+source_area_m2
+geometry
+```
+
+Stage 3 validates schema and property ordering, product identities, EPSG:4326,
+polygonal geometry, validity, emptiness, feature count, feature order, hashes,
+and release metadata consistency. The source candidate and destination product
+SHA-256 hashes must match.
+
 ## Review Policy
 
 Candidate assembly defaults to `automated_validated_batch` approval. Blank,
@@ -101,16 +158,19 @@ The pipeline reports rather than silently discards:
 - `--simplification-run-id ID` selects a simplification batch explicitly for
   assembly.
 - `--run-id ID` names a simplification run.
+- `--candidate-id ID` selects a durable candidate for publication.
+- `--release-date YYYY-MM-DD` selects the dated product folder.
 - `--resume` validates and reuses coherent regional artifacts.
-- `--overwrite` transactionally replaces an existing run or candidate.
+- `--overwrite` transactionally replaces an existing run, candidate, or
+  product release.
 - `--keep-failed-temp` retains a failed single-region transactional directory
   for diagnosis.
 - `--require-manual-approval` enables the strict review gate during assembly.
+- `--quiet` suppresses command progress messages.
 
 Run `python -m wine_pipeline <command> --help` for command-specific options.
 
 ## Current Non-Goals
 
-The current workflow does not publish application assets, write a final product
-automatically, implement Stage 3 verification, or delete working runs after
-candidate creation.
+The current workflow does not publish frontend application assets or delete
+working runs after candidate creation.

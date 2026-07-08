@@ -25,6 +25,7 @@ from .aoc_simplification.runner import find_project_root, resolve_stage1_input, 
 from .aoc_simplification.transform import CANONICAL_RUN_ID, SimplificationParameters
 from .config import DURABLE_REPORT_ROOT, OUTPUT_LAYER, RUN_ROOT
 from .provenance import ReportCollector, sha256_file, source_date_from_headers, utc_now, write_json
+from .product import publish_product, resolve_candidate_id
 from .validation import WinePipelineError
 
 
@@ -259,6 +260,11 @@ def _parser() -> argparse.ArgumentParser:
     assemble_parser.add_argument("--overwrite", action="store_true", help="replace an existing durable candidate transactionally")
     assemble_parser.add_argument("--require-manual-approval", action="store_true", help="require every expected region to have review_status=approved")
     assemble_parser.add_argument("--quiet", action="store_true", help="suppress assembly progress messages")
+    publish_parser = subparsers.add_parser("publish-product", help="verify and publish a durable wine candidate unchanged")
+    publish_parser.add_argument("--candidate-id", help="candidate id; defaults to the sole validated durable candidate")
+    publish_parser.add_argument("--release-date", help="product release date in YYYY-MM-DD; defaults to the current local date")
+    publish_parser.add_argument("--overwrite", action="store_true", help="replace an existing dated product release transactionally")
+    publish_parser.add_argument("--quiet", action="store_true", help="suppress publication progress messages")
     return parser
 
 
@@ -385,6 +391,26 @@ def main(argv: list[str] | None = None) -> int:
             print(f"  review report: {result.review_report_path}")
             print(f"  assembly summary: {result.summary_path}")
             print(f"  rows: {result.rows}")
+            return 0
+        if args.command == "publish-product":
+            candidate_id = resolve_candidate_id(args.candidate_id, project_root=find_project_root())
+            if args.candidate_id is None:
+                print(f"Resolved sole validated wine candidate:\n{candidate_id}")
+            result = publish_product(
+                candidate_id=candidate_id,
+                release_date=args.release_date,
+                overwrite=args.overwrite,
+                progress=_console_progress(not args.quiet),
+                command=["wine_pipeline", *sys.argv[1:]],
+            )
+            print(f"Published wine product release {result.release_date}")
+            print(f"  candidate: {result.candidate_id}")
+            print(f"  release dir: {result.release_dir}")
+            print(f"  product: {result.product_path}")
+            print(f"  manifest: {result.manifest_path}")
+            print(f"  validation: {result.validation_path}")
+            print(f"  provenance: {result.provenance_path}")
+            print(f"  features: {result.feature_count}")
             return 0
         raise AssertionError(args.command)
     except (WinePipelineError, FileExistsError, FileNotFoundError, requests.RequestException, ValueError) as error:

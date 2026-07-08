@@ -12,21 +12,24 @@
 - **CLI ergonomics and operational documentation: complete.** Normal commands
   resolve a sole valid upstream run automatically; ambiguity requires an
   explicit path or run ID. See `docs/wine_data.md`.
-- **Stage 3 verification and publication: next.** Product verification,
-  application-asset publication, and writes beneath `data/products/wine/`
-  remain intentionally unimplemented.
+- **Stage 3 verification and product publication: complete.** Durable
+  candidates are validated and promoted unchanged into dated folders beneath
+  `data/products/wine/`.
+- **Frontend/static-asset deployment: separate integration concern.** Product
+  releases are not copied into application assets by this pipeline.
 
 This document maps the current wine AOC geospatial workflow to the repository's
 new `wine_pipeline` package and the tracked simplification work under
 `Development/aoc_simplification/`.
 
-It is based on the current code and notes. It is not a record of completed
-product publication.
+It is based on the current code and notes and records the implemented product
+publication boundary. Frontend deployment remains outside this pipeline.
 
 ## Current Boundary
 
-The pipeline should remain a two-stage process because both stages are long
-running and produce inspection artifacts that need different review gates.
+The pipeline has three explicit stages. Stage 1 and regional Stage 2 work can
+be long-running; Stage 2 assembly and Stage 3 publication apply separate
+validation gates.
 
 ### Stage 1: source extraction and enrichment
 
@@ -215,7 +218,8 @@ previous completed batch untouched if replacement fails. `--resume` and
 `--overwrite` are mutually exclusive.
 
 Durable candidate assembly is implemented as the completion gate for Stage 2.
-Product verification and publication remain the future Stage 3.
+Product verification and byte-preserving publication are implemented as
+Stage 3.
 
 ## Existing Simplification Logic
 
@@ -431,25 +435,30 @@ The tmp regional outputs remain disposable after a durable candidate is
 assembled. The candidate layer is durable evidence for the next gate, but it is
 still not the application product.
 
-## Future Product Publication Gate
+## Stage 3 Product Publication
 
-Publication should be an explicit third command or subcommand after candidate
-verification, not a side effect of simplification.
-
-Possible command:
+Publication is an explicit Stage 3 command after candidate assembly, not a side
+effect of simplification:
 
 ```bash
-wine_pipeline product --candidate-run-id <run-id>
+wine_pipeline publish-product
 ```
 
-Expected final output location:
+The command verifies the candidate and copies its GeoJSON byte-for-byte into:
 
 ```text
-data/products/wine/
+data/products/wine/<release-date>/
+├── wine_regions_aoc_area.geojson
+├── manifest.json
+├── validation.json
+└── provenance.json
 ```
 
-The exact product filename should be decided when the application contract is
-wired. The existing development notes mention old app comparison geometry at:
+The canonical filename is `wine_regions_aoc_area.geojson`. Stage 3 does not
+repair, simplify, dissolve, remove, recalculate, or reorder candidate features.
+The candidate and product hashes must match.
+
+The existing development notes mention old app comparison geometry at:
 
 ```text
 assets/data/wine_regions_cleaned.geojson
@@ -458,20 +467,18 @@ assets/data/wine_regions_cleaned.geojson
 That path is a comparison baseline in the current development scripts, not an
 automatic write target for the repository pipeline.
 
-Before publication, verification should check:
+Publication verification checks:
 
 - exact product schema expected by the app;
-- CRS and coordinate order;
+- EPSG:4326 coordinate convention;
 - valid, non-empty polygonal geometry;
 - no duplicate product features;
-- expected region coverage;
-- expected app coverage, including any intentionally fully covered or
-  coextensive appellations;
-- residual overlap policy;
-- file size and coordinate-count envelope;
-- deterministic serialization;
+- byte-identical promotion and preserved feature ordering;
 - provenance link back to the Stage 1 enriched candidate and Stage 2 regional
   run metrics.
+
+Frontend/static-asset deployment remains separate and is not performed by
+`publish-product`.
 
 ## Known Geometry Decision Point
 

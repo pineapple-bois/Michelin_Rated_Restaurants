@@ -216,7 +216,7 @@ tmp/                    disposable local build/download workspace
 The maintained Python packages use the `src/` layout and are packaged through
 `pyproject.toml`.
 
-## Wine AOC Candidate Pipeline
+## Wine AOC Pipeline
 
 The wine pipeline builds an enriched AOC source package, simplifies regional
 geometry, and assembles a durable candidate without publishing application
@@ -226,6 +226,7 @@ assets or final products. Normal operation is:
 python -m wine_pipeline build
 python -m wine_pipeline simplify
 python -m wine_pipeline assemble-candidate
+python -m wine_pipeline publish-product
 ```
 
 See [`docs/wine_data.md`](docs/wine_data.md) for stage contracts, automatic
@@ -234,8 +235,8 @@ options.
 
 ## Documentation Index
 
-- [`docs/wine_data.md`](docs/wine_data.md) - Wine build, simplification, and
-  durable candidate assembly.
+- [`docs/wine_data.md`](docs/wine_data.md) - Wine build,
+  simplification, durable candidate assembly, and product publication.
 - [`docs/stage1.md`](docs/stage1.md) - Stage 1 country partitions.
 - [`docs/stage2-france-departments.md`](docs/stage2-france-departments.md) -
   France department/region products and Monaco products.
