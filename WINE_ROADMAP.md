@@ -1,5 +1,21 @@
 # Wine AOC Pipeline Roadmap
 
+## Delivery Status
+
+- **Stage 1 build: complete.** Source extraction, AOC packaging, regional
+  enrichment, and durable provenance/validation reporting are operational.
+- **Stage 2 simplification: complete.** Single-region diagnostics and
+  transactional all-region batch generation use the reviewed canonical
+  geometry workflow.
+- **Stage 2 candidate assembly: complete.** Validated batches can be assembled
+  transactionally into durable candidates without geometry mutation.
+- **CLI ergonomics and operational documentation: complete.** Normal commands
+  resolve a sole valid upstream run automatically; ambiguity requires an
+  explicit path or run ID. See `docs/wine_data.md`.
+- **Stage 3 verification and publication: next.** Product verification,
+  application-asset publication, and writes beneath `data/products/wine/`
+  remain intentionally unimplemented.
+
 This document maps the current wine AOC geospatial workflow to the repository's
 new `wine_pipeline` package and the tracked simplification work under
 `Development/aoc_simplification/`.
@@ -77,8 +93,7 @@ Current single-region package command:
 
 ```bash
 wine_pipeline simplify-region \
-  --region "Jura" \
-  --input tmp/wine/<run-id>/candidates/aoc_regions.gpkg
+  --region "Jura"
 ```
 
 The runner processes one exact region only. It writes regional candidates and
@@ -123,8 +138,7 @@ overlap_ratio
 Current all-region batch command:
 
 ```bash
-wine_pipeline simplify \
-  --input tmp/wine/<run-id>/candidates/aoc_regions.gpkg
+wine_pipeline simplify
 ```
 
 The batch command discovers non-empty region names from the Stage 1 candidate,
@@ -200,9 +214,8 @@ incomplete, stale, or mismatched regions are regenerated transactionally.
 previous completed batch untouched if replacement fails. `--resume` and
 `--overwrite` are mutually exclusive.
 
-Human approval enforcement and durable candidate assembly are implemented as
-the next gate after batch review. Product verification and publication remain
-future stages.
+Durable candidate assembly is implemented as the completion gate for Stage 2.
+Product verification and publication remain the future Stage 3.
 
 ## Existing Simplification Logic
 
@@ -250,8 +263,7 @@ summaries, and the review table expose the classification.
 The packaged lightweight diagnostic pass is:
 
 ```bash
-wine_pipeline diagnose-simplification \
-  --input tmp/wine/<run-id>/candidates/aoc_regions.gpkg
+wine_pipeline diagnose-simplification
 ```
 
 It discovers regions deterministically, runs the existing transform and final
@@ -337,8 +349,7 @@ After the Stage 2 batch passes automated validation, the packaged assembly
 command promotes a durable candidate:
 
 ```bash
-wine_pipeline assemble-candidate \
-  --simplification-run-id close500_simplify150
+wine_pipeline assemble-candidate
 ```
 
 The default assembly policy is designed for solo maintenance. It allows blank
@@ -353,7 +364,6 @@ Strict manual approval remains available:
 
 ```bash
 wine_pipeline assemble-candidate \
-  --simplification-run-id close500_simplify150 \
   --require-manual-approval
 ```
 
