@@ -18,6 +18,7 @@ from .aoc_enrichment.mappings import FALLBACK_REGIONS_BY_DT, REGION_OVERRIDE_MET
 from .aoc_enrichment.transform import write_enriched_candidate
 from .aoc_package.extract import extract_inao_source, source_urls
 from .aoc_package.transform import write_packaged_candidate
+from .aoc_simplification.assembly import assemble_candidate
 from .aoc_simplification.batch import run_batch
 from .aoc_simplification.diagnostics import run_diagnostics
 from .aoc_simplification.runner import run_single_region
@@ -247,6 +248,17 @@ def _parser() -> argparse.ArgumentParser:
     diagnostic_parser.add_argument("--simplify", type=float, default=150.0, help="topology-preserving simplification tolerance in metres")
     diagnostic_parser.add_argument("--overlap-strategy", choices=("none", "smallest-wins"), default="smallest-wins")
     diagnostic_parser.add_argument("--quiet", action="store_true", help="suppress region progress messages")
+    assemble_parser = subparsers.add_parser("assemble-candidate", help="assemble a validated Stage 2 simplification batch into a durable wine candidate")
+    assemble_parser.add_argument("--simplification-run-id", default=CANONICAL_RUN_ID, help="simplification batch run id")
+    assemble_parser.add_argument("--simplification-root", type=Path, help="default: tmp/wine/simplification")
+    assemble_parser.add_argument("--candidate-id", help="candidate directory id; defaults to run-id plus UTC timestamp")
+    assemble_parser.add_argument("--candidate-root", type=Path, help="default: data/candidates/wine")
+    assemble_parser.add_argument("--report-root", type=Path, help="default: data/wine/reports")
+    assemble_parser.add_argument("--validation-root", type=Path, help="default: data/wine/validation")
+    assemble_parser.add_argument("--provenance-root", type=Path, help="default: data/wine/provenance")
+    assemble_parser.add_argument("--overwrite", action="store_true", help="replace an existing durable candidate transactionally")
+    assemble_parser.add_argument("--require-manual-approval", action="store_true", help="require every expected region to have review_status=approved")
+    assemble_parser.add_argument("--quiet", action="store_true", help="suppress assembly progress messages")
     return parser
 
 
@@ -334,6 +346,30 @@ def main(argv: list[str] | None = None) -> int:
             print(f"  passed regions: {len(result.passed_regions)}")
             print(f"  failed regions: {len(result.failed_regions)}")
             return 0 if result.passed else 2
+        if args.command == "assemble-candidate":
+            result = assemble_candidate(
+                simplification_run_id=args.simplification_run_id,
+                simplification_root=args.simplification_root,
+                candidate_id=args.candidate_id,
+                candidate_root=args.candidate_root,
+                report_root=args.report_root,
+                validation_root=args.validation_root,
+                provenance_root=args.provenance_root,
+                overwrite=args.overwrite,
+                require_manual_approval=args.require_manual_approval,
+                progress=_console_progress(not args.quiet),
+                command=["wine_pipeline", *sys.argv[1:]],
+            )
+            print(f"Assembled validated wine candidate {result.candidate_id}")
+            print(f"  candidate dir: {result.candidate_dir}")
+            print(f"  candidate: {result.candidate_path}")
+            print(f"  manifest: {result.manifest_path}")
+            print(f"  provenance report: {result.provenance_path}")
+            print(f"  validation report: {result.validation_path}")
+            print(f"  review report: {result.review_report_path}")
+            print(f"  assembly summary: {result.summary_path}")
+            print(f"  rows: {result.rows}")
+            return 0
         raise AssertionError(args.command)
     except (WinePipelineError, FileExistsError, FileNotFoundError, requests.RequestException, ValueError) as error:
         print(f"Wine pipeline failed: {error}", file=sys.stderr)

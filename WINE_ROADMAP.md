@@ -200,8 +200,9 @@ incomplete, stale, or mismatched regions are regenerated transactionally.
 previous completed batch untouched if replacement fails. `--resume` and
 `--overwrite` are mutually exclusive.
 
-Human approval enforcement, merged candidate assembly, and promotion into
-durable candidate/product locations are still future stages.
+Human approval enforcement and durable candidate assembly are implemented as
+the next gate after batch review. Product verification and publication remain
+future stages.
 
 ## Existing Simplification Logic
 
@@ -303,7 +304,7 @@ The current development process is:
    partition.fully_covered_app_names
    partition.per_app
    removed_overlap_percent
-   residual_overlap_within_tolerance
+   residual_overlap.classification
    invalid_geometry_count
    empty_geometry_count
    ```
@@ -316,7 +317,7 @@ The current development process is:
      --run-id close500_simplify150
    ```
 
-5. In a later tranche, merge only a complete, valid run:
+5. Historical development merge command, retained only as context:
 
    ```bash
    .venv/bin/python Development/aoc_simplification/merge_candidates.py \
@@ -324,41 +325,101 @@ The current development process is:
      --output Development/aoc_simplification/datasets/aoc_regions_close500_simplify150.geojson
    ```
 
-The merge utility validates schema, CRS, polygonal geometry, geometry validity,
-emptiness, duplicates, region coverage, and numeric `source_area_m2`. It
-concatenates regional candidates without repair, buffering, simplification,
+The development merge utility established the packaged candidate assembly
+contract: validate schema, CRS, polygonal geometry, geometry validity,
+emptiness, duplicates, region coverage, and numeric `source_area_m2`; then
+concatenate regional candidates without repair, buffering, simplification,
 clipping, pruning, dissolving, or other geometry changes.
 
-That merge behavior remains the future package-level candidate assembly
-contract.
+## Durable Candidate Assembly
 
-## Future Durable Candidate Layer
+After the Stage 2 batch passes automated validation, the packaged assembly
+command promotes a durable candidate:
 
-After all regional runs pass review, a later gated stage should promote a merged
-simplification candidate to:
-
-```text
-data/candidates/wine/<run-id>/
+```bash
+wine_pipeline assemble-candidate \
+  --simplification-run-id close500_simplify150
 ```
 
-Suggested candidate contents:
+The default assembly policy is designed for solo maintenance. It allows blank
+or `pending` review statuses when automated gates pass, and it blocks only
+explicit `rejected` or `rerun_required` states. It also blocks failed batches,
+missing expected regions, fatal residual-overlap classifications, and fatal
+serialization or post-reprojection repair classifications. If
+`region_review.csv` is absent, the durable copied review report is generated
+from machine batch evidence and records that no manual review file was supplied.
+
+Strict manual approval remains available:
+
+```bash
+wine_pipeline assemble-candidate \
+  --simplification-run-id close500_simplify150 \
+  --require-manual-approval
+```
+
+Strict mode requires every expected region to have
+`review_status=approved`. Candidate manifest and provenance record either
+`automated_validated_batch` or `explicit_manual_approval`.
+
+Assembly consumes:
 
 ```text
-data/candidates/wine/<run-id>/
+tmp/wine/simplification/<run-id>/
+├── run.json
+├── batch_summary.json
+├── validation.json
+├── region_review.csv
+└── regions/*/
+    ├── candidate.geojson
+    ├── metrics.json
+    └── params.json
+```
+
+It requires batch validation to have passed, no failed regions, complete
+expected-region coverage, consistent Stage 1 source hash, consistent canonical
+parameters, complete regional artifact sets, exact regional schema, EPSG:4326,
+and valid non-empty polygonal geometry.
+
+The durable candidate package is written beneath:
+
+```text
+data/candidates/wine/<candidate-id>/
+```
+
+Candidate contents:
+
+```text
+data/candidates/wine/<candidate-id>/
 ├── wine_regions.geojson
-├── wine_regions.metrics.json
-├── wine_regions.validation.json
-├── wine_regions.provenance.json
-├── region_policy.csv
-└── regions/
-    └── <region-slug>/
-        ├── metrics.json
-        ├── params.json
-        └── candidate.geojson
+├── manifest.json
+└── provenance.json
 ```
 
-The candidate layer should be durable enough to review and reproduce the
-decision, but it should still not be treated as the application product.
+Durable evidence is copied to:
+
+```text
+data/wine/reports/<candidate-id>_region_review.csv
+data/wine/reports/<candidate-id>_assembly_summary.json
+data/wine/validation/<candidate-id>.validation.json
+data/wine/provenance/<candidate-id>.provenance.json
+```
+
+Machine-owned review-table columns may be refreshed before assembly, but the
+human-owned columns must remain intact:
+
+```text
+review_status
+reviewer
+reviewed_at
+geometry_assessment
+overlap_assessment
+fully_covered_assessment
+notes
+```
+
+The tmp regional outputs remain disposable after a durable candidate is
+assembled. The candidate layer is durable evidence for the next gate, but it is
+still not the application product.
 
 ## Future Product Publication Gate
 

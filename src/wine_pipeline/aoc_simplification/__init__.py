@@ -24,6 +24,7 @@ from .serialization import (
     repair_post_reprojection_geometry,
 )
 from .diagnostics import DiagnosticResult, run_diagnostics
+from .assembly import AssemblyResult, assemble_candidate
 
 __all__ = [
     "CANONICAL_BUFFER_M",
@@ -47,4 +48,6 @@ __all__ = [
     "repair_post_reprojection_geometry",
     "DiagnosticResult",
     "run_diagnostics",
+    "AssemblyResult",
+    "assemble_candidate",
 ]

@@ -373,7 +373,7 @@ tables.
 
 After reprojection to EPSG:4326, invalid geometries alone receive a second
 topology repair. The pipeline keeps polygonal components and compares the
-pre-repair and post-repair areas after projecting both back to EPSG:2154. This
+pre-repair and post-repair areas after projecting both back to EPSG:2154. These
 repairs are classified as `negligible` at 10 square metres or `1e-8`, and as
 `review` above that level. They fail as `fatal` only when both 100 square metres
 and `1e-6` of `source_area_m2` are exceeded, or when output is invalid, empty,
@@ -403,9 +403,66 @@ pending human-owned columns. Later tooling may refresh the machine metrics, but
 human-owned review fields such as reviewer, reviewed timestamp, assessments,
 and notes must not be overwritten.
 
-Human approval enforcement, merged candidate creation, promotion into
-`data/candidates/wine/`, product verification, and publication under
-`data/products/wine/` remain later gated stages.
+When the Stage 2 batch has passed automated validation, assemble a durable
+candidate with:
+
+```bash
+wine_pipeline assemble-candidate \
+  --simplification-run-id close500_simplify150
+```
+
+By default this is a solo-maintainer gate: blank or `pending` review statuses
+are allowed when batch validation passed, all expected regions are present,
+there are no failed regions, no fatal residual-overlap classifications, no
+fatal serialization or post-reprojection repair classifications, and no region
+is explicitly marked `rejected` or `rerun_required`. If `region_review.csv` is
+missing, assembly may still proceed from machine-generated batch evidence and
+the copied durable review report records that no manual review file was
+supplied.
+
+Use strict manual approval when needed:
+
+```bash
+wine_pipeline assemble-candidate \
+  --simplification-run-id close500_simplify150 \
+  --require-manual-approval
+```
+
+Strict mode preserves the explicit review gate and requires every expected
+region to have `review_status=approved`.
+
+Candidate assembly validates the completed batch, applies the review policy,
+concatenates regional `candidate.geojson` files, sorts by `region`, `app`,
+`display_name`, `colour`, and `categorie`, writes the merged GeoJSON, and
+reloads it for validation. It does not repair, simplify, dissolve, remove, or
+otherwise mutate geometry. The manifest and provenance record whether assembly
+used `automated_validated_batch` or `explicit_manual_approval`.
+
+The durable candidate package is written beneath:
+
+```text
+data/candidates/wine/<candidate-id>/
+├── wine_regions.geojson
+├── manifest.json
+└── provenance.json
+```
+
+Assembly also writes durable evidence beneath:
+
+```text
+data/wine/reports/<candidate-id>_region_review.csv
+data/wine/reports/<candidate-id>_assembly_summary.json
+data/wine/validation/<candidate-id>.validation.json
+data/wine/provenance/<candidate-id>.provenance.json
+```
+
+The regional PNG previews and working artifacts remain disposable under
+`tmp/wine/simplification/<run-id>/`. Once a durable candidate has been
+assembled, those tmp outputs are evidence sources, not the product itself.
+
+Product verification and publication under `data/products/wine/` remain a later
+Stage 3 tranche. Assembly does not publish application assets and never writes
+to `data/products/wine/`.
 
 ## Documentation Index
 

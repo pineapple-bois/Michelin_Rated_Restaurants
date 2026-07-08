@@ -52,3 +52,5 @@ htmlcov/
 # Wine work in progress
 /Development/
 /data/wine/candidates/
+/data/wine/
+/data/candidates/wine/
