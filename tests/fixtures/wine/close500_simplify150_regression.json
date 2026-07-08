@@ -1,0 +1,29 @@
+{
+  "fixture": "synthetic_nested_broad_and_cru",
+  "working_crs": "EPSG:2154",
+  "parameters": {
+    "buffer_m": 500.0,
+    "simplify_m": 150.0,
+    "overlap_strategy": "smallest-wins"
+  },
+  "final_apps": [
+    "Broad",
+    "Cru"
+  ],
+  "final_geometry_types": [
+    "Polygon",
+    "Polygon"
+  ],
+  "final_area_m2_by_app": {
+    "Broad": 95937108.468042,
+    "Cru": 3984284.832525
+  },
+  "final_total_area_m2": 99921393.300568,
+  "final_bounds_epsg2154": [
+    700000.0,
+    6600000.574762,
+    709999.425238,
+    6609999.425238
+  ],
+  "fully_covered_apps": []
+}

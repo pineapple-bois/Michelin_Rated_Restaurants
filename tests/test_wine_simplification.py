@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-import importlib.util
 import json
 import os
 from pathlib import Path
-import sys
 import tempfile
 import unittest
 from unittest import mock
@@ -111,15 +109,9 @@ def artifact_snapshot(path: Path) -> dict[str, bytes]:
     return {child.name: child.read_bytes() for child in sorted(path.iterdir()) if child.is_file()}
 
 
-def load_development_simplification():
-    path = Path("Development/aoc_simplification/simplification.py")
-    spec = importlib.util.spec_from_file_location("development_aoc_simplification", path)
-    if spec is None or spec.loader is None:
-        raise unittest.SkipTest("Development simplification module is unavailable")
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[spec.name] = module
-    spec.loader.exec_module(module)
-    return module
+def load_simplification_regression() -> dict[str, object]:
+    path = Path(__file__).parent / "fixtures" / "wine" / "close500_simplify150_regression.json"
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 class WineSimplificationTests(unittest.TestCase):
@@ -662,21 +654,44 @@ class WineSimplificationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "empty geometry"):
             simplify_region(empty)
 
-    def test_packaged_transform_matches_development_geometry_on_controlled_fixture(self) -> None:
-        dev = load_development_simplification()
+    def test_packaged_transform_matches_tracked_golden_measurements(self) -> None:
+        expected = load_simplification_regression()
         source = fixture_stage1()
-        ours = simplify_region(source)
-        dev_input = source[["region", "app", "colour", "geometry"]].copy()
-        theirs = dev.process_region(
-            dev_input,
-            overlap_strategy="smallest-wins",
-            buffer_dist_m=500,
-            simplify_m=150,
+        result = simplify_region(source)
+        final = result.final.to_crs(str(expected["working_crs"])).sort_values("app").reset_index(drop=True)
+        self.assertEqual(result.parameters.as_dict()["buffer_m"], expected["parameters"]["buffer_m"])
+        self.assertEqual(result.parameters.as_dict()["simplify_m"], expected["parameters"]["simplify_m"])
+        self.assertEqual(result.parameters.as_dict()["overlap_strategy"], expected["parameters"]["overlap_strategy"])
+        self.assertEqual(final["app"].tolist(), expected["final_apps"])
+        self.assertEqual(final.geom_type.tolist(), expected["final_geometry_types"])
+        for row in final.itertuples():
+            self.assertAlmostEqual(
+                float(row.geometry.area),
+                expected["final_area_m2_by_app"][row.app],
+                places=3,
+            )
+        self.assertAlmostEqual(
+            float(final.geometry.area.sum()),
+            expected["final_total_area_m2"],
+            places=3,
         )
-        ours_area = round(float(ours.final.to_crs("EPSG:2154").geometry.area.sum()), 6)
-        theirs_area = round(float(theirs.final.to_crs("EPSG:2154").geometry.area.sum()), 6)
-        self.assertEqual(len(ours.final), len(theirs.final))
-        self.assertAlmostEqual(ours_area, theirs_area, places=3)
+        for observed, golden in zip(final.total_bounds, expected["final_bounds_epsg2154"]):
+            self.assertAlmostEqual(float(observed), golden, places=3)
+        self.assertEqual(result.partition_report.fully_covered_app_names, expected["fully_covered_apps"])
+
+    def test_normal_suite_and_runtime_do_not_reference_ignored_development_tree(self) -> None:
+        forbidden = "Develop" + "ment/"
+        repository_root = Path(__file__).parents[1]
+        source_files = [
+            *sorted((repository_root / "src" / "wine_pipeline").rglob("*.py")),
+            *sorted((repository_root / "tests").glob("test_wine*.py")),
+        ]
+        references = [
+            str(path.relative_to(repository_root))
+            for path in source_files
+            if forbidden in path.read_text(encoding="utf-8")
+        ]
+        self.assertEqual(references, [])
 
     def test_real_jura_transform_when_stage1_candidate_exists(self) -> None:
         if os.environ.get("WINE_RUN_INTEGRATION_TESTS") != "1":
