@@ -72,6 +72,18 @@ def _read_json(path: Path) -> dict[str, object]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _write_compact_geojson(path: Path, payload: dict[str, object]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as output:
+        json.dump(
+            payload,
+            output,
+            ensure_ascii=False,
+            separators=(",", ":"),
+            allow_nan=False,
+        )
+
+
 def _candidate_validation_path(project_root: Path, candidate_id: str, validation_root: Path | None) -> Path:
     root = validation_root or project_root / "data" / "wine" / "validation"
     return root / f"{candidate_id}.validation.json"
@@ -511,7 +523,7 @@ def publish_product(
 
         product_path = temp_dir / PRODUCT_FILENAME
         progress(f"writing product with derived prompt signals: {product_path}")
-        write_json(product_path, product_payload)
+        _write_compact_geojson(product_path, product_payload)
         product_hash = sha256_file(product_path)
         product_payload = _read_json(product_path)
         product_info = _validate_geojson(
@@ -561,6 +573,7 @@ def publish_product(
             "validation_status": "passed",
             "geometry_transformation": False,
             "attribute_transformation": "derive_prompt_signals_from_categorie",
+            "serialization": "compact_geojson",
             "operation": "validation_prompt_signal_derivation_and_promotion",
         }
         provenance = {
@@ -581,6 +594,7 @@ def publish_product(
             "lineage": ["build", "simplify", "assemble-candidate", "publish-product"],
             "geometry_transformation": False,
             "attribute_transformation": "derive_prompt_signals_from_categorie",
+            "serialization": "compact_geojson",
             "command": shlex.join(command or sys.argv),
             "started_at_utc": started_at,
             "completed_at_utc": created_at,

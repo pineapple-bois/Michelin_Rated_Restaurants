@@ -23,7 +23,7 @@
   "source_candidate_path": "data/candidates/wine/close500_simplify150_20260709t071239z",
   "destination_product_path": "data/products/wine/2026-07-09/wine_regions_aoc_area.geojson",
   "candidate_sha256": "99546ffc042ddda1ead9c92921d943b33fa8785d050c61bd31fe43449cf99a81",
-  "product_sha256": "645a154be17c262f49cca7c571da2560cb83054e6de1d697699d48b96441b665",
+  "product_sha256": "ce79c181c147a2f40b8c24cfcdbb02b93273eb3fd7ec0179b553b0a744ab5fc9",
   "lineage": [
     "build",
     "simplify",
@@ -32,15 +32,16 @@
   ],
   "geometry_transformation": false,
   "attribute_transformation": "derive_prompt_signals_from_categorie",
-  "command": "wine_pipeline publish-product",
-  "started_at_utc": "2026-07-09T12:50:52.988235+00:00",
-  "completed_at_utc": "2026-07-09T12:50:53.930050+00:00",
+  "serialization": "compact_geojson",
+  "command": "wine_pipeline publish-product --candidate-id close500_simplify150_20260709t071239z --release-date 2026-07-09 --overwrite",
+  "started_at_utc": "2026-07-09T13:25:42.595186+00:00",
+  "completed_at_utc": "2026-07-09T13:25:43.402676+00:00",
   "pipeline_version": "0.1.0",
   "python_version": "3.12.3 (v3.12.3:f6650f9ad7, Apr  9 2024, 08:18:47) [Clang 13.0.0 (clang-1300.0.29.30)]",
   "platform": "macOS-15.7.7-arm64-arm-64bit",
   "git_state": {
-    "commit": "9836bdb321a620de285a35ac7ab1c9bf8a629a49",
-    "status_short": "M docs/wine_data.md\n M src/wine_pipeline/product.py\n M tests/test_wine_product.py\n?? data/products/wine/\n?? test_data.ipynb\n?? wine_categorie_analysis.ipynb",
+    "commit": "d7709150f1b4233c05f6b46d59e740ff222f353f",
+    "status_short": "M docs/wine_data.md\n M src/wine_pipeline/product.py\n M tests/test_wine_product.py\n?? data/products/wine/.2026-07-09.tmp-641de83ea5c64dd1a2e8423a064bbd93/",
     "dirty": true
   }
 }

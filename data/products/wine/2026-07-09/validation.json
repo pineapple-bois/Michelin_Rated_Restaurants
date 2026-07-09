@@ -3,7 +3,7 @@
   "release_date": "2026-07-09",
   "candidate_id": "close500_simplify150_20260709t071239z",
   "candidate_sha256": "99546ffc042ddda1ead9c92921d943b33fa8785d050c61bd31fe43449cf99a81",
-  "product_sha256": "645a154be17c262f49cca7c571da2560cb83054e6de1d697699d48b96441b665",
+  "product_sha256": "ce79c181c147a2f40b8c24cfcdbb02b93273eb3fd7ec0179b553b0a744ab5fc9",
   "checks": [
     {
       "phase": "pre_write",

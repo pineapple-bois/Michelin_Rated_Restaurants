@@ -423,6 +423,10 @@ reviewed categories retain multiple signals in source order; duplicate signals
 are removed stably. The default-only `Vin tranquille` category is stored as
 `[]`.
 
+Stage 3 writes the product GeoJSON with compact separators and no presentation
+indentation. Human-readable manifest, provenance, and validation reports remain
+pretty-printed; the runtime geometry asset does not carry formatting overhead.
+
 `categorie` remains unchanged as the source provenance field. Prompt wording
 and rendered prompt context are resolved later by the application and are not
 stored in the wine product. A previously unseen non-default category fails

@@ -336,6 +336,28 @@ class WineProductTests(unittest.TestCase):
                 ["sparkling", "primeur"],
             )
 
+    def test_product_geojson_is_compactly_serialized(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            candidate_dir = make_candidate(root)
+            candidate_size = (candidate_dir / "wine_regions.geojson").stat().st_size
+
+            result = self.publish(root)
+            product_bytes = result.product_path.read_bytes()
+
+            self.assertNotIn(b"\n", product_bytes)
+            self.assertNotIn(b": ", product_bytes)
+            self.assertLess(len(product_bytes), candidate_size)
+            self.assertEqual(
+                product_bytes,
+                json.dumps(
+                    read_json(result.product_path),
+                    ensure_ascii=False,
+                    separators=(",", ":"),
+                    allow_nan=False,
+                ).encode("utf-8"),
+            )
+
     def test_unmapped_non_default_category_fails_promotion(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
