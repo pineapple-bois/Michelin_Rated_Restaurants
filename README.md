@@ -189,6 +189,46 @@ PYTHON=python scripts/run_annual_pipeline.sh
 Logs are written to `tmp/logs/annual_pipeline_YYYYMMDD_HHMMSS.log` while also
 remaining visible in the console.
 
+### GitHub Actions Annual Run
+
+The first GitHub Actions integration for the annual orchestrator is:
+
+```text
+.github/workflows/annual-pipeline.yml
+```
+
+It can be started manually from the GitHub Actions tab with
+`workflow_dispatch`. It also runs at approximately 08:17 UTC every Thursday
+during April, May, and June:
+
+```text
+17 8 * 4-6 4
+```
+
+The schedule is only an opportunity to run the local orchestrator. Stage 1
+still decides whether acquisition is allowed and whether a new France guide has
+actually been accepted. If no new guide is published, downstream stages are
+skipped and the workflow succeeds. After a successful annual run, the workflow
+can be disabled manually; if left enabled, later runs are safe because Stage 1
+derives the next candidate year and blocks acquisition until the following
+1 April.
+
+The workflow installs the project with:
+
+```bash
+python -m pip install -e .
+```
+
+Then it runs:
+
+```bash
+PYTHON=python scripts/run_annual_pipeline.sh
+```
+
+Logs from `tmp/logs/` are uploaded as a 30-day artifact even if the job fails.
+When the run creates or updates annual data under the maintained data roots,
+those generated outputs are uploaded as a separate 30-day artifact. 
+
 ## Implemented CLI Commands
 
 The implemented Michelin command group is:

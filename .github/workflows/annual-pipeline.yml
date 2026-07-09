@@ -1,0 +1,91 @@
+name: Annual Michelin Pipeline
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 8 * 4-6 4"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: annual-michelin-pipeline
+  cancel-in-progress: false
+
+jobs:
+  run-annual-pipeline:
+    name: Run annual pipeline
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install project
+        run: python -m pip install -e .
+
+      - name: Run annual pipeline
+        run: PYTHON=python scripts/run_annual_pipeline.sh
+
+      - name: Detect generated annual outputs
+        id: generated_outputs
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -n "$(git status --porcelain -- data/raw/michelin data/partitions data/candidates/insee data/products/insee data/products/france data/reports)" ]]; then
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Upload annual pipeline logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: annual-pipeline-logs
+          path: tmp/logs/
+          if-no-files-found: ignore
+          retention-days: 30
+
+      - name: Upload generated annual outputs
+        if: always() && steps.generated_outputs.outputs.has_changes == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: annual-pipeline-generated-outputs
+          path: |
+            data/raw/michelin/
+            data/partitions/
+            data/candidates/insee/
+            data/products/insee/
+            data/products/france/
+            data/reports/
+          if-no-files-found: ignore
+          retention-days: 30
+
+      - name: Write job summary
+        if: always()
+        shell: bash
+        run: |
+          if [[ "${{ steps.generated_outputs.outputs.has_changes }}" == "true" ]]; then
+            generated_artifact="annual-pipeline-generated-outputs"
+          else
+            generated_artifact="not uploaded; no generated output changes detected"
+          fi
+          {
+            echo "## Annual Michelin pipeline"
+            echo
+            echo "- Workflow status: ${{ job.status }}"
+            echo "- Run date: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "- Logs artifact: annual-pipeline-logs"
+            echo "- Generated outputs artifact: $generated_artifact"
+            echo
+            echo "Inspect the annual pipeline log for Stage 1, Michelin year, INSEE attempt, fallback, and downstream-stage details."
+          } >> "$GITHUB_STEP_SUMMARY"
