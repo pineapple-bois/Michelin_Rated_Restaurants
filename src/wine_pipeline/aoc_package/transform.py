@@ -10,7 +10,12 @@ from shapely.ops import unary_union
 
 from ..config import AOC_SIMPLIFICATION_TOLERANCE, OUTPUT_LAYER
 from ..validation import Check, WinePipelineError, geometry_profile
-from .validate import PACKAGE_COLUMNS, validate_packaged_artifact, validate_source_aoc
+from .validate import (
+    PACKAGE_COLUMNS,
+    WINE_CATEGORY_PATTERN,
+    validate_packaged_artifact,
+    validate_source_aoc,
+)
 
 
 GROUP_FIELDS = ["app", "id_app"]
@@ -26,6 +31,54 @@ def package_aoc_geometries(raw_aoc: gpd.GeoDataFrame) -> tuple[gpd.GeoDataFrame,
     working["_source_order"] = range(len(working))
     for column in ("app", "id_app", "dt", "categorie"):
         working[column] = working[column].astype("string").str.strip()
+
+    wine_category_mask = working["categorie"].str.contains(
+        WINE_CATEGORY_PATTERN,
+        case=False,
+        na=False,
+        regex=True,
+    )
+    excluded_non_wine = (
+        working.loc[~wine_category_mask, ["app", "id_app", "categorie"]]
+        .drop_duplicates()
+        .sort_values(["categorie", "app", "id_app"], kind="stable")
+        .reset_index(drop=True)
+    )
+    excluded_source_indexes = working.index[~wine_category_mask]
+    working = working.loc[wine_category_mask].copy()
+
+    retained_non_wine_count = int(
+        (
+            ~working["categorie"].str.contains(
+                WINE_CATEGORY_PATTERN,
+                case=False,
+                na=False,
+                regex=True,
+            )
+        ).sum()
+    )
+    checks.extend(
+        [
+            Check(
+                "aoc_package_non_wine_source_rows_excluded",
+                not working.index.isin(excluded_source_indexes).any(),
+                observed=excluded_non_wine.to_dict(orient="records"),
+                expected=f"all source rows whose categorie does not match {WINE_CATEGORY_PATTERN} are excluded",
+            ),
+            Check(
+                "aoc_package_retained_categories_are_wine",
+                retained_non_wine_count == 0,
+                observed=retained_non_wine_count,
+                expected=0,
+            ),
+        ]
+    )
+    if working.empty:
+        raise WinePipelineError("AOC source filtering removed every row; no wine categories remain")
+    if retained_non_wine_count:
+        raise WinePipelineError("AOC source filtering retained non-wine categories")
+
+    filtered_source_profile = geometry_profile(working)
 
     working["geometry"] = working.geometry.simplify(
         tolerance=AOC_SIMPLIFICATION_TOLERANCE,
@@ -93,7 +146,7 @@ def package_aoc_geometries(raw_aoc: gpd.GeoDataFrame) -> tuple[gpd.GeoDataFrame,
 
     expected_groups = working[GROUP_FIELDS].drop_duplicates().shape[0]
     duplicate_keys = int(packaged.duplicated(subset=GROUP_FIELDS).sum())
-    bounds_difference = abs(raw_aoc.total_bounds - packaged.total_bounds)
+    bounds_difference = abs(working.total_bounds - packaged.total_bounds)
     checks.extend(
         [
             Check("aoc_package_group_count", len(packaged) == expected_groups, observed=len(packaged), expected=expected_groups),
@@ -107,9 +160,17 @@ def package_aoc_geometries(raw_aoc: gpd.GeoDataFrame) -> tuple[gpd.GeoDataFrame,
 
     metadata = {
         "source_profile": geometry_profile(raw_aoc),
+        "filtered_source_profile": filtered_source_profile,
         "output_profile": geometry_profile(packaged),
         "transformation_parameters": {
             "selected_columns": PACKAGE_COLUMNS,
+            "wine_category_filter": {
+                "column": "categorie",
+                "pattern": WINE_CATEGORY_PATTERN,
+                "case_sensitive": False,
+                "excluded_rows": int((~wine_category_mask).sum()),
+                "excluded_records": excluded_non_wine.to_dict(orient="records"),
+            },
             "simplification_tolerance": AOC_SIMPLIFICATION_TOLERANCE,
             "simplification_preserve_topology": True,
             "geometry_repair": "buffer(0)",

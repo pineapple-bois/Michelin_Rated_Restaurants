@@ -85,7 +85,45 @@ The INAO package groups parcel rows by `app` and `id_app`. `dt` must contain
 exactly one distinct non-null value within each group. Mixed parcel-level
 `categorie` values are reported rather than treated as a fatal inconsistency;
 the value from the first source row in stable source order is retained as the
-representative official value. No rows are silently dropped.
+representative official value.
+
+Before grouping, Stage 1 defines this dataset semantically as wine-only:
+`categorie` must contain the whole word `Vin`, matched case-insensitively.
+Rows that do not satisfy that inclusion rule are excluded explicitly. The run
+report records the filter expression, excluded row count, and distinct excluded
+`app`, `id_app`, and `categorie` records. Packaging fails if filtering leaves no
+wine rows, and both the in-memory transform and serialized GeoPackage validation
+assert that no non-wine category survives.
+
+### Source data issue: non-wine AOC records
+
+Before grouping, Stage 1 now restricts the dataset to wine records only. 
+A row is retained when `categorie` contains the whole word `Vin`, matched case-insensitively.
+
+Rows that do not meet this rule are excluded. The run report records:
+
+- the filter used;
+- the number of excluded rows;
+- the distinct excluded values of `app`, `id_app`, and `categorie`.
+
+The pipeline fails if no wine rows remain after filtering. Validation also checks that 
+no non-wine category is present in either the in-memory result or the written GeoPackage.
+
+Inspection of the 2026-07-08 product found two non-wine appellations:
+
+```text
+Taureau de Camargue | Bovin
+Béa du Roussillon   | Tubercule
+```
+
+The investigation traced both records back through the packaged and enriched candidates to 
+the original INAO shapefile. They were therefore present in the source and were not introduced 
+by geometry processing, enrichment, simplification, assembly, or publication.
+
+The pipeline had preserved the source correctly, but it had not yet enforced the intended 
+wine-only scope of the product. The new Stage 1 filter defines that scope explicitly. 
+It does not alter the INAO source; it only controls which source records are included 
+in the wine dataset.
 
 Regional assignment uses deterministic majority overlap, followed by reviewed
 literal `id_app` overrides and then the reviewed `dt` delegation fallback only

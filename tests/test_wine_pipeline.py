@@ -15,6 +15,7 @@ from shapely.geometry import Polygon
 from wine_pipeline.aoc_enrichment.transform import enrich_aoc_regions, write_enriched_candidate
 from wine_pipeline.aoc_package.extract import extract_archive_safely, locate_shapefile, stream_download
 from wine_pipeline.aoc_package.transform import package_aoc_geometries, write_packaged_candidate
+from wine_pipeline.aoc_package.validate import validate_packaged_artifact
 from wine_pipeline.provenance import sha256_file
 from wine_pipeline.validation import WinePipelineError, validate_and_repair_geometry
 
@@ -70,7 +71,7 @@ def one_aoc(id_app: str = "1", *, x0: float = 0.0, dt: str = "Tours", app: str =
         "app": app,
         "id_app": id_app,
         "dt": dt,
-        "categorie": "AOP",
+        "categorie": "Vin tranquille",
         "geometry": Polygon([(x0, 0), (x0 + 10, 0), (x0 + 10, 10), (x0, 10)]),
     }
 
@@ -166,12 +167,67 @@ class WinePipelineTests(unittest.TestCase):
             package_aoc_geometries(inconsistent_dt)
 
     def test_aoc_packaging_reports_mixed_categorie_and_keeps_first_source_value(self) -> None:
-        mixed_category = aoc_frame([one_aoc("1"), {**one_aoc("1", x0=20), "categorie": "IGP"}])
+        mixed_category = aoc_frame(
+            [one_aoc("1"), {**one_aoc("1", x0=20), "categorie": "Vin mousseux"}]
+        )
         packaged, checks, metadata = package_aoc_geometries(mixed_category)
-        self.assertEqual(packaged.loc[0, "categorie"], "AOP")
+        self.assertEqual(packaged.loc[0, "categorie"], "Vin tranquille")
         mixed_check = [check for check in checks if check.name == "aoc_package_group_categorie_mixed_values_reported"][0]
         self.assertIn("AOC One|1", mixed_check.observed)
         self.assertIn("AOC One|1", metadata["transformation_parameters"]["mixed_categorie_groups"])
+
+    def test_aoc_packaging_excludes_every_non_wine_category(self) -> None:
+        raw = aoc_frame(
+            [
+                one_aoc("1", app="Wine AOC"),
+                {**one_aoc("456", x0=20, app="Taureau de Camargue"), "categorie": "Bovin"},
+                {**one_aoc("593", x0=40, app="Béa du Roussillon"), "categorie": "Tubercule"},
+                {**one_aoc("999", x0=60, app="Vinaigre Test"), "categorie": "Vinaigre"},
+                {**one_aoc("1000", x0=80, app="Missing Category"), "categorie": None},
+            ]
+        )
+
+        packaged, checks, metadata = package_aoc_geometries(raw)
+
+        self.assertEqual(packaged["app"].tolist(), ["Wine AOC"])
+        self.assertTrue(
+            packaged["categorie"].str.contains(r"\bVin\b", case=False, na=False).all()
+        )
+        retained_check = next(
+            check for check in checks if check.name == "aoc_package_retained_categories_are_wine"
+        )
+        self.assertTrue(retained_check.passed)
+        self.assertEqual(retained_check.observed, 0)
+        category_filter = metadata["transformation_parameters"]["wine_category_filter"]
+        self.assertEqual(category_filter["pattern"], r"\bVin\b")
+        self.assertEqual(category_filter["excluded_rows"], 4)
+        self.assertEqual(
+            {record["categorie"] for record in category_filter["excluded_records"]},
+            {"Bovin", "Tubercule", "Vinaigre", None},
+        )
+
+    def test_aoc_packaging_fails_when_source_has_no_wine_categories(self) -> None:
+        non_wine = aoc_frame(
+            [
+                {**one_aoc("456", app="Taureau de Camargue"), "categorie": "Bovin"},
+                {**one_aoc("593", x0=20, app="Béa du Roussillon"), "categorie": "Tubercule"},
+            ]
+        )
+
+        with self.assertRaisesRegex(WinePipelineError, "no wine categories remain"):
+            package_aoc_geometries(non_wine)
+
+    def test_packaged_artifact_validation_rejects_non_wine_category(self) -> None:
+        corrupted = aoc_frame(
+            [{**one_aoc("456", app="Taureau de Camargue"), "categorie": "Bovin"}]
+        )
+
+        with mock.patch(
+            "wine_pipeline.aoc_package.validate.gpd.read_file",
+            return_value=corrupted,
+        ):
+            with self.assertRaisesRegex(WinePipelineError, "aoc_package_categories_are_wine"):
+                validate_packaged_artifact(Path("corrupted.gpkg"), corrupted)
 
     def test_invalid_geometry_repair_and_remaining_invalid_failure(self) -> None:
         bowtie = Polygon([(0, 0), (2, 2), (0, 2), (2, 0), (0, 0)])
