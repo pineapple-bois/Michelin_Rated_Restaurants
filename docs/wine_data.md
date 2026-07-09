@@ -401,7 +401,7 @@ The selected approval mode is recorded in candidate manifest and provenance.
 ## Stage 3: Product Promotion
 
 `publish-product` validates one durable candidate against the frontend-facing
-contract and publishes it without transformation:
+contract and promotes it into the dated product:
 
 ```text
 data/products/wine/<YYYY-MM-DD>/
@@ -411,18 +411,31 @@ data/products/wine/<YYYY-MM-DD>/
 └── provenance.json
 ```
 
-The product preserves the candidate schema and feature order. Promotion
-performs no geometry repair, simplification, dissolve, removal, reprojection,
-attribute transformation, or metric recalculation. The candidate GeoJSON is
-copied byte-for-byte, and source and product SHA-256 hashes must match.
+The product preserves candidate feature order and geometry. Promotion performs
+no geometry repair, simplification, dissolve, removal, reprojection, or metric
+recalculation. It performs one attribute derivation: the source `categorie`
+labels are mapped to ordered prompt signals. The GeoJSON `prompt_signals`
+property stores that list as compact canonical JSON text, such as
+`["late_harvest","sparkling"]`. This string representation survives the default
+GeoPandas/pyogrio read path; consumers recover the list with `json.loads`.
+Signals are English, lowercase `snake_case`, and machine-facing. Multiple
+reviewed categories retain multiple signals in source order; duplicate signals
+are removed stably. The default-only `Vin tranquille` category is stored as
+`[]`.
+
+`categorie` remains unchanged as the source provenance field. Prompt wording
+and rendered prompt context are resolved later by the application and are not
+stored in the wine product. A previously unseen non-default category fails
+promotion until its mapping has been reviewed explicitly.
 
 Stage 3 validates candidate evidence and hash, FeatureCollection structure,
 exact ordered schema, required properties, identity strings,
 `source_area_m2`, EPSG:4326, polygon-only valid non-empty geometry, duplicate
-identities, feature count and order, output hash, and internal release metadata.
-It writes product manifest, validation, and provenance files. Existing dated
-release folders are protected unless `--overwrite` is supplied; replacement is
-transactional.
+identities, prompt-signal derivation, feature count and order, output hash, and
+internal release metadata. Candidate and product hashes are both recorded; they
+differ because Stage 3 adds `prompt_signals`. It writes product manifest,
+validation, and provenance files. Existing dated release folders are protected
+unless `--overwrite` is supplied; replacement is transactional.
 
 Repository product creation does not deploy or copy the product into frontend
 or static application assets.

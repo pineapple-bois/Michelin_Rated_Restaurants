@@ -1,0 +1,5198 @@
+{
+  "product_type": "wine_regions_aoc_area",
+  "release_date": "2026-07-09",
+  "candidate_id": "close500_simplify150_20260709t071239z",
+  "candidate_sha256": "99546ffc042ddda1ead9c92921d943b33fa8785d050c61bd31fe43449cf99a81",
+  "product_sha256": "645a154be17c262f49cca7c571da2560cb83054e6de1d697699d48b96441b665",
+  "checks": [
+    {
+      "phase": "pre_write",
+      "name": "candidate_geojson_exists",
+      "passed": true,
+      "observed": "/Users/Ian/Documents/Study/Stage3/Programming/Github/Michelin_Rated_Restaurants/data/candidates/wine/close500_simplify150_20260709t071239z/wine_regions.geojson",
+      "expected": "existing file",
+      "message": ""
+    },
+    {
+      "phase": "pre_write",
+      "name": "candidate_manifest_exists",
+      "passed": true,
+      "observed": "/Users/Ian/Documents/Study/Stage3/Programming/Github/Michelin_Rated_Restaurants/data/candidates/wine/close500_simplify150_20260709t071239z/manifest.json",
+      "expected": "existing file",
+      "message": ""
+    },
+    {
+      "phase": "pre_write",
+      "name": "candidate_provenance_exists",
+      "passed": true,
+      "observed": "/Users/Ian/Documents/Study/Stage3/Programming/Github/Michelin_Rated_Restaurants/data/candidates/wine/close500_simplify150_20260709t071239z/provenance.json",
+      "expected": "existing file",
+      "message": ""
+    },
+    {
+      "phase": "pre_write",
+      "name": "candidate_validation_exists",
+      "passed": true,
+      "observed": "/Users/Ian/Documents/Study/Stage3/Programming/Github/Michelin_Rated_Restaurants/data/wine/validation/close500_simplify150_20260709t071239z.validation.json",
+      "expected": "existing file",
+      "message": ""
+    },
+    {
+      "phase": "pre_write",
+      "name": "candidate_validation_passed",
+      "passed": true,
+      "observed": true,
+      "expected": true,
+      "message": ""
+    },
+    {
+      "phase": "pre_write",
+      "name": "manifest_candidate_id",
+      "passed": true,
+      "observed": "close500_simplify150_20260709t071239z",
+      "expected": "close500_simplify150_20260709t071239z",
+      "message": ""
+    },
+    {
+      "phase": "pre_write",
+      "name": "provenance_candidate_id",
+      "passed": true,
+      "observed": "close500_simplify150_20260709t071239z",
+      "expected": "close500_simplify150_20260709t071239z",
+      "message": ""
+    },
+    {
+      "phase": "pre_write",
+      "name": "validation_candidate_id",
+      "passed": true,
+      "observed": "close500_simplify150_20260709t071239z",
+      "expected": "close500_simplify150_20260709t071239z",
+      "message": ""
+    },
+    {
+      "phase": "pre_write",
+      "name": "candidate_manifest_hash",
+      "passed": true,
+      "observed": "99546ffc042ddda1ead9c92921d943b33fa8785d050c61bd31fe43449cf99a81",
+      "expected": "99546ffc042ddda1ead9c92921d943b33fa8785d050c61bd31fe43449cf99a81",
+      "message": ""
+    },
+    {
+      "phase": "pre_write",
+      "name": "feature_collection",
+      "passed": true,
+      "observed": "FeatureCollection",
+      "expected": "FeatureCollection",
+      "message": ""
+    },
+    {
+      "phase": "pre_write",
+      "name": "exact_ordered_schema",
+      "passed": true,
+      "observed": [
+        "region",
+        "app",
+        "display_name",
+        "colour",
+        "categorie",
+        "source_area_m2",
+        "geometry"
+      ],
+      "expected": [
+        "region",
+        "app",
+        "display_name",
+        "colour",
+        "categorie",
+        "source_area_m2",
+        "geometry"
+      ],
+      "message": ""
+    },
+    {
+      "phase": "pre_write",
+      "name": "all_required_properties",
+      "passed": true,
+      "observed": [],
+      "expected": [],
+      "message": ""
+    },
+    {
+      "phase": "pre_write",
+      "name": "all_feature_schemas_exact",
+      "passed": true,
+      "observed": [],
+      "expected": [],
+      "message": ""
+    },
+    {
+      "phase": "pre_write",
+      "name": "non_empty_identity_strings",
+      "passed": true,
+      "observed": [],
+      "expected": [],
+      "message": ""
+    },
+    {
+      "phase": "pre_write",
+      "name": "valid_source_area_m2",
+      "passed": true,
+      "observed": [],
+      "expected": [],
+      "message": ""
+    },
+    {
+      "phase": "pre_write",
+      "name": "no_null_or_empty_geometry",
+      "passed": true,
+      "observed": [],
+      "expected": [],
+      "message": ""
+    },
+    {
+      "phase": "pre_write",
+      "name": "polygon_only",
+      "passed": true,
+      "observed": [],
+      "expected": [],
+      "message": ""
+    },
+    {
+      "phase": "pre_write",
+      "name": "valid_geometry",
+      "passed": true,
+      "observed": [],
+      "expected": [],
+      "message": ""
+    },
+    {
+      "phase": "pre_write",
+      "name": "no_duplicate_product_identities",
+      "passed": true,
+      "observed": [],
+      "expected": [],
+      "message": ""
+    },
+    {
+      "phase": "pre_write",
+      "name": "epsg_4326",
+      "passed": true,
+      "observed": 4326,
+      "expected": 4326,
+      "message": ""
+    },
+    {
+      "phase": "post_write",
+      "name": "feature_collection",
+      "passed": true,
+      "observed": "FeatureCollection",
+      "expected": "FeatureCollection",
+      "message": ""
+    },
+    {
+      "phase": "post_write",
+      "name": "exact_ordered_schema",
+      "passed": true,
+      "observed": [
+        "region",
+        "app",
+        "display_name",
+        "colour",
+        "categorie",
+        "prompt_signals",
+        "source_area_m2",
+        "geometry"
+      ],
+      "expected": [
+        "region",
+        "app",
+        "display_name",
+        "colour",
+        "categorie",
+        "prompt_signals",
+        "source_area_m2",
+        "geometry"
+      ],
+      "message": ""
+    },
+    {
+      "phase": "post_write",
+      "name": "all_required_properties",
+      "passed": true,
+      "observed": [],
+      "expected": [],
+      "message": ""
+    },
+    {
+      "phase": "post_write",
+      "name": "all_feature_schemas_exact",
+      "passed": true,
+      "observed": [],
+      "expected": [],
+      "message": ""
+    },
+    {
+      "phase": "post_write",
+      "name": "non_empty_identity_strings",
+      "passed": true,
+      "observed": [],
+      "expected": [],
+      "message": ""
+    },
+    {
+      "phase": "post_write",
+      "name": "valid_source_area_m2",
+      "passed": true,
+      "observed": [],
+      "expected": [],
+      "message": ""
+    },
+    {
+      "phase": "post_write",
+      "name": "no_null_or_empty_geometry",
+      "passed": true,
+      "observed": [],
+      "expected": [],
+      "message": ""
+    },
+    {
+      "phase": "post_write",
+      "name": "polygon_only",
+      "passed": true,
+      "observed": [],
+      "expected": [],
+      "message": ""
+    },
+    {
+      "phase": "post_write",
+      "name": "valid_geometry",
+      "passed": true,
+      "observed": [],
+      "expected": [],
+      "message": ""
+    },
+    {
+      "phase": "post_write",
+      "name": "no_duplicate_product_identities",
+      "passed": true,
+      "observed": [],
+      "expected": [],
+      "message": ""
+    },
+    {
+      "phase": "post_write",
+      "name": "valid_prompt_signals",
+      "passed": true,
+      "observed": [],
+      "expected": [],
+      "message": ""
+    },
+    {
+      "phase": "post_write",
+      "name": "epsg_4326",
+      "passed": true,
+      "observed": 4326,
+      "expected": 4326,
+      "message": ""
+    },
+    {
+      "phase": "post_write",
+      "name": "feature_count_matches",
+      "passed": true,
+      "observed": 348,
+      "expected": 348,
+      "message": ""
+    },
+    {
+      "phase": "post_write",
+      "name": "feature_order_matches",
+      "passed": true,
+      "observed": [
+        [
+          "Alsace",
+          "Alsace grand cru Altenberg de Bergbieten",
+          "Altenberg de Bergbieten",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Altenberg de Bergheim",
+          "Altenberg de Bergheim",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Altenberg de Wolxheim",
+          "Altenberg de Wolxheim",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Brand",
+          "Brand",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Bruderthal",
+          "Bruderthal",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Eichberg",
+          "Eichberg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Engelberg",
+          "Engelberg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Florimont",
+          "Florimont",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Frankstein",
+          "Frankstein",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Froehn",
+          "Froehn",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Furstentum",
+          "Furstentum",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Geisberg",
+          "Geisberg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Gloeckelberg",
+          "Gloeckelberg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Goldert",
+          "Goldert",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Hatschbourg",
+          "Hatschbourg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Hengst",
+          "Hengst",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Kaefferkopf",
+          "Kaefferkopf",
+          "#3A5F5F",
+          "Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Kanzlerberg",
+          "Kanzlerberg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Kastelberg",
+          "Kastelberg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Kessler",
+          "Kessler",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Kirchberg de Barr",
+          "Kirchberg de Barr",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Kirchberg de Ribeauvillé",
+          "Kirchberg de Ribeauvillé",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Kitterlé",
+          "Kitterlé",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Mambourg",
+          "Mambourg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Mandelberg",
+          "Mandelberg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Marckrain",
+          "Marckrain",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Moenchberg",
+          "Moenchberg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Muenchberg",
+          "Muenchberg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Ollwiller",
+          "Ollwiller",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Osterberg",
+          "Osterberg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Pfersigberg",
+          "Pfersigberg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Pfingstberg",
+          "Pfingstberg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Praelatenberg",
+          "Praelatenberg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Rangen",
+          "Rangen",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Rosacker",
+          "Rosacker",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Saering",
+          "Saering",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Schlossberg",
+          "Schlossberg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Schoenenbourg",
+          "Schoenenbourg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Sommerberg",
+          "Sommerberg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Sonnenglanz",
+          "Sonnenglanz",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Spiegel",
+          "Spiegel",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Sporen",
+          "Sporen",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Steinert",
+          "Steinert",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Steingrubler",
+          "Steingrubler",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Steinklotz",
+          "Steinklotz",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Vorbourg",
+          "Vorbourg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Wiebelsberg",
+          "Wiebelsberg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Wineck-Schlossberg",
+          "Wineck-Schlossberg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Winzenberg",
+          "Winzenberg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Zinnkoepfle",
+          "Zinnkoepfle",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Zotzenberg",
+          "Zotzenberg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace ou Vin d'Alsace",
+          "Alsace",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Crémant d'Alsace",
+          "Crémant d'Alsace",
+          "#3A5F5F",
+          "Vin mousseux \"Crémant\""
+        ],
+        [
+          "Alsace",
+          "Côtes de Toul",
+          "Côtes de Toul",
+          "#3A5F5F",
+          "Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Moselle",
+          "Moselle",
+          "#3A5F5F",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Barsac",
+          "Barsac",
+          "#264653",
+          "Vin de triees successives"
+        ],
+        [
+          "Bordeaux",
+          "Bordeaux",
+          "Bordeaux",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Bordeaux supérieur",
+          "Bordeaux supérieur",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Buzet",
+          "Buzet",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Cadillac",
+          "Cadillac",
+          "#264653",
+          "Vin de triees successives"
+        ],
+        [
+          "Bordeaux",
+          "Canon Fronsac",
+          "Canon Fronsac",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Crémant de Bordeaux",
+          "Crémant de Bordeaux",
+          "#264653",
+          "Vin mousseux \"Crémant\""
+        ],
+        [
+          "Bordeaux",
+          "Cérons",
+          "Cérons",
+          "#264653",
+          "Vin de triees successives"
+        ],
+        [
+          "Bordeaux",
+          "Côtes de Bordeaux",
+          "Côtes de Bordeaux",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Côtes de Bordeaux-Saint-Macaire",
+          "Côtes de Bordeaux-Saint-Macaire",
+          "#264653",
+          "Vin de triees successives, Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Côtes de Bourg, Bourg et Bourgeais",
+          "Côtes de Bourg, Bourg et Bourgeais",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Côtes du Marmandais",
+          "Côtes du Marmandais",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Entre-deux-Mers",
+          "Entre-deux-Mers",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Fronsac",
+          "Fronsac",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Graves",
+          "Graves",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Graves de Vayres",
+          "Graves de Vayres",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Graves supérieures",
+          "Graves supérieures",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Haut-Médoc",
+          "Haut-Médoc",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Lalande-de-Pomerol",
+          "Lalande-de-Pomerol",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Listrac-Médoc",
+          "Listrac-Médoc",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Loupiac",
+          "Loupiac",
+          "#264653",
+          "Vin de triees successives"
+        ],
+        [
+          "Bordeaux",
+          "Lussac Saint-Emilion",
+          "Lussac Saint-Emilion",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Margaux",
+          "Margaux",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Montagne-Saint-Emilion",
+          "Montagne-Saint-Emilion",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Moulis ou Moulis-en-Médoc",
+          "Moulis",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Médoc",
+          "Médoc",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Pauillac",
+          "Pauillac",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Pessac-Léognan",
+          "Pessac-Léognan",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Pomerol",
+          "Pomerol",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Premières Côtes de Bordeaux",
+          "Premières Côtes de Bordeaux",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Puisseguin Saint-Emilion",
+          "Puisseguin Saint-Emilion",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Saint-Emilion",
+          "Saint-Emilion",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Saint-Estèphe",
+          "Saint-Estèphe",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Saint-Georges-Saint-Emilion",
+          "Saint-Georges-Saint-Emilion",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Saint-Julien",
+          "Saint-Julien",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Sainte-Croix-du-Mont",
+          "Sainte-Croix-du-Mont",
+          "#264653",
+          "Vin de triees successives"
+        ],
+        [
+          "Bordeaux",
+          "Sauternes",
+          "Sauternes",
+          "#264653",
+          "Vin de triees successives"
+        ],
+        [
+          "Bourgogne",
+          "Aloxe-Corton",
+          "Aloxe-Corton",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Auxey-Duresses",
+          "Auxey-Duresses",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Beaujolais",
+          "Beaujolais",
+          "#3B3C88",
+          "Vin primeur, Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Beaune",
+          "Beaune",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Bienvenues-Bâtard-Montrachet",
+          "Bienvenues-Bâtard-Montrachet",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Blagny",
+          "Blagny",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Bonnes-Mares",
+          "Bonnes-Mares",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Bourgogne",
+          "Bourgogne",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Bourgogne Passe-tout-grains",
+          "Bourgogne Passe-tout-grains",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Bourgogne aligoté",
+          "Bourgogne aligoté",
+          "#3B3C88",
+          "Vin primeur, Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Bourgogne mousseux",
+          "Bourgogne mousseux",
+          "#3B3C88",
+          "Vin mousseux"
+        ],
+        [
+          "Bourgogne",
+          "Bouzeron",
+          "Bouzeron",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Brouilly",
+          "Brouilly",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Bâtard-Montrachet",
+          "Bâtard-Montrachet",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Chablis",
+          "Chablis",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Chablis Grand Cru",
+          "Chablis Grand Cru",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Chambertin",
+          "Chambertin",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Chambertin-Clos de Bèze",
+          "Chambertin-Clos de Bèze",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Chambolle-Musigny",
+          "Chambolle-Musigny",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Chapelle-Chambertin",
+          "Chapelle-Chambertin",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Charlemagne",
+          "Charlemagne",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Charmes-Chambertin",
+          "Charmes-Chambertin",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Chassagne-Montrachet",
+          "Chassagne-Montrachet",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Chevalier-Montrachet",
+          "Chevalier-Montrachet",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Chiroubles",
+          "Chiroubles",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Chorey-lès-Beaune",
+          "Chorey-lès-Beaune",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Chénas",
+          "Chénas",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Clos Saint-Denis",
+          "Clos Saint-Denis",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Clos de Tart",
+          "Clos de Tart",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Clos de Vougeot ou Clos Vougeot",
+          "Clos de Vougeot",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Clos de la Roche",
+          "Clos de la Roche",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Clos des Lambrays",
+          "Clos des Lambrays",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Corton",
+          "Corton",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Corton-Charlemagne",
+          "Corton-Charlemagne",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Coteaux Bourguignons ou Bourgogne grand ordinaire ou Bourgogne ordinaire",
+          "Coteaux Bourguignons",
+          "#3B3C88",
+          "Vin primeur, Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Coteaux du Lyonnais",
+          "Coteaux du Lyonnais",
+          "#3B3C88",
+          "Vin primeur, Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Criots-Bâtard-Montrachet",
+          "Criots-Bâtard-Montrachet",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Crémant de Bourgogne",
+          "Crémant de Bourgogne",
+          "#3B3C88",
+          "Vin mousseux \"Crémant\""
+        ],
+        [
+          "Bourgogne",
+          "Côte de Beaune",
+          "Côte de Beaune",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Côte de Beaune-Villages",
+          "Côte de Beaune-Villages",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Côte de Brouilly",
+          "Côte de Brouilly",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Côte de Nuits-Villages ou Vins fins de la Côte de Nuits",
+          "Côte de Nuits-Villages",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Echezeaux",
+          "Echezeaux",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Fixin",
+          "Fixin",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Fleurie",
+          "Fleurie",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Gevrey-Chambertin",
+          "Gevrey-Chambertin",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Givry",
+          "Givry",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Grands-Echezeaux",
+          "Grands-Echezeaux",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Griotte-Chambertin",
+          "Griotte-Chambertin",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Irancy",
+          "Irancy",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Juliénas",
+          "Juliénas",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "La Grande Rue",
+          "La Grande Rue",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "La Romanée",
+          "La Romanée",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "La Tâche",
+          "La Tâche",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Ladoix",
+          "Ladoix",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Latricières-Chambertin",
+          "Latricières-Chambertin",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Maranges",
+          "Maranges",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Marsannay",
+          "Marsannay",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Mazis-Chambertin",
+          "Mazis-Chambertin",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Mazoyères-Chambertin",
+          "Mazoyères-Chambertin",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Mercurey",
+          "Mercurey",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Meursault",
+          "Meursault",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Montagny",
+          "Montagny",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Monthélie",
+          "Monthélie",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Montrachet",
+          "Montrachet",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Morey-Saint-Denis",
+          "Morey-Saint-Denis",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Morgon",
+          "Morgon",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Moulin-à-Vent",
+          "Moulin-à-Vent",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Musigny",
+          "Musigny",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Mâcon",
+          "Mâcon",
+          "#3B3C88",
+          "Vin primeur, Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Nuits-Saint-Georges",
+          "Nuits-Saint-Georges",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Pernand-Vergelesses",
+          "Pernand-Vergelesses",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Petit Chablis",
+          "Petit Chablis",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Pommard",
+          "Pommard",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Pouilly-Fuissé",
+          "Pouilly-Fuissé",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Pouilly-Loché",
+          "Pouilly-Loché",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Pouilly-Vinzelles",
+          "Pouilly-Vinzelles",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Puligny-Montrachet",
+          "Puligny-Montrachet",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Richebourg",
+          "Richebourg",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Romanée-Conti",
+          "Romanée-Conti",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Romanée-Saint-Vivant",
+          "Romanée-Saint-Vivant",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Ruchottes-Chambertin",
+          "Ruchottes-Chambertin",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Rully",
+          "Rully",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Régnié",
+          "Régnié",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Saint-Amour",
+          "Saint-Amour",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Saint-Aubin",
+          "Saint-Aubin",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Saint-Bris",
+          "Saint-Bris",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Saint-Romain",
+          "Saint-Romain",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Saint-Véran",
+          "Saint-Véran",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Santenay",
+          "Santenay",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Savigny-lès-Beaune",
+          "Savigny-lès-Beaune",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Viré-Clessé",
+          "Viré-Clessé",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Volnay",
+          "Volnay",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Vosne-Romanée",
+          "Vosne-Romanée",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Vougeot",
+          "Vougeot",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Vézelay",
+          "Vézelay",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Corse",
+          "Ajaccio",
+          "Ajaccio",
+          "#8B0000",
+          "Vin tranquille"
+        ],
+        [
+          "Corse",
+          "Muscat du Cap Corse",
+          "Muscat du Cap Corse",
+          "#8B0000",
+          "Vin doux naturel"
+        ],
+        [
+          "Corse",
+          "Patrimonio",
+          "Patrimonio",
+          "#8B0000",
+          "Vin tranquille"
+        ],
+        [
+          "Corse",
+          "Vin de Corse ou Corse",
+          "Vin de Corse",
+          "#8B0000",
+          "Vin tranquille"
+        ],
+        [
+          "Dordogne",
+          "Bergerac",
+          "Bergerac",
+          "#C9B037",
+          "Vin tranquille"
+        ],
+        [
+          "Dordogne",
+          "Côtes de Bergerac",
+          "Côtes de Bergerac",
+          "#C9B037",
+          "Vin tranquille"
+        ],
+        [
+          "Dordogne",
+          "Côtes de Duras",
+          "Côtes de Duras",
+          "#C9B037",
+          "Vin tranquille"
+        ],
+        [
+          "Dordogne",
+          "Côtes de Montravel",
+          "Côtes de Montravel",
+          "#C9B037",
+          "Vin tranquille"
+        ],
+        [
+          "Dordogne",
+          "Monbazillac",
+          "Monbazillac",
+          "#C9B037",
+          "Vin tranquille"
+        ],
+        [
+          "Dordogne",
+          "Montravel",
+          "Montravel",
+          "#C9B037",
+          "Vin tranquille"
+        ],
+        [
+          "Dordogne",
+          "Pécharmant",
+          "Pécharmant",
+          "#C9B037",
+          "Vin tranquille"
+        ],
+        [
+          "Dordogne",
+          "Rosette",
+          "Rosette",
+          "#C9B037",
+          "Vin tranquille"
+        ],
+        [
+          "Dordogne",
+          "Saussignac",
+          "Saussignac",
+          "#C9B037",
+          "Vin tranquille"
+        ],
+        [
+          "Jura",
+          "Arbois",
+          "Arbois",
+          "#88A378",
+          "Vin de paille, Vin jaune, Vin tranquille"
+        ],
+        [
+          "Jura",
+          "Château-Chalon",
+          "Château-Chalon",
+          "#88A378",
+          "Vin jaune"
+        ],
+        [
+          "Jura",
+          "Crémant du Jura",
+          "Crémant du Jura",
+          "#88A378",
+          "Vin mousseux \"Crémant\""
+        ],
+        [
+          "Jura",
+          "Côtes du Jura",
+          "Côtes du Jura",
+          "#88A378",
+          "Vin de paille, Vin jaune, Vin tranquille"
+        ],
+        [
+          "Jura",
+          "L'Etoile",
+          "L'Etoile",
+          "#88A378",
+          "Vin de paille, Vin jaune, Vin tranquille"
+        ],
+        [
+          "Jura",
+          "Macvin du Jura",
+          "Macvin du Jura",
+          "#88A378",
+          "Vin de liqueur"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Banyuls",
+          "Banyuls",
+          "#6A4E77",
+          "Vin doux naturel"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Boutenac",
+          "Boutenac",
+          "#6A4E77",
+          "Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Cabardès",
+          "Cabardès",
+          "#6A4E77",
+          "Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Clairette du Languedoc",
+          "Clairette du Languedoc",
+          "#6A4E77",
+          "Vin de liqueur, Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Corbières",
+          "Corbières",
+          "#6A4E77",
+          "Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Crémant de Limoux",
+          "Crémant de Limoux",
+          "#6A4E77",
+          "Vin mousseux \"Crémant\""
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Côtes du Roussillon",
+          "Côtes du Roussillon",
+          "#6A4E77",
+          "Vin primeur, Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Côtes du Roussillon Villages",
+          "Côtes du Roussillon Villages",
+          "#6A4E77",
+          "Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Faugères",
+          "Faugères",
+          "#6A4E77",
+          "Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Fitou",
+          "Fitou",
+          "#6A4E77",
+          "Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Grand Roussillon",
+          "Grand Roussillon",
+          "#6A4E77",
+          "Vin doux naturel"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Grés de Montpellier",
+          "Grés de Montpellier",
+          "#6A4E77",
+          "Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "La Clape",
+          "La Clape",
+          "#6A4E77",
+          "Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "La Livinière",
+          "La Livinière",
+          "#6A4E77",
+          "Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Languedoc",
+          "Languedoc",
+          "#6A4E77",
+          "Vin primeur, Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Limoux",
+          "Limoux",
+          "#6A4E77",
+          "Vin mousseux, Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Malepère",
+          "Malepère",
+          "#6A4E77",
+          "Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Maury",
+          "Maury",
+          "#6A4E77",
+          "Vin doux naturel, Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Minervois",
+          "Minervois",
+          "#6A4E77",
+          "Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Muscat de Frontignan ou Frontignan ou Vin de Frontignan",
+          "Muscat de Frontignan",
+          "#6A4E77",
+          "Vin de liqueur, Vin doux naturel"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Muscat de Lunel",
+          "Muscat de Lunel",
+          "#6A4E77",
+          "Vin doux naturel"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Muscat de Mireval",
+          "Muscat de Mireval",
+          "#6A4E77",
+          "Vin doux naturel"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Muscat de Saint-Jean-de-Minervois",
+          "Muscat de Saint-Jean-de-Minervois",
+          "#6A4E77",
+          "Vin doux naturel"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Pic Saint-Loup",
+          "Pic Saint-Loup",
+          "#6A4E77",
+          "Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Picpoul de Pinet",
+          "Picpoul de Pinet",
+          "#6A4E77",
+          "Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Rivesaltes",
+          "Rivesaltes",
+          "#6A4E77",
+          "Vin doux naturel"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Sable de Camargue",
+          "Sable de Camargue",
+          "#6A4E77",
+          "Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Saint-Chinian",
+          "Saint-Chinian",
+          "#6A4E77",
+          "Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Terrasses du Larzac",
+          "Terrasses du Larzac",
+          "#6A4E77",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Anjou",
+          "Anjou",
+          "#556B2F",
+          "Vin mousseux, Vin primeur, Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Anjou Brissac",
+          "Anjou Brissac",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Anjou Villages",
+          "Anjou Villages",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Anjou-Coteaux de la Loire",
+          "Anjou-Coteaux de la Loire",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Bonnezeaux",
+          "Bonnezeaux",
+          "#556B2F",
+          "Vin de triees successives"
+        ],
+        [
+          "Loire",
+          "Bourgueil",
+          "Bourgueil",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Cabernet d'Anjou",
+          "Cabernet d'Anjou",
+          "#556B2F",
+          "Vin primeur, Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Cheverny",
+          "Cheverny",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Chinon",
+          "Chinon",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Châteaumeillant",
+          "Châteaumeillant",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Coteaux d'Ancenis",
+          "Coteaux d'Ancenis",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Coteaux de Saumur",
+          "Coteaux de Saumur",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Coteaux de l'Aubance",
+          "Coteaux de l'Aubance",
+          "#556B2F",
+          "Vin de sélection de grains nobles, Vin de triees successives"
+        ],
+        [
+          "Loire",
+          "Coteaux du Giennois",
+          "Coteaux du Giennois",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Coteaux du Layon",
+          "Coteaux du Layon",
+          "#556B2F",
+          "Vin de sélection de grains nobles, Vin de triees successives"
+        ],
+        [
+          "Loire",
+          "Coteaux du Loir",
+          "Coteaux du Loir",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Coteaux du Vendômois",
+          "Coteaux du Vendômois",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Coulée de Serrant",
+          "Coulée de Serrant",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Cour-Cheverny",
+          "Cour-Cheverny",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Crémant de Loire",
+          "Crémant de Loire",
+          "#556B2F",
+          "Vin mousseux \"Crémant\""
+        ],
+        [
+          "Loire",
+          "Côte roannaise",
+          "Côte roannaise",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Côtes d'Auvergne",
+          "Côtes d'Auvergne",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Côtes du Forez",
+          "Côtes du Forez",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Fiefs Vendéens",
+          "Fiefs Vendéens",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Gros Plant du Pays Nantais",
+          "Gros Plant du Pays Nantais",
+          "#556B2F",
+          "Vin sur lie, Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Haut-Poitou",
+          "Haut-Poitou",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Jasnières",
+          "Jasnières",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Menetou-Salon",
+          "Menetou-Salon",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Montlouis-sur-Loire",
+          "Montlouis-sur-Loire",
+          "#556B2F",
+          "Vin mousseux, Vin pétillant, Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Muscadet",
+          "Muscadet",
+          "#556B2F",
+          "Vin primeur, Vin sur lie, Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Muscadet Coteaux de la Loire",
+          "Muscadet Coteaux de la Loire",
+          "#556B2F",
+          "Vin sur lie, Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Muscadet Côtes de Grandlieu",
+          "Muscadet Côtes de Grandlieu",
+          "#556B2F",
+          "Vin sur lie, Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Muscadet Sèvre et Maine",
+          "Muscadet Sèvre et Maine",
+          "#556B2F",
+          "Vin sur lie, Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Orléans",
+          "Orléans",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Orléans-Cléry",
+          "Orléans-Cléry",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Pouilly-Fumé ou Blanc Fumé de Pouilly",
+          "Pouilly-Fumé",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Pouilly-sur-Loire",
+          "Pouilly-sur-Loire",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Quarts de Chaume",
+          "Quarts de Chaume",
+          "#556B2F",
+          "Vin de triees successives"
+        ],
+        [
+          "Loire",
+          "Quincy",
+          "Quincy",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Reuilly",
+          "Reuilly",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Rosé de Loire",
+          "Rosé de Loire",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Saint-Nicolas-de-Bourgueil",
+          "Saint-Nicolas-de-Bourgueil",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Saint-Pourçain",
+          "Saint-Pourçain",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Sancerre",
+          "Sancerre",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Saumur",
+          "Saumur",
+          "#556B2F",
+          "Vin mousseux, Vin primeur, Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Saumur-Champigny",
+          "Saumur-Champigny",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Savennières",
+          "Savennières",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Savennières Roche aux Moines",
+          "Savennières Roche aux Moines",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Touraine",
+          "Touraine",
+          "#556B2F",
+          "Vin mousseux, Vin primeur, Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Touraine Noble Joué",
+          "Touraine Noble Joué",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Valençay",
+          "Valençay",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Vouvray",
+          "Vouvray",
+          "#556B2F",
+          "Vin mousseux, Vin pétillant, Vin tranquille"
+        ],
+        [
+          "Provence",
+          "Bandol",
+          "Bandol",
+          "#B983A2",
+          "Vin tranquille"
+        ],
+        [
+          "Provence",
+          "Coteaux d'Aix-en-Provence",
+          "Coteaux d'Aix-en-Provence",
+          "#B983A2",
+          "Vin tranquille"
+        ],
+        [
+          "Provence",
+          "Coteaux varois en Provence",
+          "Coteaux varois en Provence",
+          "#B983A2",
+          "Vin tranquille"
+        ],
+        [
+          "Provence",
+          "Côtes de Provence",
+          "Côtes de Provence",
+          "#B983A2",
+          "Vin tranquille"
+        ],
+        [
+          "Provence",
+          "Les Baux de Provence",
+          "Les Baux de Provence",
+          "#B983A2",
+          "Vin tranquille"
+        ],
+        [
+          "Provence",
+          "Palette",
+          "Palette",
+          "#B983A2",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Beaumes de Venise",
+          "Beaumes de Venise",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Cairanne",
+          "Cairanne",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Château-Grillet",
+          "Château-Grillet",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Châteauneuf-du-Pape",
+          "Châteauneuf-du-Pape",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Châtillon-en-Diois",
+          "Châtillon-en-Diois",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Clairette de Bellegarde",
+          "Clairette de Bellegarde",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Clairette de Die",
+          "Clairette de Die",
+          "#7B1E3C",
+          "Vin mousseux, Vin mousseux \"Méthode ancestrale\""
+        ],
+        [
+          "Rhône",
+          "Condrieu",
+          "Condrieu",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Cornas",
+          "Cornas",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Costières de Nîmes",
+          "Costières de Nîmes",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Coteaux de Die",
+          "Coteaux de Die",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Crozes-Hermitage ou Crozes-Ermitage",
+          "Crozes-Hermitage",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Côte Rôtie",
+          "Côte Rôtie",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Côtes du Rhône",
+          "Côtes du Rhône",
+          "#7B1E3C",
+          "Vin primeur, Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Côtes du Rhône Villages",
+          "Côtes du Rhône Villages",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Côtes du Vivarais",
+          "Côtes du Vivarais",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Gigondas",
+          "Gigondas",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Grignan-les-Adhémar",
+          "Grignan-les-Adhémar",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Hermitage ou Ermitage ou l'Hermitage ou l'Ermitage",
+          "Hermitage",
+          "#7B1E3C",
+          "Vin de paille, Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Laudun",
+          "Laudun",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Lirac",
+          "Lirac",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Luberon",
+          "Luberon",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Muscat de Beaumes-de-Venise",
+          "Muscat de Beaumes-de-Venise",
+          "#7B1E3C",
+          "Vin doux naturel"
+        ],
+        [
+          "Rhône",
+          "Pierrevert",
+          "Pierrevert",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Rasteau",
+          "Rasteau",
+          "#7B1E3C",
+          "Vin doux naturel"
+        ],
+        [
+          "Rhône",
+          "Saint-Joseph",
+          "Saint-Joseph",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Saint-Péray",
+          "Saint-Péray",
+          "#7B1E3C",
+          "Vin mousseux, Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Tavel",
+          "Tavel",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Vacqueyras",
+          "Vacqueyras",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Ventoux",
+          "Ventoux",
+          "#7B1E3C",
+          "Vin primeur, Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Vinsobres",
+          "Vinsobres",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Savoie",
+          "Bugey",
+          "Bugey",
+          "#8FBDBD",
+          "Vin mousseux, Vin pétillant, Vin tranquille"
+        ],
+        [
+          "Savoie",
+          "Roussette de Savoie",
+          "Roussette de Savoie",
+          "#8FBDBD",
+          "Vin tranquille"
+        ],
+        [
+          "Savoie",
+          "Roussette du Bugey",
+          "Roussette du Bugey",
+          "#8FBDBD",
+          "Vin tranquille"
+        ],
+        [
+          "Savoie",
+          "Seyssel",
+          "Seyssel",
+          "#8FBDBD",
+          "Vin mousseux, Vin tranquille"
+        ],
+        [
+          "Savoie",
+          "Vin de Savoie ou Savoie",
+          "Vin de Savoie",
+          "#8FBDBD",
+          "Vin tranquille"
+        ],
+        [
+          "Sud-Ouest",
+          "Brulhois",
+          "Brulhois",
+          "#D2691E",
+          "Vin tranquille"
+        ],
+        [
+          "Sud-Ouest",
+          "Béarn",
+          "Béarn",
+          "#D2691E",
+          "Vin tranquille"
+        ],
+        [
+          "Sud-Ouest",
+          "Cahors",
+          "Cahors",
+          "#D2691E",
+          "Vin tranquille"
+        ],
+        [
+          "Sud-Ouest",
+          "Coteaux du Quercy",
+          "Coteaux du Quercy",
+          "#D2691E",
+          "Vin tranquille"
+        ],
+        [
+          "Sud-Ouest",
+          "Côtes de Millau",
+          "Côtes de Millau",
+          "#D2691E",
+          "Vin tranquille"
+        ],
+        [
+          "Sud-Ouest",
+          "Entraygues - Le Fel",
+          "Entraygues - Le Fel",
+          "#D2691E",
+          "Vin tranquille"
+        ],
+        [
+          "Sud-Ouest",
+          "Estaing",
+          "Estaing",
+          "#D2691E",
+          "Vin tranquille"
+        ],
+        [
+          "Sud-Ouest",
+          "Fronton",
+          "Fronton",
+          "#D2691E",
+          "Vin tranquille"
+        ],
+        [
+          "Sud-Ouest",
+          "Gaillac",
+          "Gaillac",
+          "#D2691E",
+          "Vin de vendanges tardives, Vin mousseux, Vin mousseux \"Méthode ancestrale\", Vin primeur, Vin tranquille"
+        ],
+        [
+          "Sud-Ouest",
+          "Gaillac premières côtes",
+          "Gaillac premières côtes",
+          "#D2691E",
+          "Vin tranquille"
+        ],
+        [
+          "Sud-Ouest",
+          "Irouléguy",
+          "Irouléguy",
+          "#D2691E",
+          "Vin tranquille"
+        ],
+        [
+          "Sud-Ouest",
+          "Jurançon",
+          "Jurançon",
+          "#D2691E",
+          "Vin de triees successives, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Sud-Ouest",
+          "Madiran",
+          "Madiran",
+          "#D2691E",
+          "Vin tranquille"
+        ],
+        [
+          "Sud-Ouest",
+          "Marcillac",
+          "Marcillac",
+          "#D2691E",
+          "Vin tranquille"
+        ],
+        [
+          "Sud-Ouest",
+          "Pacherenc du Vic-Bilh",
+          "Pacherenc du Vic-Bilh",
+          "#D2691E",
+          "Vin de triees successives, Vin tranquille"
+        ],
+        [
+          "Sud-Ouest",
+          "Saint-Mont",
+          "Saint-Mont",
+          "#D2691E",
+          "Vin tranquille"
+        ],
+        [
+          "Sud-Ouest",
+          "Saint-Sardos",
+          "Saint-Sardos",
+          "#D2691E",
+          "Vin tranquille"
+        ],
+        [
+          "Sud-Ouest",
+          "Tursan",
+          "Tursan",
+          "#D2691E",
+          "Vin tranquille"
+        ]
+      ],
+      "expected": [
+        [
+          "Alsace",
+          "Alsace grand cru Altenberg de Bergbieten",
+          "Altenberg de Bergbieten",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Altenberg de Bergheim",
+          "Altenberg de Bergheim",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Altenberg de Wolxheim",
+          "Altenberg de Wolxheim",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Brand",
+          "Brand",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Bruderthal",
+          "Bruderthal",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Eichberg",
+          "Eichberg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Engelberg",
+          "Engelberg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Florimont",
+          "Florimont",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Frankstein",
+          "Frankstein",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Froehn",
+          "Froehn",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Furstentum",
+          "Furstentum",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Geisberg",
+          "Geisberg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Gloeckelberg",
+          "Gloeckelberg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Goldert",
+          "Goldert",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Hatschbourg",
+          "Hatschbourg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Hengst",
+          "Hengst",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Kaefferkopf",
+          "Kaefferkopf",
+          "#3A5F5F",
+          "Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Kanzlerberg",
+          "Kanzlerberg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Kastelberg",
+          "Kastelberg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Kessler",
+          "Kessler",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Kirchberg de Barr",
+          "Kirchberg de Barr",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Kirchberg de Ribeauvillé",
+          "Kirchberg de Ribeauvillé",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Kitterlé",
+          "Kitterlé",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Mambourg",
+          "Mambourg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Mandelberg",
+          "Mandelberg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Marckrain",
+          "Marckrain",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Moenchberg",
+          "Moenchberg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Muenchberg",
+          "Muenchberg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Ollwiller",
+          "Ollwiller",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Osterberg",
+          "Osterberg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Pfersigberg",
+          "Pfersigberg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Pfingstberg",
+          "Pfingstberg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Praelatenberg",
+          "Praelatenberg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Rangen",
+          "Rangen",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Rosacker",
+          "Rosacker",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Saering",
+          "Saering",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Schlossberg",
+          "Schlossberg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Schoenenbourg",
+          "Schoenenbourg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Sommerberg",
+          "Sommerberg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Sonnenglanz",
+          "Sonnenglanz",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Spiegel",
+          "Spiegel",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Sporen",
+          "Sporen",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Steinert",
+          "Steinert",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Steingrubler",
+          "Steingrubler",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Steinklotz",
+          "Steinklotz",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Vorbourg",
+          "Vorbourg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Wiebelsberg",
+          "Wiebelsberg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Wineck-Schlossberg",
+          "Wineck-Schlossberg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Winzenberg",
+          "Winzenberg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Zinnkoepfle",
+          "Zinnkoepfle",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace grand cru Zotzenberg",
+          "Zotzenberg",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Alsace ou Vin d'Alsace",
+          "Alsace",
+          "#3A5F5F",
+          "Vin de sélection de grains nobles, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Crémant d'Alsace",
+          "Crémant d'Alsace",
+          "#3A5F5F",
+          "Vin mousseux \"Crémant\""
+        ],
+        [
+          "Alsace",
+          "Côtes de Toul",
+          "Côtes de Toul",
+          "#3A5F5F",
+          "Vin tranquille"
+        ],
+        [
+          "Alsace",
+          "Moselle",
+          "Moselle",
+          "#3A5F5F",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Barsac",
+          "Barsac",
+          "#264653",
+          "Vin de triees successives"
+        ],
+        [
+          "Bordeaux",
+          "Bordeaux",
+          "Bordeaux",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Bordeaux supérieur",
+          "Bordeaux supérieur",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Buzet",
+          "Buzet",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Cadillac",
+          "Cadillac",
+          "#264653",
+          "Vin de triees successives"
+        ],
+        [
+          "Bordeaux",
+          "Canon Fronsac",
+          "Canon Fronsac",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Crémant de Bordeaux",
+          "Crémant de Bordeaux",
+          "#264653",
+          "Vin mousseux \"Crémant\""
+        ],
+        [
+          "Bordeaux",
+          "Cérons",
+          "Cérons",
+          "#264653",
+          "Vin de triees successives"
+        ],
+        [
+          "Bordeaux",
+          "Côtes de Bordeaux",
+          "Côtes de Bordeaux",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Côtes de Bordeaux-Saint-Macaire",
+          "Côtes de Bordeaux-Saint-Macaire",
+          "#264653",
+          "Vin de triees successives, Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Côtes de Bourg, Bourg et Bourgeais",
+          "Côtes de Bourg, Bourg et Bourgeais",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Côtes du Marmandais",
+          "Côtes du Marmandais",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Entre-deux-Mers",
+          "Entre-deux-Mers",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Fronsac",
+          "Fronsac",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Graves",
+          "Graves",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Graves de Vayres",
+          "Graves de Vayres",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Graves supérieures",
+          "Graves supérieures",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Haut-Médoc",
+          "Haut-Médoc",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Lalande-de-Pomerol",
+          "Lalande-de-Pomerol",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Listrac-Médoc",
+          "Listrac-Médoc",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Loupiac",
+          "Loupiac",
+          "#264653",
+          "Vin de triees successives"
+        ],
+        [
+          "Bordeaux",
+          "Lussac Saint-Emilion",
+          "Lussac Saint-Emilion",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Margaux",
+          "Margaux",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Montagne-Saint-Emilion",
+          "Montagne-Saint-Emilion",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Moulis ou Moulis-en-Médoc",
+          "Moulis",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Médoc",
+          "Médoc",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Pauillac",
+          "Pauillac",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Pessac-Léognan",
+          "Pessac-Léognan",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Pomerol",
+          "Pomerol",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Premières Côtes de Bordeaux",
+          "Premières Côtes de Bordeaux",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Puisseguin Saint-Emilion",
+          "Puisseguin Saint-Emilion",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Saint-Emilion",
+          "Saint-Emilion",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Saint-Estèphe",
+          "Saint-Estèphe",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Saint-Georges-Saint-Emilion",
+          "Saint-Georges-Saint-Emilion",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Saint-Julien",
+          "Saint-Julien",
+          "#264653",
+          "Vin tranquille"
+        ],
+        [
+          "Bordeaux",
+          "Sainte-Croix-du-Mont",
+          "Sainte-Croix-du-Mont",
+          "#264653",
+          "Vin de triees successives"
+        ],
+        [
+          "Bordeaux",
+          "Sauternes",
+          "Sauternes",
+          "#264653",
+          "Vin de triees successives"
+        ],
+        [
+          "Bourgogne",
+          "Aloxe-Corton",
+          "Aloxe-Corton",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Auxey-Duresses",
+          "Auxey-Duresses",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Beaujolais",
+          "Beaujolais",
+          "#3B3C88",
+          "Vin primeur, Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Beaune",
+          "Beaune",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Bienvenues-Bâtard-Montrachet",
+          "Bienvenues-Bâtard-Montrachet",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Blagny",
+          "Blagny",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Bonnes-Mares",
+          "Bonnes-Mares",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Bourgogne",
+          "Bourgogne",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Bourgogne Passe-tout-grains",
+          "Bourgogne Passe-tout-grains",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Bourgogne aligoté",
+          "Bourgogne aligoté",
+          "#3B3C88",
+          "Vin primeur, Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Bourgogne mousseux",
+          "Bourgogne mousseux",
+          "#3B3C88",
+          "Vin mousseux"
+        ],
+        [
+          "Bourgogne",
+          "Bouzeron",
+          "Bouzeron",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Brouilly",
+          "Brouilly",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Bâtard-Montrachet",
+          "Bâtard-Montrachet",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Chablis",
+          "Chablis",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Chablis Grand Cru",
+          "Chablis Grand Cru",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Chambertin",
+          "Chambertin",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Chambertin-Clos de Bèze",
+          "Chambertin-Clos de Bèze",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Chambolle-Musigny",
+          "Chambolle-Musigny",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Chapelle-Chambertin",
+          "Chapelle-Chambertin",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Charlemagne",
+          "Charlemagne",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Charmes-Chambertin",
+          "Charmes-Chambertin",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Chassagne-Montrachet",
+          "Chassagne-Montrachet",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Chevalier-Montrachet",
+          "Chevalier-Montrachet",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Chiroubles",
+          "Chiroubles",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Chorey-lès-Beaune",
+          "Chorey-lès-Beaune",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Chénas",
+          "Chénas",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Clos Saint-Denis",
+          "Clos Saint-Denis",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Clos de Tart",
+          "Clos de Tart",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Clos de Vougeot ou Clos Vougeot",
+          "Clos de Vougeot",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Clos de la Roche",
+          "Clos de la Roche",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Clos des Lambrays",
+          "Clos des Lambrays",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Corton",
+          "Corton",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Corton-Charlemagne",
+          "Corton-Charlemagne",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Coteaux Bourguignons ou Bourgogne grand ordinaire ou Bourgogne ordinaire",
+          "Coteaux Bourguignons",
+          "#3B3C88",
+          "Vin primeur, Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Coteaux du Lyonnais",
+          "Coteaux du Lyonnais",
+          "#3B3C88",
+          "Vin primeur, Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Criots-Bâtard-Montrachet",
+          "Criots-Bâtard-Montrachet",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Crémant de Bourgogne",
+          "Crémant de Bourgogne",
+          "#3B3C88",
+          "Vin mousseux \"Crémant\""
+        ],
+        [
+          "Bourgogne",
+          "Côte de Beaune",
+          "Côte de Beaune",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Côte de Beaune-Villages",
+          "Côte de Beaune-Villages",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Côte de Brouilly",
+          "Côte de Brouilly",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Côte de Nuits-Villages ou Vins fins de la Côte de Nuits",
+          "Côte de Nuits-Villages",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Echezeaux",
+          "Echezeaux",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Fixin",
+          "Fixin",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Fleurie",
+          "Fleurie",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Gevrey-Chambertin",
+          "Gevrey-Chambertin",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Givry",
+          "Givry",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Grands-Echezeaux",
+          "Grands-Echezeaux",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Griotte-Chambertin",
+          "Griotte-Chambertin",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Irancy",
+          "Irancy",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Juliénas",
+          "Juliénas",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "La Grande Rue",
+          "La Grande Rue",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "La Romanée",
+          "La Romanée",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "La Tâche",
+          "La Tâche",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Ladoix",
+          "Ladoix",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Latricières-Chambertin",
+          "Latricières-Chambertin",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Maranges",
+          "Maranges",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Marsannay",
+          "Marsannay",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Mazis-Chambertin",
+          "Mazis-Chambertin",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Mazoyères-Chambertin",
+          "Mazoyères-Chambertin",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Mercurey",
+          "Mercurey",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Meursault",
+          "Meursault",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Montagny",
+          "Montagny",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Monthélie",
+          "Monthélie",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Montrachet",
+          "Montrachet",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Morey-Saint-Denis",
+          "Morey-Saint-Denis",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Morgon",
+          "Morgon",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Moulin-à-Vent",
+          "Moulin-à-Vent",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Musigny",
+          "Musigny",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Mâcon",
+          "Mâcon",
+          "#3B3C88",
+          "Vin primeur, Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Nuits-Saint-Georges",
+          "Nuits-Saint-Georges",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Pernand-Vergelesses",
+          "Pernand-Vergelesses",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Petit Chablis",
+          "Petit Chablis",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Pommard",
+          "Pommard",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Pouilly-Fuissé",
+          "Pouilly-Fuissé",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Pouilly-Loché",
+          "Pouilly-Loché",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Pouilly-Vinzelles",
+          "Pouilly-Vinzelles",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Puligny-Montrachet",
+          "Puligny-Montrachet",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Richebourg",
+          "Richebourg",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Romanée-Conti",
+          "Romanée-Conti",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Romanée-Saint-Vivant",
+          "Romanée-Saint-Vivant",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Ruchottes-Chambertin",
+          "Ruchottes-Chambertin",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Rully",
+          "Rully",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Régnié",
+          "Régnié",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Saint-Amour",
+          "Saint-Amour",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Saint-Aubin",
+          "Saint-Aubin",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Saint-Bris",
+          "Saint-Bris",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Saint-Romain",
+          "Saint-Romain",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Saint-Véran",
+          "Saint-Véran",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Santenay",
+          "Santenay",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Savigny-lès-Beaune",
+          "Savigny-lès-Beaune",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Viré-Clessé",
+          "Viré-Clessé",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Volnay",
+          "Volnay",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Vosne-Romanée",
+          "Vosne-Romanée",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Vougeot",
+          "Vougeot",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Bourgogne",
+          "Vézelay",
+          "Vézelay",
+          "#3B3C88",
+          "Vin tranquille"
+        ],
+        [
+          "Corse",
+          "Ajaccio",
+          "Ajaccio",
+          "#8B0000",
+          "Vin tranquille"
+        ],
+        [
+          "Corse",
+          "Muscat du Cap Corse",
+          "Muscat du Cap Corse",
+          "#8B0000",
+          "Vin doux naturel"
+        ],
+        [
+          "Corse",
+          "Patrimonio",
+          "Patrimonio",
+          "#8B0000",
+          "Vin tranquille"
+        ],
+        [
+          "Corse",
+          "Vin de Corse ou Corse",
+          "Vin de Corse",
+          "#8B0000",
+          "Vin tranquille"
+        ],
+        [
+          "Dordogne",
+          "Bergerac",
+          "Bergerac",
+          "#C9B037",
+          "Vin tranquille"
+        ],
+        [
+          "Dordogne",
+          "Côtes de Bergerac",
+          "Côtes de Bergerac",
+          "#C9B037",
+          "Vin tranquille"
+        ],
+        [
+          "Dordogne",
+          "Côtes de Duras",
+          "Côtes de Duras",
+          "#C9B037",
+          "Vin tranquille"
+        ],
+        [
+          "Dordogne",
+          "Côtes de Montravel",
+          "Côtes de Montravel",
+          "#C9B037",
+          "Vin tranquille"
+        ],
+        [
+          "Dordogne",
+          "Monbazillac",
+          "Monbazillac",
+          "#C9B037",
+          "Vin tranquille"
+        ],
+        [
+          "Dordogne",
+          "Montravel",
+          "Montravel",
+          "#C9B037",
+          "Vin tranquille"
+        ],
+        [
+          "Dordogne",
+          "Pécharmant",
+          "Pécharmant",
+          "#C9B037",
+          "Vin tranquille"
+        ],
+        [
+          "Dordogne",
+          "Rosette",
+          "Rosette",
+          "#C9B037",
+          "Vin tranquille"
+        ],
+        [
+          "Dordogne",
+          "Saussignac",
+          "Saussignac",
+          "#C9B037",
+          "Vin tranquille"
+        ],
+        [
+          "Jura",
+          "Arbois",
+          "Arbois",
+          "#88A378",
+          "Vin de paille, Vin jaune, Vin tranquille"
+        ],
+        [
+          "Jura",
+          "Château-Chalon",
+          "Château-Chalon",
+          "#88A378",
+          "Vin jaune"
+        ],
+        [
+          "Jura",
+          "Crémant du Jura",
+          "Crémant du Jura",
+          "#88A378",
+          "Vin mousseux \"Crémant\""
+        ],
+        [
+          "Jura",
+          "Côtes du Jura",
+          "Côtes du Jura",
+          "#88A378",
+          "Vin de paille, Vin jaune, Vin tranquille"
+        ],
+        [
+          "Jura",
+          "L'Etoile",
+          "L'Etoile",
+          "#88A378",
+          "Vin de paille, Vin jaune, Vin tranquille"
+        ],
+        [
+          "Jura",
+          "Macvin du Jura",
+          "Macvin du Jura",
+          "#88A378",
+          "Vin de liqueur"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Banyuls",
+          "Banyuls",
+          "#6A4E77",
+          "Vin doux naturel"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Boutenac",
+          "Boutenac",
+          "#6A4E77",
+          "Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Cabardès",
+          "Cabardès",
+          "#6A4E77",
+          "Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Clairette du Languedoc",
+          "Clairette du Languedoc",
+          "#6A4E77",
+          "Vin de liqueur, Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Corbières",
+          "Corbières",
+          "#6A4E77",
+          "Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Crémant de Limoux",
+          "Crémant de Limoux",
+          "#6A4E77",
+          "Vin mousseux \"Crémant\""
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Côtes du Roussillon",
+          "Côtes du Roussillon",
+          "#6A4E77",
+          "Vin primeur, Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Côtes du Roussillon Villages",
+          "Côtes du Roussillon Villages",
+          "#6A4E77",
+          "Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Faugères",
+          "Faugères",
+          "#6A4E77",
+          "Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Fitou",
+          "Fitou",
+          "#6A4E77",
+          "Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Grand Roussillon",
+          "Grand Roussillon",
+          "#6A4E77",
+          "Vin doux naturel"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Grés de Montpellier",
+          "Grés de Montpellier",
+          "#6A4E77",
+          "Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "La Clape",
+          "La Clape",
+          "#6A4E77",
+          "Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "La Livinière",
+          "La Livinière",
+          "#6A4E77",
+          "Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Languedoc",
+          "Languedoc",
+          "#6A4E77",
+          "Vin primeur, Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Limoux",
+          "Limoux",
+          "#6A4E77",
+          "Vin mousseux, Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Malepère",
+          "Malepère",
+          "#6A4E77",
+          "Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Maury",
+          "Maury",
+          "#6A4E77",
+          "Vin doux naturel, Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Minervois",
+          "Minervois",
+          "#6A4E77",
+          "Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Muscat de Frontignan ou Frontignan ou Vin de Frontignan",
+          "Muscat de Frontignan",
+          "#6A4E77",
+          "Vin de liqueur, Vin doux naturel"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Muscat de Lunel",
+          "Muscat de Lunel",
+          "#6A4E77",
+          "Vin doux naturel"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Muscat de Mireval",
+          "Muscat de Mireval",
+          "#6A4E77",
+          "Vin doux naturel"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Muscat de Saint-Jean-de-Minervois",
+          "Muscat de Saint-Jean-de-Minervois",
+          "#6A4E77",
+          "Vin doux naturel"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Pic Saint-Loup",
+          "Pic Saint-Loup",
+          "#6A4E77",
+          "Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Picpoul de Pinet",
+          "Picpoul de Pinet",
+          "#6A4E77",
+          "Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Rivesaltes",
+          "Rivesaltes",
+          "#6A4E77",
+          "Vin doux naturel"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Sable de Camargue",
+          "Sable de Camargue",
+          "#6A4E77",
+          "Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Saint-Chinian",
+          "Saint-Chinian",
+          "#6A4E77",
+          "Vin tranquille"
+        ],
+        [
+          "Languedoc-Roussillon",
+          "Terrasses du Larzac",
+          "Terrasses du Larzac",
+          "#6A4E77",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Anjou",
+          "Anjou",
+          "#556B2F",
+          "Vin mousseux, Vin primeur, Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Anjou Brissac",
+          "Anjou Brissac",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Anjou Villages",
+          "Anjou Villages",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Anjou-Coteaux de la Loire",
+          "Anjou-Coteaux de la Loire",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Bonnezeaux",
+          "Bonnezeaux",
+          "#556B2F",
+          "Vin de triees successives"
+        ],
+        [
+          "Loire",
+          "Bourgueil",
+          "Bourgueil",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Cabernet d'Anjou",
+          "Cabernet d'Anjou",
+          "#556B2F",
+          "Vin primeur, Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Cheverny",
+          "Cheverny",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Chinon",
+          "Chinon",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Châteaumeillant",
+          "Châteaumeillant",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Coteaux d'Ancenis",
+          "Coteaux d'Ancenis",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Coteaux de Saumur",
+          "Coteaux de Saumur",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Coteaux de l'Aubance",
+          "Coteaux de l'Aubance",
+          "#556B2F",
+          "Vin de sélection de grains nobles, Vin de triees successives"
+        ],
+        [
+          "Loire",
+          "Coteaux du Giennois",
+          "Coteaux du Giennois",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Coteaux du Layon",
+          "Coteaux du Layon",
+          "#556B2F",
+          "Vin de sélection de grains nobles, Vin de triees successives"
+        ],
+        [
+          "Loire",
+          "Coteaux du Loir",
+          "Coteaux du Loir",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Coteaux du Vendômois",
+          "Coteaux du Vendômois",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Coulée de Serrant",
+          "Coulée de Serrant",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Cour-Cheverny",
+          "Cour-Cheverny",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Crémant de Loire",
+          "Crémant de Loire",
+          "#556B2F",
+          "Vin mousseux \"Crémant\""
+        ],
+        [
+          "Loire",
+          "Côte roannaise",
+          "Côte roannaise",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Côtes d'Auvergne",
+          "Côtes d'Auvergne",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Côtes du Forez",
+          "Côtes du Forez",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Fiefs Vendéens",
+          "Fiefs Vendéens",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Gros Plant du Pays Nantais",
+          "Gros Plant du Pays Nantais",
+          "#556B2F",
+          "Vin sur lie, Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Haut-Poitou",
+          "Haut-Poitou",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Jasnières",
+          "Jasnières",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Menetou-Salon",
+          "Menetou-Salon",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Montlouis-sur-Loire",
+          "Montlouis-sur-Loire",
+          "#556B2F",
+          "Vin mousseux, Vin pétillant, Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Muscadet",
+          "Muscadet",
+          "#556B2F",
+          "Vin primeur, Vin sur lie, Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Muscadet Coteaux de la Loire",
+          "Muscadet Coteaux de la Loire",
+          "#556B2F",
+          "Vin sur lie, Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Muscadet Côtes de Grandlieu",
+          "Muscadet Côtes de Grandlieu",
+          "#556B2F",
+          "Vin sur lie, Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Muscadet Sèvre et Maine",
+          "Muscadet Sèvre et Maine",
+          "#556B2F",
+          "Vin sur lie, Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Orléans",
+          "Orléans",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Orléans-Cléry",
+          "Orléans-Cléry",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Pouilly-Fumé ou Blanc Fumé de Pouilly",
+          "Pouilly-Fumé",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Pouilly-sur-Loire",
+          "Pouilly-sur-Loire",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Quarts de Chaume",
+          "Quarts de Chaume",
+          "#556B2F",
+          "Vin de triees successives"
+        ],
+        [
+          "Loire",
+          "Quincy",
+          "Quincy",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Reuilly",
+          "Reuilly",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Rosé de Loire",
+          "Rosé de Loire",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Saint-Nicolas-de-Bourgueil",
+          "Saint-Nicolas-de-Bourgueil",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Saint-Pourçain",
+          "Saint-Pourçain",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Sancerre",
+          "Sancerre",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Saumur",
+          "Saumur",
+          "#556B2F",
+          "Vin mousseux, Vin primeur, Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Saumur-Champigny",
+          "Saumur-Champigny",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Savennières",
+          "Savennières",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Savennières Roche aux Moines",
+          "Savennières Roche aux Moines",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Touraine",
+          "Touraine",
+          "#556B2F",
+          "Vin mousseux, Vin primeur, Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Touraine Noble Joué",
+          "Touraine Noble Joué",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Valençay",
+          "Valençay",
+          "#556B2F",
+          "Vin tranquille"
+        ],
+        [
+          "Loire",
+          "Vouvray",
+          "Vouvray",
+          "#556B2F",
+          "Vin mousseux, Vin pétillant, Vin tranquille"
+        ],
+        [
+          "Provence",
+          "Bandol",
+          "Bandol",
+          "#B983A2",
+          "Vin tranquille"
+        ],
+        [
+          "Provence",
+          "Coteaux d'Aix-en-Provence",
+          "Coteaux d'Aix-en-Provence",
+          "#B983A2",
+          "Vin tranquille"
+        ],
+        [
+          "Provence",
+          "Coteaux varois en Provence",
+          "Coteaux varois en Provence",
+          "#B983A2",
+          "Vin tranquille"
+        ],
+        [
+          "Provence",
+          "Côtes de Provence",
+          "Côtes de Provence",
+          "#B983A2",
+          "Vin tranquille"
+        ],
+        [
+          "Provence",
+          "Les Baux de Provence",
+          "Les Baux de Provence",
+          "#B983A2",
+          "Vin tranquille"
+        ],
+        [
+          "Provence",
+          "Palette",
+          "Palette",
+          "#B983A2",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Beaumes de Venise",
+          "Beaumes de Venise",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Cairanne",
+          "Cairanne",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Château-Grillet",
+          "Château-Grillet",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Châteauneuf-du-Pape",
+          "Châteauneuf-du-Pape",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Châtillon-en-Diois",
+          "Châtillon-en-Diois",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Clairette de Bellegarde",
+          "Clairette de Bellegarde",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Clairette de Die",
+          "Clairette de Die",
+          "#7B1E3C",
+          "Vin mousseux, Vin mousseux \"Méthode ancestrale\""
+        ],
+        [
+          "Rhône",
+          "Condrieu",
+          "Condrieu",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Cornas",
+          "Cornas",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Costières de Nîmes",
+          "Costières de Nîmes",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Coteaux de Die",
+          "Coteaux de Die",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Crozes-Hermitage ou Crozes-Ermitage",
+          "Crozes-Hermitage",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Côte Rôtie",
+          "Côte Rôtie",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Côtes du Rhône",
+          "Côtes du Rhône",
+          "#7B1E3C",
+          "Vin primeur, Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Côtes du Rhône Villages",
+          "Côtes du Rhône Villages",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Côtes du Vivarais",
+          "Côtes du Vivarais",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Gigondas",
+          "Gigondas",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Grignan-les-Adhémar",
+          "Grignan-les-Adhémar",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Hermitage ou Ermitage ou l'Hermitage ou l'Ermitage",
+          "Hermitage",
+          "#7B1E3C",
+          "Vin de paille, Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Laudun",
+          "Laudun",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Lirac",
+          "Lirac",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Luberon",
+          "Luberon",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Muscat de Beaumes-de-Venise",
+          "Muscat de Beaumes-de-Venise",
+          "#7B1E3C",
+          "Vin doux naturel"
+        ],
+        [
+          "Rhône",
+          "Pierrevert",
+          "Pierrevert",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Rasteau",
+          "Rasteau",
+          "#7B1E3C",
+          "Vin doux naturel"
+        ],
+        [
+          "Rhône",
+          "Saint-Joseph",
+          "Saint-Joseph",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Saint-Péray",
+          "Saint-Péray",
+          "#7B1E3C",
+          "Vin mousseux, Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Tavel",
+          "Tavel",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Vacqueyras",
+          "Vacqueyras",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Ventoux",
+          "Ventoux",
+          "#7B1E3C",
+          "Vin primeur, Vin tranquille"
+        ],
+        [
+          "Rhône",
+          "Vinsobres",
+          "Vinsobres",
+          "#7B1E3C",
+          "Vin tranquille"
+        ],
+        [
+          "Savoie",
+          "Bugey",
+          "Bugey",
+          "#8FBDBD",
+          "Vin mousseux, Vin pétillant, Vin tranquille"
+        ],
+        [
+          "Savoie",
+          "Roussette de Savoie",
+          "Roussette de Savoie",
+          "#8FBDBD",
+          "Vin tranquille"
+        ],
+        [
+          "Savoie",
+          "Roussette du Bugey",
+          "Roussette du Bugey",
+          "#8FBDBD",
+          "Vin tranquille"
+        ],
+        [
+          "Savoie",
+          "Seyssel",
+          "Seyssel",
+          "#8FBDBD",
+          "Vin mousseux, Vin tranquille"
+        ],
+        [
+          "Savoie",
+          "Vin de Savoie ou Savoie",
+          "Vin de Savoie",
+          "#8FBDBD",
+          "Vin tranquille"
+        ],
+        [
+          "Sud-Ouest",
+          "Brulhois",
+          "Brulhois",
+          "#D2691E",
+          "Vin tranquille"
+        ],
+        [
+          "Sud-Ouest",
+          "Béarn",
+          "Béarn",
+          "#D2691E",
+          "Vin tranquille"
+        ],
+        [
+          "Sud-Ouest",
+          "Cahors",
+          "Cahors",
+          "#D2691E",
+          "Vin tranquille"
+        ],
+        [
+          "Sud-Ouest",
+          "Coteaux du Quercy",
+          "Coteaux du Quercy",
+          "#D2691E",
+          "Vin tranquille"
+        ],
+        [
+          "Sud-Ouest",
+          "Côtes de Millau",
+          "Côtes de Millau",
+          "#D2691E",
+          "Vin tranquille"
+        ],
+        [
+          "Sud-Ouest",
+          "Entraygues - Le Fel",
+          "Entraygues - Le Fel",
+          "#D2691E",
+          "Vin tranquille"
+        ],
+        [
+          "Sud-Ouest",
+          "Estaing",
+          "Estaing",
+          "#D2691E",
+          "Vin tranquille"
+        ],
+        [
+          "Sud-Ouest",
+          "Fronton",
+          "Fronton",
+          "#D2691E",
+          "Vin tranquille"
+        ],
+        [
+          "Sud-Ouest",
+          "Gaillac",
+          "Gaillac",
+          "#D2691E",
+          "Vin de vendanges tardives, Vin mousseux, Vin mousseux \"Méthode ancestrale\", Vin primeur, Vin tranquille"
+        ],
+        [
+          "Sud-Ouest",
+          "Gaillac premières côtes",
+          "Gaillac premières côtes",
+          "#D2691E",
+          "Vin tranquille"
+        ],
+        [
+          "Sud-Ouest",
+          "Irouléguy",
+          "Irouléguy",
+          "#D2691E",
+          "Vin tranquille"
+        ],
+        [
+          "Sud-Ouest",
+          "Jurançon",
+          "Jurançon",
+          "#D2691E",
+          "Vin de triees successives, Vin de vendanges tardives, Vin tranquille"
+        ],
+        [
+          "Sud-Ouest",
+          "Madiran",
+          "Madiran",
+          "#D2691E",
+          "Vin tranquille"
+        ],
+        [
+          "Sud-Ouest",
+          "Marcillac",
+          "Marcillac",
+          "#D2691E",
+          "Vin tranquille"
+        ],
+        [
+          "Sud-Ouest",
+          "Pacherenc du Vic-Bilh",
+          "Pacherenc du Vic-Bilh",
+          "#D2691E",
+          "Vin de triees successives, Vin tranquille"
+        ],
+        [
+          "Sud-Ouest",
+          "Saint-Mont",
+          "Saint-Mont",
+          "#D2691E",
+          "Vin tranquille"
+        ],
+        [
+          "Sud-Ouest",
+          "Saint-Sardos",
+          "Saint-Sardos",
+          "#D2691E",
+          "Vin tranquille"
+        ],
+        [
+          "Sud-Ouest",
+          "Tursan",
+          "Tursan",
+          "#D2691E",
+          "Vin tranquille"
+        ]
+      ],
+      "message": ""
+    },
+    {
+      "phase": "post_write",
+      "name": "release_metadata_consistent",
+      "passed": true,
+      "observed": true,
+      "expected": true,
+      "message": ""
+    }
+  ],
+  "passed": true
+}

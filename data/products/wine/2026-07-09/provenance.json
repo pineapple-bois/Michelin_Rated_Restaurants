@@ -1,0 +1,46 @@
+{
+  "product_type": "wine_regions_aoc_area",
+  "release_date": "2026-07-09",
+  "stage1_run_id": "2026-07-09T013341.540730+0000_0cf4579a",
+  "stage1_source_path": "/Users/Ian/Documents/Study/Stage3/Programming/Github/Michelin_Rated_Restaurants/tmp/wine/2026-07-09T013341.540730+0000_0cf4579a/candidates/aoc_regions.gpkg",
+  "stage1_source_sha256": "a5cc10152cbdc17d19d34c4e9309e17cd60eb6d38a551f0fac9dbdfb0cbd4f69",
+  "simplification_run_id": "close500_simplify150",
+  "candidate_id": "close500_simplify150_20260709t071239z",
+  "candidate_assembly_approval_mode": "automated_validated_batch",
+  "canonical_parameter_set": true,
+  "effective_simplification_parameters": {
+    "buffer_m": 500.0,
+    "canonical_parameter_set": true,
+    "canonical_parameter_set_name": "close500_simplify150",
+    "overlap_strategy": "smallest-wins",
+    "parameter_notes": {
+      "buffer_m": "Outward-then-inward morphological closing distance in metres; not a permanent expansion.",
+      "overlap_strategy": "smallest-wins gives smaller processed appellations priority over larger overlapping appellations and can reduce or fully cover broader appellations.",
+      "simplify_m": "Topology-preserving simplification tolerance in metres; reduces boundary detail and payload complexity."
+    },
+    "simplify_m": 150.0
+  },
+  "source_candidate_path": "data/candidates/wine/close500_simplify150_20260709t071239z",
+  "destination_product_path": "data/products/wine/2026-07-09/wine_regions_aoc_area.geojson",
+  "candidate_sha256": "99546ffc042ddda1ead9c92921d943b33fa8785d050c61bd31fe43449cf99a81",
+  "product_sha256": "645a154be17c262f49cca7c571da2560cb83054e6de1d697699d48b96441b665",
+  "lineage": [
+    "build",
+    "simplify",
+    "assemble-candidate",
+    "publish-product"
+  ],
+  "geometry_transformation": false,
+  "attribute_transformation": "derive_prompt_signals_from_categorie",
+  "command": "wine_pipeline publish-product",
+  "started_at_utc": "2026-07-09T12:50:52.988235+00:00",
+  "completed_at_utc": "2026-07-09T12:50:53.930050+00:00",
+  "pipeline_version": "0.1.0",
+  "python_version": "3.12.3 (v3.12.3:f6650f9ad7, Apr  9 2024, 08:18:47) [Clang 13.0.0 (clang-1300.0.29.30)]",
+  "platform": "macOS-15.7.7-arm64-arm-64bit",
+  "git_state": {
+    "commit": "9836bdb321a620de285a35ac7ab1c9bf8a629a49",
+    "status_short": "M docs/wine_data.md\n M src/wine_pipeline/product.py\n M tests/test_wine_product.py\n?? data/products/wine/\n?? test_data.ipynb\n?? wine_categorie_analysis.ipynb",
+    "dirty": true
+  }
+}

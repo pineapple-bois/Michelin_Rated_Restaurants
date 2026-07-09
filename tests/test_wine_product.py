@@ -7,13 +7,29 @@ import tempfile
 import unittest
 from unittest import mock
 
+import geopandas as gpd
+
 from wine_pipeline.aoc_simplification.transform import OUTPUT_COLUMNS
-from wine_pipeline.product import PRODUCT_FILENAME, publish_product, resolve_candidate_id
+from wine_pipeline.product import (
+    PRODUCT_FILENAME,
+    PRODUCT_OUTPUT_COLUMNS,
+    SOURCE_CATEGORY_TO_PROMPT_SIGNAL,
+    derive_prompt_signals,
+    encode_prompt_signals,
+    publish_product,
+    resolve_candidate_id,
+)
 from wine_pipeline.provenance import sha256_file
 from wine_pipeline.validation import WinePipelineError
 
 
-def feature(region: str, app: str, x: float) -> dict[str, object]:
+def feature(
+    region: str,
+    app: str,
+    x: float,
+    *,
+    categorie: str = "Vin tranquille",
+) -> dict[str, object]:
     return {
         "type": "Feature",
         "properties": {
@@ -21,7 +37,7 @@ def feature(region: str, app: str, x: float) -> dict[str, object]:
             "app": app,
             "display_name": app,
             "colour": "#123456",
-            "categorie": "AOP",
+            "categorie": categorie,
             "source_area_m2": 1000.0,
         },
         "geometry": {
@@ -216,6 +232,131 @@ class WineProductTests(unittest.TestCase):
             with self.assertRaisesRegex(WinePipelineError, "schema"):
                 self.publish(root)
 
+    def test_exact_reviewed_category_to_signal_mappings(self) -> None:
+        expected = {
+            "Vin mousseux": "sparkling",
+            'Vin mousseux "Crémant"': "cremant",
+            'Vin mousseux "Méthode ancestrale"': "ancestral_method",
+            "Vin pétillant": "sparkling",
+            "Vin de sélection de grains nobles": "noble_rot_botrytis",
+            "Vin de vendanges tardives": "late_harvest",
+            "Vin de triees successives": "successive_pickings",
+            "Vin doux naturel": "fortified_sweet",
+            "Vin de liqueur": "fortified_or_liqueur_wine",
+            "Vin jaune": "oxidative_speciality",
+            "Vin de paille": "straw_wine",
+            "Vin primeur": "primeur",
+            "Vin sur lie": "sur_lie",
+        }
+        self.assertEqual(SOURCE_CATEGORY_TO_PROMPT_SIGNAL, expected)
+        for category, signal in expected.items():
+            with self.subTest(category=category):
+                self.assertEqual(derive_prompt_signals(category), [signal])
+
+    def test_prompt_signal_order_is_source_stable_and_deduplicated(self) -> None:
+        categorie = (
+            "Vin primeur, Vin mousseux, Vin pétillant, "
+            "Vin de vendanges tardives, Vin mousseux"
+        )
+        self.assertEqual(
+            derive_prompt_signals(categorie),
+            ["primeur", "sparkling", "late_harvest"],
+        )
+
+    def test_default_only_still_wine_has_no_prompt_signal(self) -> None:
+        self.assertEqual(derive_prompt_signals("Vin tranquille"), [])
+        self.assertEqual(encode_prompt_signals("Vin tranquille"), "[]")
+
+    def test_serialized_product_contains_encoded_prompt_signal_lists(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            make_candidate(
+                root,
+                features=[
+                    feature("Bordeaux", "Default", 1.0),
+                    feature(
+                        "Alsace",
+                        "Exceptional",
+                        2.0,
+                        categorie=(
+                            "Vin de sélection de grains nobles, "
+                            "Vin de vendanges tardives, Vin tranquille"
+                        ),
+                    ),
+                ],
+            )
+
+            result = self.publish(root)
+            payload = read_json(result.product_path)
+            properties = {
+                item["properties"]["app"]: item["properties"]
+                for item in payload["features"]
+            }
+            self.assertEqual(properties["Default"]["prompt_signals"], "[]")
+            self.assertEqual(
+                properties["Exceptional"]["prompt_signals"],
+                '["noble_rot_botrytis","late_harvest"]',
+            )
+            self.assertEqual(
+                [*properties["Exceptional"], "geometry"],
+                PRODUCT_OUTPUT_COLUMNS,
+            )
+            self.assertEqual(
+                properties["Exceptional"]["categorie"],
+                (
+                    "Vin de sélection de grains nobles, "
+                    "Vin de vendanges tardives, Vin tranquille"
+                ),
+            )
+
+    def test_geopandas_round_trip_preserves_prompt_signals(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            make_candidate(
+                root,
+                features=[
+                    feature("Bordeaux", "Default", 1.0),
+                    feature(
+                        "Alsace",
+                        "Exceptional",
+                        2.0,
+                        categorie="Vin mousseux, Vin primeur, Vin tranquille",
+                    ),
+                ],
+            )
+
+            result = self.publish(root)
+            reloaded = gpd.read_file(result.product_path)
+
+            self.assertIn("prompt_signals", reloaded.columns)
+            by_app = reloaded.set_index("app")["prompt_signals"]
+            self.assertEqual(json.loads(by_app["Default"]), [])
+            self.assertEqual(
+                json.loads(by_app["Exceptional"]),
+                ["sparkling", "primeur"],
+            )
+
+    def test_unmapped_non_default_category_fails_promotion(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            make_candidate(
+                root,
+                features=[
+                    feature(
+                        "Bordeaux",
+                        "Needs Review",
+                        1.0,
+                        categorie="Vin tranquille, Vin quantique",
+                    )
+                ],
+            )
+
+            with self.assertRaisesRegex(
+                WinePipelineError,
+                "Unmapped non-default wine categories.*Vin quantique",
+            ):
+                self.publish(root)
+
     def test_invalid_and_empty_geometry_are_rejected(self) -> None:
         bad_geometries = (
             {"type": "Polygon", "coordinates": [[[1, 47], [1.01, 47.01], [1, 47.01], [1.01, 47], [1, 47]]]},
@@ -242,18 +383,22 @@ class WineProductTests(unittest.TestCase):
             self.assertFalse((root / "products" / "2026-07-08").exists())
             self.assertEqual(list((root / "products").glob(".*.tmp-*")), [])
 
-    def test_byte_identical_promotion_reload_validation_and_lineage(self) -> None:
+    def test_derived_promotion_reload_validation_and_lineage(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             candidate_dir = make_candidate(root)
             result = self.publish(root)
-            self.assertEqual((candidate_dir / "wine_regions.geojson").read_bytes(), result.product_path.read_bytes())
             manifest = read_json(result.manifest_path)
             provenance = read_json(result.provenance_path)
             validation = read_json(result.validation_path)
             self.assertEqual(manifest["product_filename"], PRODUCT_FILENAME)
-            self.assertEqual(manifest["candidate_sha256"], manifest["product_sha256"])
+            self.assertNotEqual(manifest["candidate_sha256"], manifest["product_sha256"])
+            self.assertEqual(manifest["schema"], PRODUCT_OUTPUT_COLUMNS)
             self.assertFalse(manifest["geometry_transformation"])
+            self.assertEqual(
+                manifest["attribute_transformation"],
+                "derive_prompt_signals_from_categorie",
+            )
             self.assertEqual(provenance["lineage"], ["build", "simplify", "assemble-candidate", "publish-product"])
             self.assertEqual(provenance["candidate_assembly_approval_mode"], "automated_validated_batch")
             self.assertTrue(validation["passed"])

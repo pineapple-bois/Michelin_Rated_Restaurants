@@ -1,4 +1,4 @@
-"""Stage 3 validation and byte-preserving wine product promotion."""
+"""Stage 3 validation and wine product promotion."""
 
 from __future__ import annotations
 
@@ -26,6 +26,33 @@ from .validation import WinePipelineError
 
 PRODUCT_FILENAME = "wine_regions_aoc_area.geojson"
 PRODUCT_TYPE = "wine_regions_aoc_area"
+DEFAULT_WINE_CATEGORY = "Vin tranquille"
+SOURCE_CATEGORY_TO_PROMPT_SIGNAL = {
+    "Vin mousseux": "sparkling",
+    'Vin mousseux "Crémant"': "cremant",
+    'Vin mousseux "Méthode ancestrale"': "ancestral_method",
+    "Vin pétillant": "sparkling",
+    "Vin de sélection de grains nobles": "noble_rot_botrytis",
+    "Vin de vendanges tardives": "late_harvest",
+    "Vin de triees successives": "successive_pickings",
+    "Vin doux naturel": "fortified_sweet",
+    "Vin de liqueur": "fortified_or_liqueur_wine",
+    "Vin jaune": "oxidative_speciality",
+    "Vin de paille": "straw_wine",
+    "Vin primeur": "primeur",
+    "Vin sur lie": "sur_lie",
+}
+PRODUCT_OUTPUT_COLUMNS = [
+    "region",
+    "app",
+    "display_name",
+    "colour",
+    "categorie",
+    "prompt_signals",
+    "source_area_m2",
+    "geometry",
+]
+PROMPT_SIGNALS = frozenset(SOURCE_CATEGORY_TO_PROMPT_SIGNAL.values())
 
 
 @dataclass(frozen=True)
@@ -161,12 +188,63 @@ def _feature_order(payload: dict[str, object]) -> list[list[object]]:
     return order
 
 
+def derive_prompt_signals(categorie: object) -> list[str]:
+    if not isinstance(categorie, str) or not categorie.strip():
+        raise WinePipelineError("Wine product categorie must be a non-empty string.")
+    source_categories = [item.strip() for item in categorie.split(",") if item.strip()]
+    if not source_categories:
+        raise WinePipelineError("Wine product categorie must contain a source category.")
+    unresolved = sorted(
+        {
+            category
+            for category in source_categories
+            if category != DEFAULT_WINE_CATEGORY
+            and category not in SOURCE_CATEGORY_TO_PROMPT_SIGNAL
+        }
+    )
+    if unresolved:
+        raise WinePipelineError(
+            f"Unmapped non-default wine categories require review: {unresolved}"
+        )
+    return list(
+        dict.fromkeys(
+            SOURCE_CATEGORY_TO_PROMPT_SIGNAL[category]
+            for category in source_categories
+            if category in SOURCE_CATEGORY_TO_PROMPT_SIGNAL
+        )
+    )
+
+
+def encode_prompt_signals(categorie: object) -> str:
+    return json.dumps(
+        derive_prompt_signals(categorie),
+        ensure_ascii=False,
+        separators=(",", ":"),
+    )
+
+
+def _add_prompt_signals(payload: dict[str, object]) -> dict[str, object]:
+    promoted = json.loads(json.dumps(payload))
+    for feature in promoted.get("features") or []:
+        properties = feature.get("properties") or {}
+        output_properties: dict[str, object] = {}
+        for column in PRODUCT_OUTPUT_COLUMNS[:-1]:
+            if column == "prompt_signals":
+                output_properties[column] = encode_prompt_signals(properties.get("categorie"))
+            else:
+                output_properties[column] = properties.get(column)
+        feature["properties"] = output_properties
+    return promoted
+
+
 def _validate_geojson(
     payload: dict[str, object],
     *,
     path: Path,
     phase: str,
     checks: list[dict[str, object]],
+    expected_columns: list[str],
+    require_prompt_signals: bool = False,
 ) -> dict[str, object]:
     is_collection = payload.get("type") == "FeatureCollection" and isinstance(payload.get("features"), list)
     _check(
@@ -184,9 +262,9 @@ def _validate_geojson(
         checks,
         phase=phase,
         name="exact_ordered_schema",
-        passed=schema == OUTPUT_COLUMNS,
+        passed=schema == expected_columns,
         observed=schema,
-        expected=OUTPUT_COLUMNS,
+        expected=expected_columns,
         message="GeoJSON schema or property ordering does not match the product contract.",
     )
 
@@ -200,7 +278,8 @@ def _validate_geojson(
     identities: list[tuple[object, ...]] = []
     geometry_types: set[str] = set()
     regions: set[str] = set()
-    required_properties = OUTPUT_COLUMNS[:-1]
+    invalid_prompt_signals: list[dict[str, object]] = []
+    required_properties = expected_columns[:-1]
 
     for index, feature in enumerate(features):
         properties = feature.get("properties") if isinstance(feature, dict) else None
@@ -217,6 +296,30 @@ def _validate_geojson(
         area = properties.get("source_area_m2")
         if isinstance(area, bool) or not isinstance(area, Real) or area < 0:
             invalid_areas.append({"feature": index, "value": area})
+        if require_prompt_signals:
+            signals = properties.get("prompt_signals")
+            decoded_signals: object = None
+            expected_signals: str | None = None
+            try:
+                expected_signals = encode_prompt_signals(properties.get("categorie"))
+                decoded_signals = json.loads(signals) if isinstance(signals, str) else None
+            except (WinePipelineError, json.JSONDecodeError):
+                pass
+            if (
+                not isinstance(decoded_signals, list)
+                or any(
+                    not isinstance(signal, str) or signal not in PROMPT_SIGNALS
+                    for signal in decoded_signals
+                )
+                or signals != expected_signals
+            ):
+                invalid_prompt_signals.append(
+                    {
+                        "feature": index,
+                        "observed": signals,
+                        "expected": expected_signals,
+                    }
+                )
         geometry_payload = feature.get("geometry") if isinstance(feature, dict) else None
         if geometry_payload is None:
             null_or_empty.append({"feature": index, "reason": "null"})
@@ -238,7 +341,7 @@ def _validate_geojson(
             regions.add(region)
 
     duplicates = sorted({identity for identity in identities if identities.count(identity) > 1}, key=str)
-    validations = (
+    validations = [
         ("all_required_properties", not missing_properties, missing_properties, [], "Features are missing required properties."),
         ("all_feature_schemas_exact", not schema_mismatches, schema_mismatches, [], "Every feature must use the exact ordered property schema."),
         ("non_empty_identity_strings", not blank_identity, blank_identity, [], "region, app, and display_name must be non-empty strings."),
@@ -247,7 +350,17 @@ def _validate_geojson(
         ("polygon_only", not invalid_types, invalid_types, [], "Geometry must be Polygon or MultiPolygon."),
         ("valid_geometry", not invalid_geometry, invalid_geometry, [], "All geometry must be valid."),
         ("no_duplicate_product_identities", not duplicates, duplicates, [], "Duplicate product identities were found."),
-    )
+    ]
+    if require_prompt_signals:
+        validations.append(
+            (
+                "valid_prompt_signals",
+                not invalid_prompt_signals,
+                invalid_prompt_signals,
+                [],
+                "prompt_signals must be canonical JSON text exactly matching the ordered mapping derived from categorie.",
+            )
+        )
     for name, passed, observed, expected, message in validations:
         _check(checks, phase=phase, name=name, passed=passed, observed=observed, expected=expected, message=message)
 
@@ -375,27 +488,42 @@ def publish_product(
             message="Candidate GeoJSON hash does not agree with its manifest.",
         )
         payload = _read_json(candidate_path)
-        source_info = _validate_geojson(payload, path=candidate_path, phase="pre_write", checks=checks)
+        source_info = _validate_geojson(
+            payload,
+            path=candidate_path,
+            phase="pre_write",
+            checks=checks,
+            expected_columns=OUTPUT_COLUMNS,
+        )
+        try:
+            product_payload = _add_prompt_signals(payload)
+        except WinePipelineError as error:
+            _check(
+                checks,
+                phase="pre_write",
+                name="all_non_default_categories_mapped",
+                passed=False,
+                observed=str(error),
+                expected="every non-default category has a reviewed mapping",
+                message=str(error),
+            )
         _raise_if_failed(checks)
 
         product_path = temp_dir / PRODUCT_FILENAME
-        progress(f"copying validated candidate unchanged: {product_path}")
-        shutil.copyfile(candidate_path, product_path)
+        progress(f"writing product with derived prompt signals: {product_path}")
+        write_json(product_path, product_payload)
         product_hash = sha256_file(product_path)
-        _check(
-            checks,
-            phase="post_write",
-            name="byte_identical_hash",
-            passed=product_hash == candidate_hash,
-            observed=product_hash,
-            expected=candidate_hash,
-            message="Published GeoJSON is not byte-identical to the candidate.",
-        )
         product_payload = _read_json(product_path)
-        product_info = _validate_geojson(product_payload, path=product_path, phase="post_write", checks=checks)
+        product_info = _validate_geojson(
+            product_payload,
+            path=product_path,
+            phase="post_write",
+            checks=checks,
+            expected_columns=PRODUCT_OUTPUT_COLUMNS,
+            require_prompt_signals=True,
+        )
         comparisons = (
             ("feature_count_matches", product_info["feature_count"], source_info["feature_count"]),
-            ("schema_matches", product_info["schema"], source_info["schema"]),
             ("feature_order_matches", product_info["feature_order"], source_info["feature_order"]),
         )
         for name, observed, expected in comparisons:
@@ -432,7 +560,8 @@ def publish_product(
             "git_commit": git_state(project_root).get("commit"),
             "validation_status": "passed",
             "geometry_transformation": False,
-            "operation": "validation_and_byte_preserving_promotion",
+            "attribute_transformation": "derive_prompt_signals_from_categorie",
+            "operation": "validation_prompt_signal_derivation_and_promotion",
         }
         provenance = {
             "product_type": PRODUCT_TYPE,
@@ -451,6 +580,7 @@ def publish_product(
             "product_sha256": product_hash,
             "lineage": ["build", "simplify", "assemble-candidate", "publish-product"],
             "geometry_transformation": False,
+            "attribute_transformation": "derive_prompt_signals_from_categorie",
             "command": shlex.join(command or sys.argv),
             "started_at_utc": started_at,
             "completed_at_utc": created_at,
