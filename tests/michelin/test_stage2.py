@@ -25,9 +25,7 @@ from data_pipeline.stage2.validation import (
     Stage2ValidationError,
     validate_reference_data,
 )
-
-
-REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
+from tests.support import REPOSITORY_ROOT
 
 
 def department_reference() -> pd.DataFrame:

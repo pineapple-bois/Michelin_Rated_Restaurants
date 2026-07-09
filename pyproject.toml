@@ -23,10 +23,18 @@ dependencies = [
   "shapely>=2.0,<3",
 ]
 
+[project.optional-dependencies]
+test = [
+  "pytest>=8,<9",
+]
+
 [project.scripts]
 data_pipeline = "data_pipeline.cli:main"
 insee_pipeline = "insee_pipeline.pipeline:main"
 wine_pipeline = "wine_pipeline.pipeline:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
 
 [tool.setuptools.package-dir]
 "" = "src"

@@ -8,9 +8,10 @@ import tempfile
 from pathlib import Path
 import unittest
 
+from tests.support import REPOSITORY_ROOT
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
-STUB_RELATIVE_PATH = Path("tests/shell/stub_python.sh")
+REPO_ROOT = REPOSITORY_ROOT
+STUB_RELATIVE_PATH = Path("tests/automation/shell/stub_python.sh")
 
 STAGE1 = "-m data_pipeline partition --acquire-next"
 INSEE_BUILD_2024 = "-m insee_pipeline build --year 2024"

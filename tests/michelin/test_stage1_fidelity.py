@@ -6,9 +6,9 @@ import unittest
 
 from data_pipeline.stage1.fidelity import compare_partition_files
 from data_pipeline.stage1.pipeline import run_stage1
+from tests.support import REPOSITORY_ROOT
 
 
-REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 LEGACY_ROOT = REPOSITORY_ROOT / "legacy" / "Years"
 
 # Optional migration-confidence checks: these compare regenerated outputs with

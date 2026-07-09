@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from pathlib import Path
 import unittest
 
+from tests.support import REPOSITORY_ROOT
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = REPOSITORY_ROOT
 WORKFLOW = REPO_ROOT / ".github" / "workflows" / "annual-pipeline.yml"
 
 

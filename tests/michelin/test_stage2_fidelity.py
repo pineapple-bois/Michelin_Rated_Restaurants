@@ -14,9 +14,9 @@ from data_pipeline.stage2.schema import (
     france_departmental_property_columns,
     france_regional_property_columns,
 )
+from tests.support import REPOSITORY_ROOT
 
 
-REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 LEGACY_ROOT = REPOSITORY_ROOT / "legacy" / "Years"
 
 # Optional migration-confidence checks in this module compare regenerated

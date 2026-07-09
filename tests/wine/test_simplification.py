@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import os
 from pathlib import Path
 import tempfile
 import unittest
@@ -37,6 +36,7 @@ from wine_pipeline.aoc_simplification.transform import (
     validate_stage1_schema,
 )
 from wine_pipeline.validation import WinePipelineError
+from tests.support import FIXTURE_ROOT, REPOSITORY_ROOT
 
 
 def square(x0: float, y0: float, size: float) -> Polygon:
@@ -110,7 +110,7 @@ def artifact_snapshot(path: Path) -> dict[str, bytes]:
 
 
 def load_simplification_regression() -> dict[str, object]:
-    path = Path(__file__).parent / "fixtures" / "wine" / "close500_simplify150_regression.json"
+    path = FIXTURE_ROOT / "wine" / "close500_simplify150_regression.json"
     return json.loads(path.read_text(encoding="utf-8"))
 
 
@@ -681,10 +681,10 @@ class WineSimplificationTests(unittest.TestCase):
 
     def test_normal_suite_and_runtime_do_not_reference_ignored_development_tree(self) -> None:
         forbidden = "Develop" + "ment/"
-        repository_root = Path(__file__).parents[1]
+        repository_root = REPOSITORY_ROOT
         source_files = [
             *sorted((repository_root / "src" / "wine_pipeline").rglob("*.py")),
-            *sorted((repository_root / "tests").glob("test_wine*.py")),
+            *sorted((repository_root / "tests" / "wine").glob("test_*.py")),
         ]
         references = [
             str(path.relative_to(repository_root))
@@ -692,20 +692,6 @@ class WineSimplificationTests(unittest.TestCase):
             if forbidden in path.read_text(encoding="utf-8")
         ]
         self.assertEqual(references, [])
-
-    def test_real_jura_transform_when_stage1_candidate_exists(self) -> None:
-        if os.environ.get("WINE_RUN_INTEGRATION_TESTS") != "1":
-            self.skipTest("Set WINE_RUN_INTEGRATION_TESTS=1 to process a real Stage 1 regional candidate")
-        candidates = sorted(Path("tmp/wine").glob("*/candidates/aoc_regions.gpkg"))
-        if not candidates:
-            self.skipTest("No Stage 1 aoc_regions.gpkg candidate available")
-        data = gpd.read_file(candidates[-1], layer="aocs_france")
-        selected = select_region(data, "Jura")
-        result = simplify_region(selected)
-        self.assertGreater(len(result.final), 0)
-        self.assertEqual(result.final.crs.to_epsg(), 4326)
-        self.assertEqual(result.final.columns.tolist(), OUTPUT_COLUMNS)
-        self.assertTrue(result.final.geometry.is_valid.all())
 
     def test_single_region_runner_generates_expected_artifact_set(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

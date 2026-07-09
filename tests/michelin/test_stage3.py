@@ -14,9 +14,10 @@ from data_pipeline.stage3.pipeline import (
     run_stage3,
     validate_stage3,
 )
+from tests.support import REPOSITORY_ROOT
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = REPOSITORY_ROOT
 LEGACY_ROOT = ROOT / "legacy" / "Years"
 ARRONDISSEMENT_INSEE_FIELDS = {
     "municipal_population",

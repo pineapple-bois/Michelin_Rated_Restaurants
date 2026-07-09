@@ -18,9 +18,9 @@ from data_pipeline.stage2.monaco import (
 )
 from data_pipeline.stage2.pipeline import Stage2PublicationError
 from data_pipeline.stage2.validation import Stage2ValidationError
+from tests.support import REPOSITORY_ROOT
 
 
-REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 LEGACY_ROOT = REPOSITORY_ROOT / "legacy" / "Years"
 
 # Optional migration-confidence checks in this module compare regenerated

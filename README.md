@@ -336,7 +336,12 @@ data/products/insee/<year>/france_departments_<year>.csv
 ```text
 data/                   raw inputs, candidates, partitions, products, reports, and retained reference data
 docs/                   durable stage and reference-data documentation
-tests/                  unittest coverage for implemented pipeline behavior
+tests/                  domain-grouped coverage for implemented pipeline behavior
+  automation/           annual shell-script and GitHub Actions workflow tests
+  michelin/             Stage 1, Stage 2, Stage 3, Monaco, and guide-change tests
+  insee/                INSEE/OECD candidate and product tests
+  wine/                 Wine AOC pipeline tests
+  fixtures/             shared regression fixtures
 src/data_pipeline/      Michelin Stage 1, Stage 2, Stage 3, Monaco, and guide-change code
 src/insee_pipeline/     INSEE/OECD source acquisition, candidate build, and product build
 tmp/                    disposable local build/download workspace
@@ -402,6 +407,13 @@ The principal test command is:
 
 ```bash
 python -m unittest discover -s tests -v
+```
+
+Pytest is also supported as an optional runner for the same tests:
+
+```bash
+python -m pip install -e ".[test]"
+python -m pytest
 ```
 
 Pipeline commands validate schemas, row reconciliation, duplicate and join
