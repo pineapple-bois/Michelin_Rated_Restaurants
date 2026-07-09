@@ -7,6 +7,7 @@ from .pipeline import (
     run_stage1,
     validate_stage1,
 )
+from .acquisition import run_stage1_acquisition
 from .validation import Stage1ValidationError
 
 __all__ = [
@@ -14,6 +15,7 @@ __all__ = [
     "Stage1PublicationError",
     "Stage1ValidationError",
     "prepare_partitions",
+    "run_stage1_acquisition",
     "run_stage1",
     "validate_stage1",
 ]

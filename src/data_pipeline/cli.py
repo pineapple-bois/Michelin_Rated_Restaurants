@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import argparse
+from datetime import date
 from pathlib import Path
 import sys
 
 from .stage1.fidelity import compare_partition_roots
+from .stage1.acquisition import run_stage1_acquisition
 from .stage1.pipeline import Stage1PublicationError, run_stage1, validate_stage1
 from .stage1.validation import Stage1ValidationError
 from .stage2.pipeline import Stage2PublicationError, run_stage2, validate_stage2
@@ -30,7 +32,17 @@ def _parser() -> argparse.ArgumentParser:
         "partition",
         help="create validated annual country-partition candidates",
     )
-    partition.add_argument("--year", required=True, type=int)
+    partition.add_argument("--year", type=int)
+    partition.add_argument(
+        "--acquire-next",
+        action="store_true",
+        help="download, evaluate, and publish the next annual Stage 1 snapshot when accepted",
+    )
+    partition.add_argument(
+        "--today",
+        type=date.fromisoformat,
+        help="override the local calendar date for acquisition gate testing",
+    )
     partition.add_argument(
         "--raw-root",
         type=Path,
@@ -190,6 +202,85 @@ def _parser() -> argparse.ArgumentParser:
 
 
 def _run_partition(args: argparse.Namespace) -> int:
+    if args.acquire_next:
+        if args.year is not None:
+            print("Stage 1 failed: --acquire-next derives the year; omit --year", file=sys.stderr)
+            return 2
+        if args.validate_only or args.replace or args.compare_root is not None:
+            print(
+                "Stage 1 failed: --acquire-next cannot be combined with "
+                "--validate-only, --replace, or --compare-root",
+                file=sys.stderr,
+            )
+            return 2
+        try:
+            result = run_stage1_acquisition(
+                raw_root=args.raw_root,
+                output_root=args.output_root,
+                today=args.today,
+            )
+        except (
+            Stage1PublicationError,
+            Stage1ValidationError,
+            FileExistsError,
+            FileNotFoundError,
+        ) as error:
+            print(f"Stage 1 acquisition failed: {error}", file=sys.stderr)
+            return 2
+
+        print(result.message)
+        print(f"Candidate year: {result.year}")
+        print(f"Latest accepted France partition: {result.previous_year}")
+        if result.source is not None:
+            print(f"Source URL: {result.source.url}")
+            if result.source.revision is not None:
+                print(f"Source revision: {result.source.revision}")
+        if result.comparison is not None:
+            comparison = result.comparison
+            print(f"Compared with accepted {result.previous_year} partition:")
+            print(f"  Previous rows: {comparison.previous_rows}")
+            print(f"  Candidate rows: {comparison.candidate_rows}")
+            print("Schema:")
+            print(f"  Added columns: {', '.join(comparison.added_columns) or 'none'}")
+            print(f"  Removed columns: {', '.join(comparison.removed_columns) or 'none'}")
+            print(f"  Shared columns: {len(comparison.shared_columns)}")
+            print("Matching:")
+            print(f"  Matched: {comparison.matched_restaurants}")
+            print(f"  Match rate: {comparison.match_rate:.1%}")
+            print(f"  Ambiguous: {comparison.ambiguous_matches}")
+            print(f"  Duplicate-key conflicts: {comparison.duplicate_conflicts}")
+            print(f"  Previous unmatched: {comparison.removed_restaurants}")
+            print(f"  Candidate unmatched: {comparison.added_restaurants}")
+            print("Guide changes:")
+            print(f"  Added restaurants: {comparison.added_restaurants}")
+            print(f"  Removed restaurants: {comparison.removed_restaurants}")
+            print(f"  Award-label changes: {comparison.award_label_changes}")
+            for transition, count in comparison.award_label_transition_counts.items():
+                print(f"    {transition}: {count}")
+            print(f"  Non-award changes: {comparison.other_changed_rows}")
+            print(f"  Unchanged: {comparison.unchanged_restaurants}")
+            if not comparison.comparison_reliable:
+                print("Comparison quality:")
+                print(f"  {comparison.reliability_reason}")
+        if result.acceptance is not None:
+            print("Reason:")
+            print(f"  {result.acceptance.reason}")
+        if result.status == "accepted":
+            if result.raw_path is not None:
+                print(f"  wrote: {result.raw_path}")
+            for path in result.paths.values():
+                print(f"  wrote: {path}")
+        elif result.status in {"rejected", "comparison-unreliable"}:
+            print("No files were published.")
+            print("Temporary files were removed.")
+        return 0
+
+    if args.year is None:
+        print("Stage 1 failed: --year is required unless --acquire-next is used", file=sys.stderr)
+        return 2
+    if args.today is not None:
+        print("Stage 1 failed: --today can only be used with --acquire-next", file=sys.stderr)
+        return 2
     if args.validate_only and args.replace:
         print("Stage 1 failed: --replace cannot be used with --validate-only", file=sys.stderr)
         return 2

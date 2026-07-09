@@ -3,19 +3,21 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from difflib import SequenceMatcher
 import json
-import math
 import os
 from pathlib import Path
-import re
 import shutil
 import tempfile
-import unicodedata
-from urllib.parse import urlsplit, urlunsplit
 
 import pandas as pd
 from pandas.testing import assert_frame_equal
+
+from .matching import (
+    RestaurantMatch,
+    normalized_text as _normalized_text,
+    prepare_matching_frame,
+    reconcile_restaurants,
+)
 
 
 REQUIRED_COLUMNS = (
@@ -78,36 +80,6 @@ def report_paths(previous_year: int, current_year: int, output_root: Path) -> di
     return {kind: root / f"{stem}.{kind}" for kind in ("csv", "json", "md")}
 
 
-def _normalized_text(value: object) -> str:
-    if pd.isna(value):
-        return ""
-    text = unicodedata.normalize("NFKD", str(value).casefold())
-    text = "".join(character for character in text if not unicodedata.combining(character))
-    return re.sub(r"[^a-z0-9]+", " ", text).strip()
-
-
-def _normalized_url(value: object) -> str:
-    if pd.isna(value) or not str(value).strip():
-        return ""
-    parsed = urlsplit(str(value).strip())
-    host = parsed.netloc.casefold().removeprefix("www.")
-    path = parsed.path.rstrip("/")
-    return urlunsplit((parsed.scheme.casefold(), host, path, "", ""))
-
-
-def _postal_code(value: object) -> str:
-    match = re.search(r"\b\d{5}\b", "" if pd.isna(value) else str(value))
-    return match.group(0) if match else ""
-
-
-def _distance_km(previous: pd.Series, current: pd.Series) -> float:
-    lat1, lon1 = math.radians(previous["latitude"]), math.radians(previous["longitude"])
-    lat2, lon2 = math.radians(current["latitude"]), math.radians(current["longitude"])
-    delta_lat, delta_lon = lat2 - lat1, lon2 - lon1
-    value = math.sin(delta_lat / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin(delta_lon / 2) ** 2
-    return 6371.0 * 2 * math.atan2(math.sqrt(value), math.sqrt(1 - value))
-
-
 def _load_product(path: Path, year: int) -> pd.DataFrame:
     if not path.is_file():
         raise FileNotFoundError(f"Annual France product does not exist: {path}")
@@ -121,42 +93,13 @@ def _load_product(path: Path, year: int) -> pd.DataFrame:
         raise ChangesValidationError(f"{year} product contains required nulls: {nulls[nulls > 0].to_dict()}")
     if frame.duplicated().any():
         raise ChangesValidationError(f"{year} product contains exact duplicate rows")
-    frame = frame.copy()
-    frame["source_row"] = range(len(frame))
-    frame["normalized_name"] = frame["name"].map(_normalized_text)
-    frame["normalized_address"] = frame["address"].map(_normalized_text)
-    frame["normalized_url"] = frame.get("url", pd.Series("", index=frame.index)).map(_normalized_url)
-    frame["postal_code"] = frame["location"].map(_postal_code)
-    return frame
-
-
-def _unique_matches(
-    previous: pd.DataFrame,
-    current: pd.DataFrame,
-    previous_available: set[int],
-    current_available: set[int],
-    columns: tuple[str, ...],
-) -> list[tuple[int, int]]:
-    if not previous_available or not current_available:
-        return []
-    old_values = previous.loc[sorted(previous_available), list(columns)].fillna("").astype(str)
-    new_values = current.loc[sorted(current_available), list(columns)].fillna("").astype(str)
-    old = old_values[old_values.ne("").all(axis=1)].apply(
-        lambda row: "|".join(row.tolist()), axis=1
-    )
-    new = new_values[new_values.ne("").all(axis=1)].apply(
-        lambda row: "|".join(row.tolist()), axis=1
-    )
-    old_counts, new_counts = old.value_counts(), new.value_counts()
-    old_map = {value: index for index, value in old.items() if old_counts[value] == 1}
-    new_map = {value: index for index, value in new.items() if new_counts[value] == 1}
-    return [(old_map[value], new_map[value]) for value in sorted(set(old_map) & set(new_map))]
+    return prepare_matching_frame(frame)
 
 
 def _read_overrides(
     path: Path | None, previous_year: int, current_year: int,
     previous: pd.DataFrame, current: pd.DataFrame,
-) -> list[tuple[int, int, str]]:
+) -> list[RestaurantMatch]:
     if path is None or not path.exists():
         return []
     overrides = pd.read_csv(path)
@@ -166,7 +109,7 @@ def _read_overrides(
     overrides = overrides[
         overrides["previous_year"].eq(previous_year) & overrides["current_year"].eq(current_year)
     ]
-    result: list[tuple[int, int, str]] = []
+    result: list[RestaurantMatch] = []
     for row in overrides.itertuples(index=False):
         old = previous.index[previous["name"].eq(row.previous_name)].tolist()
         new = current.index[current["name"].eq(row.current_name)].tolist()
@@ -174,7 +117,7 @@ def _read_overrides(
             raise ChangesValidationError(
                 f"Override names must identify one row: {row.previous_name!r} -> {row.current_name!r}"
             )
-        result.append((old[0], new[0], str(row.reason)))
+        result.append(RestaurantMatch(old[0], new[0], "override", 1.0, str(row.reason)))
     return result
 
 
@@ -275,103 +218,56 @@ def _record(
     }
 
 
-def _fuzzy_candidates(
-    previous: pd.DataFrame, current: pd.DataFrame,
-    previous_available: set[int], current_available: set[int],
-    previous_year: int, current_year: int,
-) -> list[dict[str, object]]:
-    candidates: list[dict[str, object]] = []
-    for current_index in sorted(current_available):
-        new = current.loc[current_index]
-        scored: list[tuple[float, float, int, str]] = []
-        for previous_index in sorted(previous_available):
-            old = previous.loc[previous_index]
-            distance = _distance_km(old, new)
-            same_postal = bool(old["postal_code"] and old["postal_code"] == new["postal_code"])
-            same_address = bool(old["normalized_address"] and old["normalized_address"] == new["normalized_address"])
-            if not (same_postal or same_address or distance <= 2.0):
-                continue
-            score = SequenceMatcher(None, old["normalized_name"], new["normalized_name"]).ratio()
-            if score < 0.72:
-                continue
-            evidence = f"name_similarity={score:.3f};distance_km={distance:.3f};same_postal={same_postal};same_address={same_address}"
-            scored.append((score, -distance, previous_index, evidence))
-        for score, _negative_distance, previous_index, evidence in sorted(scored, reverse=True)[:3]:
-            candidates.append(_record(
-                previous_year=previous_year, current_year=current_year,
-                previous=previous.loc[previous_index], current=new,
-                record_type="match_candidate", changes=["needs_review"],
-                method="fuzzy_candidate", confidence=score,
-                review_status="needs_review", evidence=evidence,
-            ))
-    return candidates
-
-
 def compare_products(
     previous: pd.DataFrame, current: pd.DataFrame,
     *, previous_year: int, current_year: int, overrides_path: Path | None,
 ) -> tuple[pd.DataFrame, ChangesValidation]:
-    previous_available, current_available = set(previous.index), set(current.index)
-    matches: list[tuple[int, int, str, float, str]] = []
-
-    for old, new, reason in _read_overrides(
+    overrides = tuple(_read_overrides(
         overrides_path, previous_year, current_year, previous, current
-    ):
-        if old not in previous_available or new not in current_available:
-            raise ChangesValidationError("Overrides assign a restaurant more than once")
-        matches.append((old, new, "override", 1.0, reason))
-        previous_available.remove(old)
-        current_available.remove(new)
-
-    exact_methods = (
-        (("normalized_url", "postal_code"), "exact_url_postal"),
-        (("normalized_url",), "exact_url"),
-        (("normalized_name", "postal_code"), "exact_name_postal"),
-        (("normalized_address", "postal_code"), "exact_address_postal"),
-        (("normalized_address",), "exact_address"),
-        (("normalized_name", "latitude", "longitude"), "exact_name_coordinates"),
-    )
-    for columns, method in exact_methods:
-        for old, new in _unique_matches(previous, current, previous_available, current_available, columns):
-            matches.append((old, new, method, 1.0, "+".join(columns)))
-            previous_available.remove(old)
-            current_available.remove(new)
-
-    for old, new in _unique_matches(
-        previous, current, previous_available, current_available, ("normalized_name",)
-    ):
-        distance = _distance_km(previous.loc[old], current.loc[new])
-        if distance <= 5.0:
-            matches.append((old, new, "exact_name_nearby", 1.0, f"unique normalized name;distance_km={distance:.3f}"))
-            previous_available.remove(old)
-            current_available.remove(new)
+    ))
+    try:
+        reconciliation = reconcile_restaurants(
+            previous, current, precomputed_matches=overrides
+        )
+    except ValueError as error:
+        raise ChangesValidationError(str(error)) from error
 
     records: list[dict[str, object]] = []
-    for old, new, method, confidence, evidence in sorted(matches):
+    for match in sorted(reconciliation.matches, key=lambda item: (item.previous_index, item.current_index)):
+        old, new = match.previous_index, match.current_index
         changes = _change_types(previous.loc[old], current.loc[new])
         records.append(_record(
             previous_year=previous_year, current_year=current_year,
             previous=previous.loc[old], current=current.loc[new], record_type="comparison",
-            changes=changes, method=method, confidence=confidence,
-            review_status="reviewed" if method == "override" else "not_required", evidence=evidence,
+            changes=changes, method=match.method, confidence=match.confidence,
+            review_status="reviewed" if match.method == "override" else "not_required",
+            evidence=match.evidence,
         ))
-    for index in sorted(previous_available):
+    for index in reconciliation.previous_unmatched:
         records.append(_record(
             previous_year=previous_year, current_year=current_year,
             previous=previous.loc[index], current=None, record_type="comparison",
             changes=["removed_from_guide"], method="unmatched", confidence=0.0,
             review_status="unmatched", evidence="no deterministic match",
         ))
-    for index in sorted(current_available):
+    for index in reconciliation.current_unmatched:
         records.append(_record(
             previous_year=previous_year, current_year=current_year,
             previous=None, current=current.loc[index], record_type="comparison",
             changes=["new_entry"], method="unmatched", confidence=0.0,
             review_status="unmatched", evidence="no deterministic match",
         ))
-    fuzzy = _fuzzy_candidates(
-        previous, current, previous_available, current_available, previous_year, current_year
-    )
+    fuzzy = [
+        _record(
+            previous_year=previous_year, current_year=current_year,
+            previous=previous.loc[candidate.previous_index],
+            current=current.loc[candidate.current_index],
+            record_type="match_candidate", changes=["needs_review"],
+            method="fuzzy_candidate", confidence=candidate.confidence,
+            review_status="needs_review", evidence=candidate.evidence,
+        )
+        for candidate in reconciliation.fuzzy_candidates
+    ]
     records.extend(fuzzy)
     changes = pd.DataFrame(records, columns=OUTPUT_COLUMNS)
     changes.sort_values(
