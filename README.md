@@ -138,6 +138,57 @@ product year.
 | Stage 3 | Add arrondissements and publish national/Paris arrondissement GeoJSON. | `data/products/france/<year>/all_restaurants.csv`, local references/geography | `all_restaurants(arrondissements).csv`, arrondissement and Paris GeoJSON | `data_pipeline arrondissements --year 2026` | [`docs/stage3-arrondissements.md`](docs/stage3-arrondissements.md) |
 | Guide changes | Compare consecutive accepted France products. | arrondissement-enriched annual France products | `data/reports/france/changes_<previous>_<current>.*` | `data_pipeline changes --previous-year 2025 --current-year 2026` | [`docs/guide-changes.md`](docs/guide-changes.md) |
 
+### Local Annual Orchestration
+
+The local first-iteration annual orchestrator is:
+
+```bash
+scripts/run_annual_pipeline.sh
+```
+
+It is a thin shell wrapper around the existing Python CLI commands. It does not
+move transformation logic into shell, send email, read `.env` files, create
+commits, push branches, run GitHub Actions, or include the wine pipeline.
+
+The script runs this stage order:
+
+1. determine the latest accepted France partition year from
+   `data/partitions/france/france_<year>.csv`;
+2. run `data_pipeline partition --acquire-next`;
+3. determine the latest accepted France partition year again;
+4. stop successfully if Stage 1 did not publish a new France partition;
+5. continue only when Stage 1 published exactly the next Michelin year;
+6. attempt the next INSEE year with `insee_pipeline build --year <year>` and
+   `insee_pipeline product --year <year>`;
+7. fall back explicitly to the latest already accepted INSEE product if that
+   next-year INSEE attempt fails;
+8. run Stage 2 France with
+   `data_pipeline departments --year <guide-year> --insee-year <insee-year>`;
+9. run Stage 2 Monaco with `data_pipeline monaco --year <guide-year>`;
+10. run Stage 3 with `data_pipeline arrondissements --year <guide-year>`;
+11. generate guide changes with consecutive previous/current guide years.
+
+The INSEE product year is derived from accepted files under
+`data/products/insee/<year>/`. The next numeric year is always attempted first.
+Only that INSEE attempt is non-fatal; once an INSEE product year has been
+selected, failures in Stage 2 France, Stage 2 Monaco, Stage 3, or guide changes
+stop the script.
+
+Run locally from the repository root:
+
+```bash
+scripts/run_annual_pipeline.sh
+```
+
+To use another Python executable:
+
+```bash
+PYTHON=python scripts/run_annual_pipeline.sh
+```
+
+Logs are written to `tmp/logs/annual_pipeline_YYYYMMDD_HHMMSS.log` while also
+remaining visible in the console.
+
 ## Implemented CLI Commands
 
 The implemented Michelin command group is:
