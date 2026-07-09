@@ -1,15 +1,15 @@
 {
   "product_type": "wine_regions_aoc_area",
-  "release_date": "2026-07-08",
-  "candidate_id": "close500_simplify150_2026_07_08t195216_659019_0000",
-  "candidate_sha256": "6dc8b594fb80b8479727d270afcec2fbae49320af54d2189be9b7b4b5e199680",
-  "product_sha256": "6dc8b594fb80b8479727d270afcec2fbae49320af54d2189be9b7b4b5e199680",
+  "release_date": "2026-07-09",
+  "candidate_id": "close500_simplify150_20260709t071239z",
+  "candidate_sha256": "99546ffc042ddda1ead9c92921d943b33fa8785d050c61bd31fe43449cf99a81",
+  "product_sha256": "99546ffc042ddda1ead9c92921d943b33fa8785d050c61bd31fe43449cf99a81",
   "checks": [
     {
       "phase": "pre_write",
       "name": "candidate_geojson_exists",
       "passed": true,
-      "observed": "/Users/Ian/Documents/Study/Stage3/Programming/Github/Michelin_Rated_Restaurants/data/candidates/wine/close500_simplify150_2026_07_08t195216_659019_0000/wine_regions.geojson",
+      "observed": "/Users/Ian/Documents/Study/Stage3/Programming/Github/Michelin_Rated_Restaurants/data/candidates/wine/close500_simplify150_20260709t071239z/wine_regions.geojson",
       "expected": "existing file",
       "message": ""
     },
@@ -17,7 +17,7 @@
       "phase": "pre_write",
       "name": "candidate_manifest_exists",
       "passed": true,
-      "observed": "/Users/Ian/Documents/Study/Stage3/Programming/Github/Michelin_Rated_Restaurants/data/candidates/wine/close500_simplify150_2026_07_08t195216_659019_0000/manifest.json",
+      "observed": "/Users/Ian/Documents/Study/Stage3/Programming/Github/Michelin_Rated_Restaurants/data/candidates/wine/close500_simplify150_20260709t071239z/manifest.json",
       "expected": "existing file",
       "message": ""
     },
@@ -25,7 +25,7 @@
       "phase": "pre_write",
       "name": "candidate_provenance_exists",
       "passed": true,
-      "observed": "/Users/Ian/Documents/Study/Stage3/Programming/Github/Michelin_Rated_Restaurants/data/candidates/wine/close500_simplify150_2026_07_08t195216_659019_0000/provenance.json",
+      "observed": "/Users/Ian/Documents/Study/Stage3/Programming/Github/Michelin_Rated_Restaurants/data/candidates/wine/close500_simplify150_20260709t071239z/provenance.json",
       "expected": "existing file",
       "message": ""
     },
@@ -33,7 +33,7 @@
       "phase": "pre_write",
       "name": "candidate_validation_exists",
       "passed": true,
-      "observed": "/Users/Ian/Documents/Study/Stage3/Programming/Github/Michelin_Rated_Restaurants/data/wine/validation/close500_simplify150_2026_07_08t195216_659019_0000.validation.json",
+      "observed": "/Users/Ian/Documents/Study/Stage3/Programming/Github/Michelin_Rated_Restaurants/data/wine/validation/close500_simplify150_20260709t071239z.validation.json",
       "expected": "existing file",
       "message": ""
     },
@@ -49,32 +49,32 @@
       "phase": "pre_write",
       "name": "manifest_candidate_id",
       "passed": true,
-      "observed": "close500_simplify150_2026_07_08t195216_659019_0000",
-      "expected": "close500_simplify150_2026_07_08t195216_659019_0000",
+      "observed": "close500_simplify150_20260709t071239z",
+      "expected": "close500_simplify150_20260709t071239z",
       "message": ""
     },
     {
       "phase": "pre_write",
       "name": "provenance_candidate_id",
       "passed": true,
-      "observed": "close500_simplify150_2026_07_08t195216_659019_0000",
-      "expected": "close500_simplify150_2026_07_08t195216_659019_0000",
+      "observed": "close500_simplify150_20260709t071239z",
+      "expected": "close500_simplify150_20260709t071239z",
       "message": ""
     },
     {
       "phase": "pre_write",
       "name": "validation_candidate_id",
       "passed": true,
-      "observed": "close500_simplify150_2026_07_08t195216_659019_0000",
-      "expected": "close500_simplify150_2026_07_08t195216_659019_0000",
+      "observed": "close500_simplify150_20260709t071239z",
+      "expected": "close500_simplify150_20260709t071239z",
       "message": ""
     },
     {
       "phase": "pre_write",
       "name": "candidate_manifest_hash",
       "passed": true,
-      "observed": "6dc8b594fb80b8479727d270afcec2fbae49320af54d2189be9b7b4b5e199680",
-      "expected": "6dc8b594fb80b8479727d270afcec2fbae49320af54d2189be9b7b4b5e199680",
+      "observed": "99546ffc042ddda1ead9c92921d943b33fa8785d050c61bd31fe43449cf99a81",
+      "expected": "99546ffc042ddda1ead9c92921d943b33fa8785d050c61bd31fe43449cf99a81",
       "message": ""
     },
     {
@@ -185,8 +185,8 @@
       "phase": "post_write",
       "name": "byte_identical_hash",
       "passed": true,
-      "observed": "6dc8b594fb80b8479727d270afcec2fbae49320af54d2189be9b7b4b5e199680",
-      "expected": "6dc8b594fb80b8479727d270afcec2fbae49320af54d2189be9b7b4b5e199680",
+      "observed": "99546ffc042ddda1ead9c92921d943b33fa8785d050c61bd31fe43449cf99a81",
+      "expected": "99546ffc042ddda1ead9c92921d943b33fa8785d050c61bd31fe43449cf99a81",
       "message": ""
     },
     {
@@ -297,8 +297,8 @@
       "phase": "post_write",
       "name": "feature_count_matches",
       "passed": true,
-      "observed": 350,
-      "expected": 350,
+      "observed": 348,
+      "expected": 348,
       "message": ""
     },
     {
@@ -1795,13 +1795,6 @@
         ],
         [
           "Languedoc-Roussillon",
-          "Béa du Roussillon",
-          "Béa du Roussillon",
-          "#6A4E77",
-          "Tubercule"
-        ],
-        [
-          "Languedoc-Roussillon",
           "Cabardès",
           "Cabardès",
           "#6A4E77",
@@ -2394,13 +2387,6 @@
           "Palette",
           "#B983A2",
           "Vin tranquille"
-        ],
-        [
-          "Provence",
-          "Taureau de Camargue",
-          "Taureau de Camargue",
-          "#B983A2",
-          "Bovin"
         ],
         [
           "Rhône",
@@ -4247,13 +4233,6 @@
         ],
         [
           "Languedoc-Roussillon",
-          "Béa du Roussillon",
-          "Béa du Roussillon",
-          "#6A4E77",
-          "Tubercule"
-        ],
-        [
-          "Languedoc-Roussillon",
           "Cabardès",
           "Cabardès",
           "#6A4E77",
@@ -4846,13 +4825,6 @@
           "Palette",
           "#B983A2",
           "Vin tranquille"
-        ],
-        [
-          "Provence",
-          "Taureau de Camargue",
-          "Taureau de Camargue",
-          "#B983A2",
-          "Bovin"
         ],
         [
           "Rhône",

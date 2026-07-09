@@ -1,13 +1,13 @@
 {
   "product_type": "wine_regions_aoc_area",
-  "release_date": "2026-07-08",
+  "release_date": "2026-07-09",
   "product_filename": "wine_regions_aoc_area.geojson",
-  "product_relative_path": "data/products/wine/2026-07-08/wine_regions_aoc_area.geojson",
-  "candidate_id": "close500_simplify150_2026_07_08t195216_659019_0000",
-  "candidate_relative_path": "data/candidates/wine/close500_simplify150_2026_07_08t195216_659019_0000",
-  "candidate_sha256": "6dc8b594fb80b8479727d270afcec2fbae49320af54d2189be9b7b4b5e199680",
-  "product_sha256": "6dc8b594fb80b8479727d270afcec2fbae49320af54d2189be9b7b4b5e199680",
-  "feature_count": 350,
+  "product_relative_path": "data/products/wine/2026-07-09/wine_regions_aoc_area.geojson",
+  "candidate_id": "close500_simplify150_20260709t071239z",
+  "candidate_relative_path": "data/candidates/wine/close500_simplify150_20260709t071239z",
+  "candidate_sha256": "99546ffc042ddda1ead9c92921d943b33fa8785d050c61bd31fe43449cf99a81",
+  "product_sha256": "99546ffc042ddda1ead9c92921d943b33fa8785d050c61bd31fe43449cf99a81",
+  "feature_count": 348,
   "schema": [
     "region",
     "app",
@@ -36,9 +36,9 @@
     "Savoie",
     "Sud-Ouest"
   ],
-  "created_at_utc": "2026-07-08T20:29:01.590500+00:00",
+  "created_at_utc": "2026-07-09T07:16:33.339224+00:00",
   "pipeline_version": "0.1.0",
-  "git_commit": "459eefb932cbb263f3ff085fdeba7c55f7c1d77b",
+  "git_commit": "87bfe6eb117e5f73429a4dfd32aa33f81f89f495",
   "validation_status": "passed",
   "geometry_transformation": false,
   "operation": "validation_and_byte_preserving_promotion"
