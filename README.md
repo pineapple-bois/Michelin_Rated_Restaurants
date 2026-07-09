@@ -225,9 +225,40 @@ Then it runs:
 PYTHON=python scripts/run_annual_pipeline.sh
 ```
 
+If the script leaves no repository changes, the workflow stops after uploading
+logs and does not create a branch, commit, or pull request. If accepted annual
+data was generated, the workflow validates that every changed path is under the
+maintained generated-data roots:
+
+```text
+data/raw/michelin/
+data/partitions/
+data/candidates/insee/
+data/products/insee/
+data/products/france/
+data/reports/
+```
+
+Unexpected paths fail the workflow before any commit or pull request is
+created. `tmp/logs/` is never staged.
+
+For a valid generated-data run, the workflow commits the allowlisted outputs to
+a deterministic branch named:
+
+```text
+automation/annual-pipeline-<year>
+```
+
+and opens or updates one pull request against the default branch. It does not
+push directly to the default branch, auto-approve, or auto-merge. Manual review
+and merge are required. If the automation branch already exists, the workflow
+updates it only after checking the existing branch for bot-authored,
+allowlisted changes; unexpected divergence fails for manual intervention.
+
 Logs from `tmp/logs/` are uploaded as a 30-day artifact even if the job fails.
 When the run creates or updates annual data under the maintained data roots,
-those generated outputs are uploaded as a separate 30-day artifact. 
+those generated outputs are uploaded as a separate 30-day artifact.
+The workflow only creates pull requests; it does not approve them. 
 
 ## Implemented CLI Commands
 

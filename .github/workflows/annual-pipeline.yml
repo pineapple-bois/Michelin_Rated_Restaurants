@@ -6,7 +6,8 @@ on:
     - cron: "17 8 * 4-6 4"
 
 permissions:
-  contents: read
+  contents: write
+  pull-requests: write
 
 concurrency:
   group: annual-michelin-pipeline
@@ -21,6 +22,9 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -32,18 +36,239 @@ jobs:
         run: python -m pip install -e .
 
       - name: Run annual pipeline
+        id: annual_pipeline
         run: PYTHON=python scripts/run_annual_pipeline.sh
 
-      - name: Detect generated annual outputs
-        id: generated_outputs
-        if: always()
+      - name: Inspect annual repository changes
+        id: inspect_changes
+        if: success()
         shell: bash
         run: |
           set -euo pipefail
-          if [[ -n "$(git status --porcelain -- data/raw/michelin data/partitions data/candidates/insee data/products/insee data/products/france data/reports)" ]]; then
-            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          python - <<'PY'
+          from __future__ import annotations
+
+          import os
+          from pathlib import Path
+          import re
+          import subprocess
+          import sys
+
+          allowed_roots = (
+              "data/raw/michelin/",
+              "data/partitions/",
+              "data/candidates/insee/",
+              "data/products/insee/",
+              "data/products/france/",
+              "data/reports/",
+          )
+
+          def write_output(name: str, value: str) -> None:
+              with Path(os.environ["GITHUB_OUTPUT"]).open("a", encoding="utf-8") as handle:
+                  handle.write(f"{name}={value}\n")
+
+          status = subprocess.check_output(
+              ["git", "status", "--porcelain=v1", "-z", "--untracked-files=all"],
+              text=False,
+          )
+          records = [record.decode("utf-8") for record in status.split(b"\0") if record]
+          paths: list[str] = []
+          index = 0
+          while index < len(records):
+              record = records[index]
+              code = record[:2]
+              path = record[3:]
+              paths.append(path)
+              index += 1
+              if "R" in code or "C" in code:
+                  if index >= len(records):
+                      print("Malformed git status output for renamed/copied path.", file=sys.stderr)
+                      sys.exit(1)
+                  paths.append(records[index])
+                  index += 1
+
+          unique_paths = sorted(set(paths))
+          write_output("has_changes", "true" if unique_paths else "false")
+          if not unique_paths:
+              write_output("unexpected_paths", "")
+              write_output("guide_year", "")
+              write_output("branch", "")
+              sys.exit(0)
+
+          unexpected = [
+              path for path in unique_paths
+              if not any(path == root.rstrip("/") or path.startswith(root) for root in allowed_roots)
+          ]
+          if unexpected:
+              print("Unexpected changed paths detected:", file=sys.stderr)
+              for path in unexpected:
+                  print(f"  {path}", file=sys.stderr)
+              write_output("unexpected_paths", "|".join(unexpected))
+              sys.exit(1)
+
+          france_dir = Path("data/partitions/france")
+          years = []
+          for path in france_dir.glob("france_*.csv"):
+              match = re.fullmatch(r"france_(\d{4})\.csv", path.name)
+              if match:
+                  years.append(int(match.group(1)))
+          if not years:
+              print("No accepted France partition year could be derived.", file=sys.stderr)
+              sys.exit(1)
+
+          guide_year = max(years)
+          changed_france_partition = f"data/partitions/france/france_{guide_year}.csv"
+          if changed_france_partition not in unique_paths:
+              print(
+                  f"Latest France partition {changed_france_partition} was not changed; "
+                  "refusing to create a generic annual PR.",
+                  file=sys.stderr,
+              )
+              sys.exit(1)
+
+          write_output("unexpected_paths", "")
+          write_output("guide_year", str(guide_year))
+          write_output("branch", f"automation/annual-pipeline-{guide_year}")
+          PY
+
+      - name: Configure Git identity
+        if: steps.inspect_changes.outputs.has_changes == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Create annual data commit
+        id: annual_commit
+        if: steps.inspect_changes.outputs.has_changes == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          year="${{ steps.inspect_changes.outputs.guide_year }}"
+          git switch -c "annual-pipeline-candidate-${year}"
+          git add -- \
+            data/raw/michelin/ \
+            data/partitions/ \
+            data/candidates/insee/ \
+            data/products/insee/ \
+            data/products/france/ \
+            data/reports/
+          if git diff --cached --quiet; then
+            echo "has_commit=false" >> "$GITHUB_OUTPUT"
+            echo "No staged annual data changes remained after allowlist filtering."
+            exit 0
+          fi
+          git commit -m "Add ${year} Michelin annual data products"
+          echo "has_commit=true" >> "$GITHUB_OUTPUT"
+          echo "candidate_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Push deterministic automation branch
+        id: push_branch
+        if: steps.annual_commit.outputs.has_commit == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          branch="${{ steps.inspect_changes.outputs.branch }}"
+          candidate_sha="${{ steps.annual_commit.outputs.candidate_sha }}"
+          bot_email="41898282+github-actions[bot]@users.noreply.github.com"
+          allowed_roots=(
+            "data/raw/michelin/"
+            "data/partitions/"
+            "data/candidates/insee/"
+            "data/products/insee/"
+            "data/products/france/"
+            "data/reports/"
+          )
+
+          if git ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; then
+            git fetch origin "refs/heads/${branch}:refs/remotes/origin/${branch}"
+            remote_sha="$(git rev-parse "origin/${branch}")"
+            merge_base="$(git merge-base HEAD "origin/${branch}")"
+
+            non_bot_authors="$(
+              git log --format='%ae' "${merge_base}..origin/${branch}" \
+                | grep -vxF "$bot_email" || true
+            )"
+            if [[ -n "$non_bot_authors" ]]; then
+              echo "Existing automation branch contains non-bot commits:" >&2
+              echo "$non_bot_authors" >&2
+              exit 1
+            fi
+
+            while IFS= read -r path; do
+              [[ -z "$path" ]] && continue
+              allowed=false
+              for root in "${allowed_roots[@]}"; do
+                if [[ "$path" == "${root%/}" || "$path" == "$root"* ]]; then
+                  allowed=true
+                  break
+                fi
+              done
+              if [[ "$allowed" != "true" ]]; then
+                echo "Existing automation branch contains a non-allowlisted path: $path" >&2
+                exit 1
+              fi
+            done < <(git diff --name-only "$merge_base" "origin/${branch}")
+
+            git push --force-with-lease="refs/heads/${branch}:${remote_sha}" origin "${candidate_sha}:refs/heads/${branch}"
           else
-            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            git push origin "${candidate_sha}:refs/heads/${branch}"
+          fi
+
+          echo "branch=${branch}" >> "$GITHUB_OUTPUT"
+
+      - name: Create or update pull request
+        id: pull_request
+        if: steps.annual_commit.outputs.has_commit == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          year="${{ steps.inspect_changes.outputs.guide_year }}"
+          previous_year=$((year - 1))
+          branch="${{ steps.inspect_changes.outputs.branch }}"
+          base="${{ github.event.repository.default_branch }}"
+          title="Add ${year} Michelin annual data products"
+          body_file="$(mktemp)"
+          cat > "$body_file" <<EOF
+          ## Annual Michelin pipeline
+          - Michelin guide year: ${year}
+          - Previous guide year: ${previous_year}
+          - INSEE year attempted: see workflow log
+          - INSEE year used: see workflow log
+          - INSEE fallback: see workflow log
+          Completed stages:
+          - Stage 1 acquisition and France acceptance
+          - INSEE attempt with explicit fallback
+          - Stage 2 France
+          - Stage 2 Monaco
+          - Stage 3 arrondissement products
+          - Guide-change report
+          This pull request was generated by the annual pipeline.
+          Manual review and merge are required.
+          EOF
+
+          existing_url="$(
+            gh pr list \
+              --state open \
+              --base "$base" \
+              --head "$branch" \
+              --json url \
+              --jq '.[0].url // ""'
+          )"
+          if [[ -n "$existing_url" ]]; then
+            echo "Pull request already exists: $existing_url"
+            echo "url=$existing_url" >> "$GITHUB_OUTPUT"
+          else
+            pr_url="$(
+              gh pr create \
+                --base "$base" \
+                --head "$branch" \
+                --title "$title" \
+                --body-file "$body_file"
+            )"
+            echo "Created pull request: $pr_url"
+            echo "url=$pr_url" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Upload annual pipeline logs
@@ -56,7 +281,7 @@ jobs:
           retention-days: 30
 
       - name: Upload generated annual outputs
-        if: always() && steps.generated_outputs.outputs.has_changes == 'true'
+        if: always() && steps.inspect_changes.outputs.has_changes == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: annual-pipeline-generated-outputs
@@ -74,7 +299,7 @@ jobs:
         if: always()
         shell: bash
         run: |
-          if [[ "${{ steps.generated_outputs.outputs.has_changes }}" == "true" ]]; then
+          if [[ "${{ steps.inspect_changes.outputs.has_changes }}" == "true" ]]; then
             generated_artifact="annual-pipeline-generated-outputs"
           else
             generated_artifact="not uploaded; no generated output changes detected"
@@ -86,6 +311,39 @@ jobs:
             echo "- Run date: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
             echo "- Logs artifact: annual-pipeline-logs"
             echo "- Generated outputs artifact: $generated_artifact"
+            echo
+            if [[ "${{ steps.annual_pipeline.outcome }}" == "failure" ]]; then
+              echo "### Workflow failed before change inspection"
+              echo
+              echo "The annual pipeline command failed."
+              echo "No commit or pull request was created."
+            elif [[ "${{ steps.inspect_changes.outcome }}" == "failure" ]]; then
+              echo "### Safety failure"
+              echo
+              echo "Unexpected changed paths were detected, or a generated guide year could not be derived."
+              echo "No commit or pull request was created."
+              if [[ -n "${{ steps.inspect_changes.outputs.unexpected_paths }}" ]]; then
+                echo
+                echo "Unexpected paths: ${{ steps.inspect_changes.outputs.unexpected_paths }}"
+              fi
+            elif [[ "${{ steps.inspect_changes.outputs.has_changes }}" != "true" ]]; then
+              echo "### No changes"
+              echo
+              echo "No new annual repository outputs were generated."
+              echo "No branch or pull request was created."
+            elif [[ -n "${{ steps.pull_request.outputs.url }}" ]]; then
+              echo "### PR created or updated"
+              echo
+              echo "Generated annual data changes detected."
+              echo "Automation branch: ${{ steps.inspect_changes.outputs.branch }}"
+              echo "Pull request: ${{ steps.pull_request.outputs.url }}"
+              echo "Manual review and merge required."
+            else
+              echo "### Workflow failed before PR completion"
+              echo
+              echo "Generated annual data changes were detected, but no pull request URL was recorded."
+              echo "Inspect the failed branch or PR step and the annual pipeline log."
+            fi
             echo
             echo "Inspect the annual pipeline log for Stage 1, Michelin year, INSEE attempt, fallback, and downstream-stage details."
           } >> "$GITHUB_STEP_SUMMARY"
