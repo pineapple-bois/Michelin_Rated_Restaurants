@@ -20,11 +20,18 @@ The maintained pipeline produces:
 - France restaurant products enriched with department and region fields;
 - departmental, regional, arrondissement, Paris, and Monaco GeoJSON products;
 - a versioned INSEE/OECD departmental product consumed by Stage 2;
+- reproducible French wine AOC geometry products, generated on demand from
+  current source data;
 - annual France guide-change reports in CSV, JSON, and Markdown.
+
+The wine pipeline can produce a new dated product at any time. In practice,
+wine appellation geography and classifications are comparatively stable, so a
+new release is normally warranted by a material upstream change rather than an
+annual schedule.
 
 Canonical outputs are stored under `data/partitions/`, `data/products/`, and
 `data/reports/`. The implementation is in `src/data_pipeline/` and
-`src/insee_pipeline/`.
+`src/insee_pipeline/`, with wine processing in `src/wine_pipeline/`.
 
 ## Source Data And Provenance
 
@@ -249,10 +256,10 @@ options.
 
 ## Prerequisites And Validation
 
-Install the maintained pipeline and development/test extras:
+Install the maintained pipeline:
 
 ```bash
-python -m pip install -e ".[dev]"
+python -m pip install -e .
 ```
 
 The existing module invocation style remains supported:

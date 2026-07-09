@@ -13,15 +13,14 @@ authors = [
   { name = "Ian; pineapple-bois" },
 ]
 dependencies = [
-  "pandas>=2.2,<3",
   "geopandas>=1.0,<2",
+  "lxml>=5.3,<7",
+  "matplotlib>=3.8,<4",
   "numpy>=2.0,<3",
+  "pandas>=2.2,<3",
+  "pyogrio>=0.10,<1",
   "requests>=2.32,<3",
   "shapely>=2.0,<3",
-]
-
-[project.optional-dependencies]
-dev = [
 ]
 
 [project.scripts]
